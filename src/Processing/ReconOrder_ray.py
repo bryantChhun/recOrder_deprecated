@@ -34,10 +34,8 @@ ReconOrder contains all methods to reconstruct polarization images.
     5) Call reconstruct_img
 '''
 
-class ReconOrder(object):
-
-    # recon_complete = pyqtSignal(object)
-    inst_mat_inv = None
+@ray.remote
+class ReconOrder_ray(object):
 
     def __init__(self):
         super().__init__()
@@ -122,19 +120,6 @@ class ReconOrder(object):
         self.correct_background(self.local_gauss)
         return True
 
-
-    def compute_inst_matrix(self):
-        chi = self.swing
-        inst_mat = np.array([[1, 0, 0, -1],
-                             [1, np.sin(chi), 0, -np.cos(chi)],
-                             [1, 0, np.sin(chi), -np.cos(chi)],
-                             [1, -np.sin(chi), 0, -np.cos(chi)],
-                             [1, 0, -np.sin(chi), -np.cos(chi)]])
-
-        self.inst_mat_inv = np.linalg.pinv(inst_mat)
-        print('instrument matrix calculated, value is : %s', type(self.inst_mat_inv))
-        return None
-
     '''
     #===============================================================================
     #=========  Everything below is taken from Syuan-Ming's reconOrder code ========
@@ -186,6 +171,7 @@ class ReconOrder(object):
 
         return True
 
+    # @ray.remote
     def compute_stokes(self) -> bool:
         if self._frames is None:
             raise InvalidFrameNumberDeclarationError("Number of frames not defined")
@@ -193,6 +179,7 @@ class ReconOrder(object):
             if element is None:
                 raise InsufficientDataError("No image loaded for index = %01d" % idx)
 
+        chi = self.swing
         I_ext = self._states[0] # Sigma0 in Fig.2
         I_90 = self._states[1] # Sigma2 in Fig.2
         I_135 = self._states[2] # Sigma4 in Fig.2
@@ -202,10 +189,10 @@ class ReconOrder(object):
             img_raw = np.stack((I_ext, I_45, I_90, I_135))  # order the channel following stokes calculus convention
             # n_chann is always 4 here
             self.n_chann = np.shape(img_raw)[0]
-            # inst_mat = np.array([[1, 0, 0, -1],
-            #                      [1, 0, np.sin(chi), -np.cos(chi)],
-            #                      [1, -np.sin(chi), 0, -np.cos(chi)],
-            #                      [1, 0, -np.sin(chi), -np.cos(chi)]])
+            inst_mat = np.array([[1, 0, 0, -1],
+                                 [1, 0, np.sin(chi), -np.cos(chi)],
+                                 [1, -np.sin(chi), 0, -np.cos(chi)],
+                                 [1, 0, -np.sin(chi), -np.cos(chi)]])
         elif self._frames == 5:  # if the images were taken using 5-frame scheme
             if self._states[4] is None:
                 raise InsufficientDataError("No image loaded for index = 4")
@@ -214,11 +201,15 @@ class ReconOrder(object):
             img_raw = np.stack((I_ext, I_0, I_45, I_90, I_135))  # order the channel following stokes calculus convention
             # n_chann is always 5 here
             self.n_chann = np.shape(img_raw)[0]
+            inst_mat = np.array([[1, 0, 0, -1],
+                                 [1, np.sin(chi), 0, -np.cos(chi)],
+                                 [1, 0, np.sin(chi), -np.cos(chi)],
+                                 [1, -np.sin(chi), 0, -np.cos(chi)],
+                                 [1, 0, -np.sin(chi), -np.cos(chi)]])
 
+        inst_mat_inv = np.linalg.pinv(inst_mat)
         img_raw_flat = np.reshape(img_raw,(self.n_chann, self.height*self.width))
-
-        img_stokes_flat = np.dot(self.inst_mat_inv, img_raw_flat)
-
+        img_stokes_flat = np.dot(inst_mat_inv, img_raw_flat)
         img_stokes = np.reshape(img_stokes_flat, (img_stokes_flat.shape[0], self.height, self.width))
         [s0, s1, s2, s3] = [img_stokes[i, :, :] for i in range(0, img_stokes.shape[0])]
         A = s1/s3
@@ -235,6 +226,17 @@ class ReconOrder(object):
 
         return True
 
+    # def correct_background(self, img_param_sm: list, img_param_bg: list) -> (np.array, np.array, np.array, np.array, np.array):
+    #
+    #     [I_trans_sm, polarization_sm, A_sm, B_sm, dAB_sm] = img_param_sm
+    #     [I_trans_bg, polarization_bg, A_bg, B_bg, dAB_bg] = img_param_bg
+    #     I_trans_sm = I_trans_sm/I_trans_bg
+    #     polarization_sm = polarization_sm/polarization_bg
+    #     A_sm = A_sm - A_bg
+    #     B_sm = B_sm - B_bg
+    #
+    #     return I_trans_sm, polarization_sm, A_sm, B_sm, dAB_sm
+
     def reconstruct_img(self, flipPol=False):
         # if self.method == 'Jones':
         # [I_trans, polarization, A, B, dAB] = img_param
@@ -243,30 +245,35 @@ class ReconOrder(object):
         B = self.B
         dAB = self.dAB
 
-        start = datetime.now()
         self.retard = np.arctan(np.sqrt(A ** 2 + B ** 2))
-        stop = datetime.now()
-
-
         retardNeg = np.pi + np.arctan(
             np.sqrt(A ** 2 + B ** 2))  # different from Eq. 10 due to the definition of arctan in numpy
-
         DeltaMask = dAB >= 0  # Mask term in Eq. 11
         self.retard[~DeltaMask] = retardNeg[~DeltaMask]  # Eq. 11
         self.retard = self.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
-        print("\t retardance scaling = "+str((stop-start).microseconds))
 
-
-        start = datetime.now()
         if flipPol:
             self.azimuth = (0.5 * np.arctan2(-A, B) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
         else:
             self.azimuth = (0.5 * np.arctan2(A, B) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
-        stop = datetime.now()
 
-        print("\t azimuth scaling = "+str((stop-start).microseconds))
+        # elif self.method == 'Stokes':
+        #     [s0, s1, s2, s3] = img_param
+        #     retard = np.arctan2(s3, np.sqrt(s1 ** 2 + s2 ** 2))
+        #     retard = (retard + np.pi) % np.pi
+        #     if flipPol:
+        #         # azimuth = (0.5 * np.arctan2(-s1, s2) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
+        #         azimuth = 0.5 * ((np.arctan2(-s1, s2) + 2 * np.pi) % (2 * np.pi))
+        #     else:
+        #         azimuth = (0.5 * np.arctan2(s1, s2) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
+        #     polarization = np.sqrt(s1 ** 2 + s2 ** 2 + s3 ** 2)/s0
 
         self.rescale_bitdepth()
+
+        # cv2.imwrite('/Volumes//RAM_disk/I_trans.tif', self.I_trans)
+        # cv2.imwrite('/Volumes//RAM_disk/retard.tif', self.retard)
+        # cv2.imwrite('/Volumes//RAM_disk/scattering.tif', self.scattering)
+        # cv2.imwrite('/Volumes//RAM_disk/azimuth_degree.tif', self.azimuth_degree)
 
         return True
 
@@ -285,7 +292,7 @@ class ReconOrder(object):
         self.azimuth_degree = self.imBitConvert(self.azimuth_degree * 100, bit=16)  # scale to [0, 18000], 100*degree
 
         stop = datetime.now()
-        print("\t rescale bitdepth = "+str((stop-start).microseconds))
+        print("\trescale bitdepth = "+str((stop-start).microseconds))
 
         return True
 

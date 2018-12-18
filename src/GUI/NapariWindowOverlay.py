@@ -78,22 +78,22 @@ class NapariWindowOverlay(QWidget):
     def update_layer_image(self, inst_reconOrder: object):
         self.win.show()
         self.layer1.image = inst_reconOrder.I_trans
-        cv2.imwrite('/Volumes/RAM_disk/trans_img.tif', np.ones(shape=(512,512), dtype=np.uint16))
+        # cv2.imwrite('/Volumes/RAM_disk/trans_img.tif', np.ones(shape=(512,512), dtype=np.uint16))
         self.layer1.clim = np.min(inst_reconOrder.I_trans), np.max(inst_reconOrder.I_trans)
         self.debug.emit(np.max(self.layer1.image))
 
         self.layer2.image = inst_reconOrder.retard
-        cv2.imwrite('/Volumes/RAM_disk/retard_img.tif', inst_reconOrder.retard)
+        # cv2.imwrite('/Volumes/RAM_disk/retard_img.tif', inst_reconOrder.retard)
         self.layer2.clim = np.min(inst_reconOrder.retard), np.max(inst_reconOrder.retard)
         self.debug.emit(np.max(self.layer2.image))
 
         self.layer3.image = inst_reconOrder.scattering
-        cv2.imwrite('/Volumes/RAM_disk/azimuth_img.tif', inst_reconOrder.azimuth)
+        # cv2.imwrite('/Volumes/RAM_disk/azimuth_img.tif', inst_reconOrder.azimuth)
         self.layer3.clim = np.min(inst_reconOrder.azimuth), np.max(inst_reconOrder.azimuth)
         self.debug.emit(np.max(self.layer3.image))
 
         self.layer4.image = inst_reconOrder.azimuth_degree
-        cv2.imwrite('/Volumes/RAM_disk/polarization_img.tif', inst_reconOrder.polarization)
+        # cv2.imwrite('/Volumes/RAM_disk/polarization_img.tif', inst_reconOrder.polarization)
         self.layer4.clim = np.min(inst_reconOrder.polarization), np.max(inst_reconOrder.polarization)
         self.debug.emit(np.max(self.layer4.image))
 

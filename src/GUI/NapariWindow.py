@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 import numpy as np
 
-from src.FileManagement.RetrieveData import RetrieveFile
+from src.FileManagement.RetrieveData import RetrieveData
 
 from napari_gui.elements import Window
 
@@ -26,7 +26,7 @@ class NapariWindow(QWidget):
 
         # Data handling methods
         self.gateway = gate
-        self.getfile = RetrieveFile(self.gateway)
+        self.getfile = RetrieveData(self.gateway)
         self.type = type
         self.channels = ['Cy5', 'DAPI', 'FITC', 'Rhodamine']
         self.channels_reconOrder = ['State0', 'State1', 'State2', 'State3', 'State4']

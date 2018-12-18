@@ -23,6 +23,7 @@ class RetrieveData():
     def __init__(self):
         self.types = {'Py4J', 'MemMap', 'File', 'Test'}
         self.states = {'State0', 'State1', 'State2', 'State3', 'State4'}
+        self.sample_types = {'Sample1', 'Sample2', 'BG', 'None'}
         self.gate = None
 
         # hard code the path to test raw data
@@ -35,15 +36,19 @@ class RetrieveData():
     def get_gateway(self):
         return self.gate
 
-    def _get_file_name(self, channel_name, type='Py4J', sample_type='Sample') -> str:
+    def _get_file_name(self, channel_name, type='Py4J', sample_type='None') -> str:
         """
         Returns filename based on the type of data interface and channel name:
         :param channel_name: channel descriptor:
                                 one of "Cy5, DAPI, FITC, Rhodamine" for type="Py4J"
-                                one of "pol0, pol1, pol2, pol3, pol4 for type="Test"
+                                one of "State0, State1, State2, State3, State4" for type="Test"
         :param type: only support Py4J or Test for now
+        :param sample_type:
         :return: String filename
         """
+
+        if sample_type not in self.sample_types:
+            raise InvalidDataTypeError("Sample Type must be one of: 'Sample1', 'Sample2', 'BG', 'None'")
 
         if type == 'Py4J':
             if not self.gate:
@@ -53,10 +58,15 @@ class RetrieveData():
                 return file
             else:
                 raise ValueError("no file by channel name exists")
-        elif type == 'Test' and sample_type == 'Sample':
+        elif type == 'Test' and sample_type == 'Sample1':
             if channel_name not in self.states:
                 raise InvalidChannelNameError("State must be one of:'State0', 'State1', 'State2', 'State3', 'State4'")
             file = self.testData+"SM_2018_1002_1633_1/Pos0/img_000000000_%s - Acquired Image_000.tif" % channel_name
+            return file
+        elif type == 'Test' and sample_type == 'Sample2':
+            if channel_name not in self.states:
+                raise InvalidChannelNameError("State must be one of:'State0', 'State1', 'State2', 'State3', 'State4'")
+            file = self.testData+"SM_2018_1002_1640_1/Pos0/img_000000000_%s - Acquired Image_000.tif" % channel_name
             return file
         elif type == 'Test' and sample_type == 'BG':
             if channel_name not in self.states:
@@ -73,7 +83,7 @@ class RetrieveData():
 
         :param channel_name: based on type
         :param type: "Test" or "Py4J"
-        :param correction: None= returns sample, else returns BG
+        :param sample_type: Must be "Sample" or
         :return: numpy array
         """
 
