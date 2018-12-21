@@ -46,8 +46,8 @@ class TestImageReconstruction(unittest.TestCase):
         # initialize processors
         self.processor = ReconOrder()
         self.processor_bg = ReconOrder()
-        self.processor.set_frames(5)
-        self.processor_bg.set_frames(5)
+        self.processor.frames = 5
+        self.processor_bg.frames = 5
 
         datapipe.set_processor(self.processor)
         datapipe_bg.set_processor(self.processor_bg)
@@ -63,7 +63,7 @@ class TestImageReconstruction(unittest.TestCase):
         datapipe_bg = PipeToReconOrder(type="Test", sample_type='BG')
         self.processor_bg = ReconOrder()
         self.processor_bg.compute_inst_matrix()
-        self.processor_bg.set_frames(5)
+        self.processor_bg.frames = 5
         datapipe_bg.set_processor(self.processor_bg)
         # datapipe_bg.compute_inst_matrix()
         datapipe_bg.run_reconstruction()

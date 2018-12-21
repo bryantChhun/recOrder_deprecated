@@ -45,7 +45,7 @@ class PipeToReconOrder(QObject):
             return True
         else:
             self._Recon = None
-            return False
+            raise ValueError("processor wrong type")
 
     def get_processor(self):
         return self._Recon
@@ -57,7 +57,7 @@ class PipeToReconOrder(QObject):
         self._Recon.set_state(1, self.retrieve_file.get_array_from_filename('State1', type=self.type, sample_type=self.sample_type))
         self._Recon.set_state(2, self.retrieve_file.get_array_from_filename('State2', type=self.type, sample_type=self.sample_type))
         self._Recon.set_state(3, self.retrieve_file.get_array_from_filename('State3', type=self.type, sample_type=self.sample_type))
-        if self._Recon.get_frames() == 5:
+        if self._Recon.frames == 5:
             self._Recon.set_state(4, self.retrieve_file.get_array_from_filename('State3', type=self.type,
                                                                                 sample_type=self.sample_type))
         return True

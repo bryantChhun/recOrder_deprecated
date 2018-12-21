@@ -22,7 +22,7 @@ if __name__ == '__main__':
     win = NapariWindowOverlay()
 
     #create file loaders
-    loader = PipeToReconOrder(type="Test", sample_type="Sample")
+    loader = PipeToReconOrder(type="Test", sample_type="Sample1")
     loader_bg = PipeToReconOrder(type="Test", sample_type='BG')
 
     #initialize processors
@@ -30,8 +30,8 @@ if __name__ == '__main__':
     processor_bg = ReconOrder()
     processor_localGauss = ReconOrder()
 
-    processor.set_frames(5)
-    processor_bg.set_frames(5)
+    processor.frames = 5
+    processor_bg.frames = 5
     loader.set_processor(processor)
     loader_bg.set_processor(processor_bg)
 
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     loader.make_connection(win)
 
     # BGprocess first
-    loader_bg.run_reconstruction(threaded=True)
+    loader_bg.run_reconstruction(threaded=False)
     loader.run_BGCorrTest_reconstruction(loader_bg.get_processor(), threaded=True)
 
     sys.exit(application.exec_())

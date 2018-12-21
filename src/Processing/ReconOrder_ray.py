@@ -100,7 +100,7 @@ class ReconOrder_ray(object):
         :return: None
         """
 
-        if isinstance(background, ReconOrder):
+        if isinstance(background, ReconOrder_ray):
             self.I_trans = self.I_trans / background.I_trans
             self.polarization = self.polarization / background.polarization
             self.A = self.A - background.A
@@ -110,7 +110,7 @@ class ReconOrder_ray(object):
             raise InvalidBackgroundObject("background parameter must be a ReconOrder object or None (for local Gauss)")
 
     def correct_background_localGauss(self):
-        self.local_gauss = ReconOrder()
+        self.local_gauss = ReconOrder_ray()
 
         self.local_gauss.I_trans = cv2.GaussianBlur(self.I_trans, (401, 401), 0)
         self.local_gauss.polarization = cv2.GaussianBlur(self.polarization, (401, 401), 0)

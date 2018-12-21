@@ -43,8 +43,8 @@ class TestImageReconstruction(unittest.TestCase):
 
     def construct_all(self):
         # create file loaders
-        datapipe = PipeToReconOrder_ray(type="Test", sample_type="Sample")
-        datapipe_bg = PipeToReconOrder_ray(type="Test", sample_type='BG')
+        datapipe = PipeToReconOrder_ray.remote(type="Test", sample_type="Sample")
+        datapipe_bg = PipeToReconOrder_ray.remote(type="Test", sample_type='BG')
         # datapipe = PipeToReconOrder.remote(type="Test", sample_type="Sample")
         # datapipe_bg = PipeToReconOrder.remote(type="Test", sample_type='BG')
 

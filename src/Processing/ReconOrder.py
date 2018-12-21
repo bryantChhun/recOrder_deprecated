@@ -10,11 +10,12 @@
 
 import numpy as np
 import cv2
-import ray
 
 from src.Processing.ReconExceptions import InsufficientDataError, InvalidFrameNumberDeclarationError, InvalidBackgroundObject
 
 from datetime import datetime
+
+import weakref
 
 '''
 ReconOrder contains all methods to reconstruct polarization images.
@@ -70,15 +71,16 @@ class ReconOrder(object):
 
         self.local_gauss = None
 
-    def set_frames(self, num_frames = 4):
+    @property
+    def frames(self) -> int:
+        return self._frames
+
+    @frames.setter
+    def frames(self, num_frames=4):
         if num_frames != 4 and num_frames != 5:
             raise InvalidFrameNumberDeclarationError("support only 4 or 5 frame reconstructions")
         else:
             self._frames = num_frames
-        return True
-
-    def get_frames(self) -> int:
-        return self._frames
 
     def set_state(self, state: int, img: np.array):
         """
@@ -132,7 +134,7 @@ class ReconOrder(object):
                              [1, 0, -np.sin(chi), -np.cos(chi)]])
 
         self.inst_mat_inv = np.linalg.pinv(inst_mat)
-        print('instrument matrix calculated, value is : %s', type(self.inst_mat_inv))
+        # print('instrument matrix calculated, value is : %s', type(self.inst_mat_inv))
         return None
 
     '''
@@ -151,6 +153,7 @@ class ReconOrder(object):
                 raise InsufficientDataError("No image loaded for index = %01d" % idx)
 
         chi = self.swing
+
         I_ext = self._states[0] # Sigma0 in Fig.2
         I_90 = self._states[1] # Sigma2 in Fig.2
         I_135 = self._states[2] # Sigma4 in Fig.2
@@ -197,25 +200,19 @@ class ReconOrder(object):
         I_90 = self._states[1] # Sigma2 in Fig.2
         I_135 = self._states[2] # Sigma4 in Fig.2
         I_45 = self._states[3] # Sigma3 in Fig.2
-        # polarization = np.ones((self.height, self.width))  # polorization is always 1 for Jones calculus
-        if self._frames == 4:  # if the images were taken using 4-frame scheme
+
+        if self._frames == 4:
             img_raw = np.stack((I_ext, I_45, I_90, I_135))  # order the channel following stokes calculus convention
-            # n_chann is always 4 here
-            self.n_chann = np.shape(img_raw)[0]
-            # inst_mat = np.array([[1, 0, 0, -1],
-            #                      [1, 0, np.sin(chi), -np.cos(chi)],
-            #                      [1, -np.sin(chi), 0, -np.cos(chi)],
-            #                      [1, 0, -np.sin(chi), -np.cos(chi)]])
         elif self._frames == 5:  # if the images were taken using 5-frame scheme
             if self._states[4] is None:
                 raise InsufficientDataError("No image loaded for index = 4")
-
             I_0 = self._states[4]
             img_raw = np.stack((I_ext, I_0, I_45, I_90, I_135))  # order the channel following stokes calculus convention
-            # n_chann is always 5 here
-            self.n_chann = np.shape(img_raw)[0]
 
-        img_raw_flat = np.reshape(img_raw,(self.n_chann, self.height*self.width))
+        img_raw_flat = np.reshape(img_raw,(self._frames, self.height*self.width))
+
+        if self.inst_mat_inv is None:
+            self.compute_inst_matrix()
 
         img_stokes_flat = np.dot(self.inst_mat_inv, img_raw_flat)
 
@@ -224,6 +221,7 @@ class ReconOrder(object):
         A = s1/s3
         B = -s2/s3
         I_trans = s0
+
         polarization = np.sqrt(s1 ** 2 + s2 ** 2 + s3 ** 2)/s0
         dAB = s3
 
@@ -247,7 +245,6 @@ class ReconOrder(object):
         self.retard = np.arctan(np.sqrt(A ** 2 + B ** 2))
         stop = datetime.now()
 
-
         retardNeg = np.pi + np.arctan(
             np.sqrt(A ** 2 + B ** 2))  # different from Eq. 10 due to the definition of arctan in numpy
 
@@ -266,30 +263,37 @@ class ReconOrder(object):
 
         print("\t azimuth scaling = "+str((stop-start).microseconds))
 
-        self.rescale_bitdepth()
+        self.scattering = 1 - self.polarization
+        self.azimuth_degree = self.azimuth/np.pi*180
+
+        # self.rescale_bitdepth()
+        self.scale_all()
+
+        print("I_trans shape = "+str(self.I_trans.shape))
+        print("retard shape = "+str(self.retard.shape))
+        print("scattering shape = "+str(self.scattering.shape))
+        print("azimuth_degree shape = "+str(self.azimuth_degree.shape))
+
+        print(str(self.I_trans.dtype)+" "+str(np.max(self.I_trans)))
+        print(str(self.retard.dtype)+" "+str(np.max(self.retard)))
+        print(str(self.scattering.dtype)+" "+str(np.max(self.scattering)))
+        print(str(self.azimuth_degree.dtype)+" "+str(np.max(self.azimuth_degree)))
 
         return True
 
     def rescale_bitdepth(self):
-        start = datetime.now()
+        print('\t rescaling bitdepth')
         self.scattering = 1 - self.polarization
         self.azimuth_degree = self.azimuth/np.pi*180
-        # print(str(self.I_trans.dtype)+" "+str(np.max(self.I_trans)))
-        # print(str(self.retard.dtype)+" "+str(np.max(self.retard)))
-        # print(str(self.scattering.dtype)+" "+str(np.max(self.scattering)))
-        # print(str(self.azimuth_degree.dtype)+" "+str(np.max(self.azimuth_degree)))
 
         self.I_trans = self.imBitConvert(self.I_trans * 10 ** 3, bit=16, norm=True)  # AU, set norm to False for tiling images
         self.retard = self.imBitConvert(self.retard * 10 ** 3, bit=16)  # scale to pm
-        self.scattering = self.imBitConvert(self.scattering * 10 ** 4, bit=16)
-        self.azimuth_degree = self.imBitConvert(self.azimuth_degree * 100, bit=16)  # scale to [0, 18000], 100*degree
-
-        stop = datetime.now()
-        print("\t rescale bitdepth = "+str((stop-start).microseconds))
-
+        self.scattering = self.imBitConvert(self.scattering * 10 ** 2, bit=16)
+        self.azimuth_degree = self.imBitConvert(self.azimuth_degree, bit=16)  # scale to [0, 18000], 100*degree
         return True
 
     def imBitConvert(self, im, bit=16, norm=False, limit=None):
+        print('\t bit conversion')
         im = im.astype(np.float32, copy=False)  # convert to float32 without making a copy to save memory
         if norm:  # local or global normalization (for tiling)
             if not limit:  # if lmit is not provided, perform local normalization, otherwise global (for tiling)
@@ -303,3 +307,23 @@ class ReconOrder(object):
         else:
             im = im.astype(np.uint16, copy=False)  # convert to 16 bit
         return im
+
+    '''
+    #===============================================================================
+    #=========  some extra stuff ===================================================
+    #===============================================================================
+    Key notes:
+        1) I change all functions to set class properties instead of passing image data
+    '''
+
+    def bitconvert(self, im):
+        max = np.max(im)
+        min = np.min(im)
+        im = (2**16) * (im - min) / (max - min)
+        return im.astype(np.float32, copy=False)
+
+    def scale_all(self):
+        self.azimuth_degree = self.bitconvert(self.azimuth_degree)
+        self.scattering = self.bitconvert(self.scattering)
+        self.retard = self.bitconvert(self.retard)
+        self.I_trans = self.bitconvert(self.I_trans)
