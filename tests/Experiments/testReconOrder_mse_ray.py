@@ -26,7 +26,9 @@ class TestImageReconstruction(unittest.TestCase):
 
     ray.init(num_cpus=8, include_webui=False, ignore_reinit_error=True)
 
-    targetData = "./testData/reconData/2018_10_02_MouseBrainSlice/"
+    # targetData = "./testData/reconData/2018_10_02_MouseBrainSlice/"
+    targetData = "./testData/Processed/2018_10_02_MouseBrainSlice/"
+    # condition = "SM_2018_1002_1633_1_BG_2018_1002_1625_1"
     condition = "SM_2018_1002_1633_1_BG_2018_1002_1625_1"
     target_ITrans = targetData + \
                          condition + \

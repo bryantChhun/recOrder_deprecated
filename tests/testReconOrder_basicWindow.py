@@ -26,7 +26,7 @@ if __name__ == '__main__':
     loader_bg = PipeToReconOrder(type="Test", sample_type='BG')
     processor = ReconOrder()
     processor_bg = ReconOrder()
-    processor.set_frames(5)
+    processor.frames = 5
 
     loader.set_processor(processor)
     loader_bg.set_processor(processor_bg)

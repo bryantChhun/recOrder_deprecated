@@ -15,7 +15,12 @@ from src.Processing.ReconExceptions import InsufficientDataError, InvalidFrameNu
 
 from datetime import datetime
 
-import weakref
+import numexpr as ne
+import pyopencl as cl
+from pyopencl.tools import get_test_platforms_and_devices
+
+import os
+
 
 '''
 ReconOrder contains all methods to reconstruct polarization images.
@@ -70,6 +75,8 @@ class ReconOrder(object):
         self.azimuth_degree = None
 
         self.local_gauss = None
+
+        self.openCL_init()
 
     @property
     def frames(self) -> int:
@@ -214,7 +221,9 @@ class ReconOrder(object):
         if self.inst_mat_inv is None:
             self.compute_inst_matrix()
 
-        img_stokes_flat = np.dot(self.inst_mat_inv, img_raw_flat)
+        # img_stokes_flat = np.dot(self.inst_mat_inv, img_raw_flat)
+
+        img_stokes_flat = self.openCL_matmult()
 
         img_stokes = np.reshape(img_stokes_flat, (img_stokes_flat.shape[0], self.height, self.width))
         [s0, s1, s2, s3] = [img_stokes[i, :, :] for i in range(0, img_stokes.shape[0])]
@@ -237,47 +246,53 @@ class ReconOrder(object):
         # if self.method == 'Jones':
         # [I_trans, polarization, A, B, dAB] = img_param
 
-        A = self.A
-        B = self.B
+        A = self.A.astype(np.float32)
+        B = self.B.astype(np.float32)
         dAB = self.dAB
 
         start = datetime.now()
-        self.retard = np.arctan(np.sqrt(A ** 2 + B ** 2))
+        # self.retard = np.arctan(np.sqrt(A ** 2 + B ** 2))
+        retard = ne.evaluate('arctan(sqrt(A*A + B*B))')
         stop = datetime.now()
 
-        retardNeg = np.pi + np.arctan(
-            np.sqrt(A ** 2 + B ** 2))  # different from Eq. 10 due to the definition of arctan in numpy
+        # retardNeg = np.pi + np.arctan(
+        #     np.sqrt(A ** 2 + B ** 2))  # different from Eq. 10 due to the definition of arctan in numpy
+
+        retardNeg = ne.evaluate('3.1415 +arctan(sqrt(A*A + B*B))')
 
         DeltaMask = dAB >= 0  # Mask term in Eq. 11
-        self.retard[~DeltaMask] = retardNeg[~DeltaMask]  # Eq. 11
-        self.retard = self.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
+        retard[~DeltaMask] = retardNeg[~DeltaMask]  # Eq. 11
+        retard = ne.evaluate('retard / (2 * 3.1415) * 532')  # convert the unit to [nm]
         print("\t retardance scaling = "+str((stop-start).microseconds))
 
 
         start = datetime.now()
         if flipPol:
-            self.azimuth = (0.5 * np.arctan2(-A, B) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
+            azimuth = (0.5 * np.arctan2(-A, B) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
         else:
-            self.azimuth = (0.5 * np.arctan2(A, B) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
+            # azimuth = (0.5 * np.arctan2(A, B) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
+            azimuth = ne.evaluate('0.5 * arctan(A/B) + 0.5 * 3.1415')
         stop = datetime.now()
 
         print("\t azimuth scaling = "+str((stop-start).microseconds))
 
         self.scattering = 1 - self.polarization
-        self.azimuth_degree = self.azimuth/np.pi*180
+        self.azimuth_degree = ne.evaluate('azimuth/(3.1415*180)')
+        self.azimuth = azimuth
+        self.retard = retard
 
         # self.rescale_bitdepth()
         self.scale_all()
 
-        # print("I_trans shape = "+str(self.I_trans.shape))
-        # print("retard shape = "+str(self.retard.shape))
-        # print("scattering shape = "+str(self.scattering.shape))
-        # print("azimuth_degree shape = "+str(self.azimuth_degree.shape))
+        print("I_trans shape = "+str(self.I_trans.shape))
+        print("retard shape = "+str(retard.shape))
+        print("scattering shape = "+str(self.scattering.shape))
+        print("azimuth_degree shape = "+str(self.azimuth_degree.shape))
 
-        # print(str(self.I_trans.dtype)+" "+str(np.max(self.I_trans)))
-        # print(str(self.retard.dtype)+" "+str(np.max(self.retard)))
-        # print(str(self.scattering.dtype)+" "+str(np.max(self.scattering)))
-        # print(str(self.azimuth_degree.dtype)+" "+str(np.max(self.azimuth_degree)))
+        print(str(self.I_trans.dtype)+" "+str(np.max(self.I_trans)))
+        print(str(self.retard.dtype)+" "+str(np.max(retard)))
+        print(str(self.scattering.dtype)+" "+str(np.max(self.scattering)))
+        print(str(self.azimuth_degree.dtype)+" "+str(np.max(self.azimuth_degree)))
 
         return True
 
@@ -327,3 +342,51 @@ class ReconOrder(object):
         self.scattering = self.bitconvert(self.scattering)
         self.retard = self.bitconvert(self.retard)
         self.I_trans = self.bitconvert(self.I_trans)
+
+    '''
+    #===============================================================================
+    #=========  OpenCL methods ===================================================
+    #===============================================================================
+    '''
+    def openCL_init(self):
+        os.environ['PYOPENCL_COMPILER_OUTPUT'] = '1'
+        os.environ['PYOPENCL_CTX'] = '1'
+        platform = cl.get_platforms()
+        my_gpu_devices = platform[0].get_devices(device_type=cl.device_type.GPU)
+        self.ctx = cl.Context(devices=my_gpu_devices)
+        self.queue = cl.CommandQueue(self.ctx)
+        self.prg = cl.Program(self.ctx, """
+                    __kernel void multiply(ushort n,
+                    ushort m, ushort p, __global float *a,
+                    __global float *b, __global float *c)
+                    {
+                      int gid = get_global_id(0);
+                      c[gid] = 0.0f;
+                      int rowC = gid/p;
+                      int colC = gid%p;
+                      __global float *pA = &a[rowC*m];
+                      __global float *pB = &b[colC];
+                      for(int k=0; k<m; k++)
+                      {
+                         pB = &b[colC+k*p];
+                         c[gid] += (*(pA++))*(*pB);
+                      }
+                    }
+                    """).build()
+
+
+    def openCL_matmult(self, a, b, c):
+        mf = cl.mem_flags
+        (n, m, p) = (2048, 2048, 2048)
+        a_buf = cl.Buffer \
+            (self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=a)
+        b_buf = cl.Buffer \
+            (self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=b)
+        c_buf = cl.Buffer(self.ctx, mf.WRITE_ONLY, c.nbytes)
+        self.prg.multiply(self.queue, c.shape, None,
+                     np.uint16(n), np.uint16(m), np.uint16(p),
+                     a_buf, b_buf, c_buf)
+
+        a_mul_b = np.empty_like(c)
+        cl.enqueue_copy(self.queue, a_mul_b, c_buf)
+        return a_mul_b.reshape(n,p)

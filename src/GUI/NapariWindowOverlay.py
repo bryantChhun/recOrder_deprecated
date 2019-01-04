@@ -80,6 +80,7 @@ class NapariWindowOverlay(QWidget):
     def update_layer_image(self, inst_reconOrder: object):
         self.win.show()
         self.layer1.image = inst_reconOrder.I_trans
+
         cv2.imwrite('/Volumes/RAM_disk/trans_img.tif', inst_reconOrder.I_trans)
         self.layer1.clim = np.min(inst_reconOrder.I_trans), np.max(inst_reconOrder.I_trans)
         self.debug.emit("I_trans median = "+str(np.median(self.layer1.image)))

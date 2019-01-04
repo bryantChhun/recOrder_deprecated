@@ -12,8 +12,8 @@ import unittest
 
 import cv2
 
-from src.DataPipe.PipeToReconOrder import PipeToReconOrder
-from src.Processing.ReconOrder import ReconOrder
+from src.DataPipe.PipeToReconOrder_optimized import PipeToReconOrder
+from src.Processing.ReconOrder_optimized import ReconOrder
 from tests.testMetrics import mse
 
 
@@ -25,7 +25,6 @@ class TestImageReconstruction(unittest.TestCase):
 
     targetData = "./testData/reconData/2018_10_02_MouseBrainSlice/"
     condition = "SM_2018_1002_1633_1_BG_2018_1002_1625_1"
-
     target_ITrans = targetData + \
                          condition + \
                          "/img_Transmission_t000_p000_z000.tif"

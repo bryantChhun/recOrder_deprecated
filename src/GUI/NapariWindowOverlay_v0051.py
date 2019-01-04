@@ -44,6 +44,12 @@ class NapariWindowOverlay(QWidget):
         self.init_data_3 = (65536 * 3 / 4) * np.ones(shape=(h, w), dtype='uint16')
         self.init_data_4 = (65536 * 4 / 4) * np.ones(shape=(h, w), dtype='uint16')
 
+        self.init_data_1 = data.astronaut()
+        self.init_data_2 = data.astronaut()
+        self.init_data_3 = data.astronaut()
+        self.init_data_4 = data.astronaut()
+
+
         # self.layer1 = self.viewer.imshow(self.init_data_1, self.meta)
         self.layer1 = self.viewer.add_image(self.init_data_1, self.meta)
         self.layer1.cmap = 'grays'
@@ -97,7 +103,7 @@ class NapariWindowOverlay(QWidget):
         # self.layer3.clim = np.min(inst_reconOrder.azimuth), np.max(inst_reconOrder.azimuth)
         self.debug.emit(np.max(self.layer3.image))
 
-        self.layer4.image = inst_reconOrder.azimuth_degree
+        # self.layer4.image = inst_reconOrder.azimuth_degree
         # cv2.imwrite('/Volumes/RAM_disk/polarization_img.tif', inst_reconOrder.polarization)
         # self.layer4.clim = np.min(inst_reconOrder.polarization), np.max(inst_reconOrder.polarization)
         self.debug.emit(np.max(self.layer4.image))
