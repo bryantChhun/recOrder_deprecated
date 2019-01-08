@@ -15,5 +15,6 @@ def mse(y_pred, y_target):
     start = datetime.now()
     mse = mean_squared_error(y_target, y_pred)
     stop = datetime.now()
-    print("MSE calculation = " + str((stop - start).microseconds) +"\n")
+    print("\tmse value = "+str(mse))
+    print("\ttime for MSE calculation = " + str((stop - start).microseconds) +"\n")
     return mse

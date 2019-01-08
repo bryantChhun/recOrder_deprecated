@@ -57,7 +57,13 @@ class ReconOrder(object):
         self.wavelength = 532
         self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (100,100))
 
-        #make results a class property.  This is so PyQT elements can retrieve it without sockets
+        # Stokes vectors
+        self.s0 = None
+        self.s1 = None
+        self.s2 = None
+        self.s3 = None
+
+        # normalized stokes
         self.I_trans = None
         self.polarization = None
         self.A = None
@@ -127,12 +133,19 @@ class ReconOrder(object):
 
     def compute_inst_matrix(self):
         chi = self.swing
-        inst_mat = np.array([[1, 0, 0, -1],
-                             [1, np.sin(chi), 0, -np.cos(chi)],
-                             [1, 0, np.sin(chi), -np.cos(chi)],
-                             [1, -np.sin(chi), 0, -np.cos(chi)],
-                             [1, 0, -np.sin(chi), -np.cos(chi)]])
-
+        if self._frames == 4:
+            inst_mat = np.array([[1, 0, 0, -1],
+                                 [1, 0, np.sin(chi), -np.cos(chi)],
+                                 [1, -np.sin(chi), 0, -np.cos(chi)],
+                                 [1, 0, -np.sin(chi), -np.cos(chi)]])
+        elif self._frames == 5:
+            inst_mat = np.array([[1, 0, 0, -1],
+                                 [1, np.sin(chi), 0, -np.cos(chi)],
+                                 [1, 0, np.sin(chi), -np.cos(chi)],
+                                 [1, -np.sin(chi), 0, -np.cos(chi)],
+                                 [1, 0, -np.sin(chi), -np.cos(chi)]])
+        else:
+            raise InvalidFrameNumberDeclarationError('Frames not set to 4 or 5:  Required for calculation of instrument matrix')
         self.inst_mat_inv = np.linalg.pinv(inst_mat)
         # print('instrument matrix calculated, value is : %s', type(self.inst_mat_inv))
         return None
@@ -190,7 +203,7 @@ class ReconOrder(object):
         return True
 
     def compute_stokes(self) -> bool:
-        if self._frames is None:
+        if self._frames is None or self._frames < 4 or self._frames > 5:
             raise InvalidFrameNumberDeclarationError("Number of frames not defined")
         for idx, element in enumerate(self._states[:-1]):
             if element is None:
@@ -209,27 +222,27 @@ class ReconOrder(object):
             I_0 = self._states[4]
             img_raw = np.stack((I_ext, I_0, I_45, I_90, I_135))  # order the channel following stokes calculus convention
 
-        img_raw_flat = np.reshape(img_raw,(self._frames, self.height*self.width))
-
         if self.inst_mat_inv is None:
             self.compute_inst_matrix()
 
+        img_raw_flat = np.reshape(img_raw,(self._frames, self.height*self.width))
         img_stokes_flat = np.dot(self.inst_mat_inv, img_raw_flat)
 
         img_stokes = np.reshape(img_stokes_flat, (img_stokes_flat.shape[0], self.height, self.width))
-        [s0, s1, s2, s3] = [img_stokes[i, :, :] for i in range(0, img_stokes.shape[0])]
-        A = s1/s3
-        B = -s2/s3
-        I_trans = s0
+        [self.s0, self.s1, self.s2, self.s3] = [img_stokes[i, :, :] for i in range(0, img_stokes.shape[0])]
 
-        polarization = np.sqrt(s1 ** 2 + s2 ** 2 + s3 ** 2)/s0
-        dAB = s3
-
-        self.I_trans = I_trans
-        self.polarization = polarization
-        self.A = A
-        self.B = B
-        self.dAB = dAB
+        self.A = self.s1 / self.s3
+        self.B = -self.s2 / self.s3
+        self.I_trans = self.s0
+        #
+        self.polarization = np.sqrt(self.s1 ** 2 + self.s2 ** 2 + self.s3 ** 2)/self.s0
+        # dAB = s3
+        #
+        # self.I_trans = I_trans
+        # self.polarization = polarization
+        # self.A = A
+        # self.B = B
+        # self.dAB = dAB
 
         return True
 
@@ -237,28 +250,33 @@ class ReconOrder(object):
         # if self.method == 'Jones':
         # [I_trans, polarization, A, B, dAB] = img_param
 
-        A = self.A
-        B = self.B
-        dAB = self.dAB
+        # A = self.A
+        # B = self.B
+        # dAB = self.dAB
 
         start = datetime.now()
-        self.retard = np.arctan(np.sqrt(A ** 2 + B ** 2))
+        # self.retard = np.arctan(np.sqrt(A ** 2 + B ** 2))
+        self.retard = np.arctan2(np.sqrt(self.s1 ** 2 + self.s2 ** 2), self.s3)
         stop = datetime.now()
-
-        retardNeg = np.pi + np.arctan(
-            np.sqrt(A ** 2 + B ** 2))  # different from Eq. 10 due to the definition of arctan in numpy
-
-        DeltaMask = dAB >= 0  # Mask term in Eq. 11
-        self.retard[~DeltaMask] = retardNeg[~DeltaMask]  # Eq. 11
+        #
+        # retardNeg = np.pi + np.arctan(
+        #     np.sqrt(A ** 2 + B ** 2))  # different from Eq. 10 due to the definition of arctan in numpy
+        #
+        # DeltaMask = dAB >= 0  # Mask term in Eq. 11
+        # self.retard[~DeltaMask] = retardNeg[~DeltaMask]  # Eq. 11
         self.retard = self.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
         print("\t retardance scaling = "+str((stop-start).microseconds))
 
 
         start = datetime.now()
-        if flipPol:
-            self.azimuth = (0.5 * np.arctan2(-A, B) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
+        # if flipPol:
+        #     self.azimuth = (0.5 * np.arctan2(-A, B) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
+        # else:
+        #     self.azimuth = (0.5 * np.arctan2(A, B) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
+        if flipPol == 'rcp':
+            self.azimuth = (0.5 * np.arctan2(-self.s1, self.s2) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
         else:
-            self.azimuth = (0.5 * np.arctan2(A, B) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
+            self.azimuth = (0.5 * np.arctan2(self.s1, self.s2) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
         stop = datetime.now()
 
         print("\t azimuth scaling = "+str((stop-start).microseconds))
@@ -266,8 +284,8 @@ class ReconOrder(object):
         self.scattering = 1 - self.polarization
         self.azimuth_degree = self.azimuth/np.pi*180
 
-        # self.rescale_bitdepth()
-        self.scale_all()
+        self.rescale_bitdepth()
+        # self.scale_all()
 
         # print("I_trans shape = "+str(self.I_trans.shape))
         # print("retard shape = "+str(self.retard.shape))
@@ -288,8 +306,8 @@ class ReconOrder(object):
 
         self.I_trans = self.imBitConvert(self.I_trans * 10 ** 3, bit=16, norm=True)  # AU, set norm to False for tiling images
         self.retard = self.imBitConvert(self.retard * 10 ** 3, bit=16)  # scale to pm
-        self.scattering = self.imBitConvert(self.scattering * 10 ** 2, bit=16)
-        self.azimuth_degree = self.imBitConvert(self.azimuth_degree, bit=16)  # scale to [0, 18000], 100*degree
+        self.scattering = self.imBitConvert(self.scattering * 10 ** 4, bit=16)
+        self.azimuth_degree = self.imBitConvert(self.azimuth_degree * 100, bit=16)  # scale to [0, 18000], 100*degree
         return True
 
     def imBitConvert(self, im, bit=16, norm=False, limit=None):

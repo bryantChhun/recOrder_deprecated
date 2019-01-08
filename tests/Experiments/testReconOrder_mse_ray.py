@@ -60,7 +60,7 @@ class TestImageReconstruction(unittest.TestCase):
 
         # BGprocess first
         datapipe_bg.run_reconstruction()
-        datapipe.run_BGCorrTest_reconstruction(datapipe_bg.get_processor())
+        datapipe.run_reconstruction_BG_correction(datapipe_bg.get_processor())
 
     def test_mse_Itrans(self):
         self.construct_all()

@@ -40,6 +40,6 @@ if __name__ == '__main__':
 
     # BGprocess first
     loader_bg.run_reconstruction(threaded=False)
-    loader.run_BGCorrTest_reconstruction(loader_bg.get_processor(), threaded=True)
+    loader.run_reconstruction_BG_correction(loader_bg.get_processor(), threaded=True)
 
     sys.exit(application.exec_())

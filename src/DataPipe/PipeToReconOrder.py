@@ -32,7 +32,7 @@ class PipeToReconOrder(QObject):
 
     recon_complete = pyqtSignal(object)
 
-    def __init__(self,  type = "Test", sample_type = "Sample"):
+    def __init__(self,  type = "Test", sample_type = "Sample1"):
         super().__init__()
         self.type = type
         self.sample_type = sample_type
@@ -137,12 +137,6 @@ class PipeToReconOrder(QObject):
 
     #Todo: remove or think again about how to multi thread processing.  could call static executor
     def run_reconstruction(self, threaded = False):
-        '''
-        This recon is used to rebuild background files.  Sample files will also call reconstruct_image
-
-        :param threaded:
-        :return:
-        '''
         if threaded:
             t1 = threading.Thread(target=self.fetch_and_compute_stokes())
             t1.start()
@@ -151,7 +145,7 @@ class PipeToReconOrder(QObject):
             self.fetch_and_compute_stokes()
             # self.fetch_and_compute_jones()
 
-    def run_BGCorrTest_reconstruction(self, background : object, threaded = False):
+    def run_reconstruction_BG_correction(self, background : object, threaded = False):
         if threaded:
             t1 = threading.Thread(target=self.fetch_and_correct_background_and_recon_image(background))
             t1.start()

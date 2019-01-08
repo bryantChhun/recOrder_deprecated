@@ -58,13 +58,13 @@ class TestImageReconstruction(unittest.TestCase):
 
         # BGprocess first
         datapipe_bg.run_reconstruction()
-        datapipe.run_BGCorrTest_reconstruction(datapipe_bg.get_processor())
+        datapipe.run_reconstruction_BG_correction(datapipe_bg.get_processor())
 
     def construct_BG_only(self):
         datapipe_bg = PipeToReconOrder(type="Test", sample_type='BG')
         self.processor_bg = ReconOrder()
-        self.processor_bg.compute_inst_matrix()
         self.processor_bg.frames = 5
+        self.processor_bg.compute_inst_matrix()
         datapipe_bg.set_processor(self.processor_bg)
         # datapipe_bg.compute_inst_matrix()
         datapipe_bg.run_reconstruction()
@@ -92,17 +92,18 @@ class TestImageReconstruction(unittest.TestCase):
         datapipe2 = PipeToReconOrder(type="Test", sample_type="Sample2")
         processor1 = ReconOrder()
         processor2 = ReconOrder()
-        processor1.compute_inst_matrix()
-
         processor1.frames = 5
         processor2.frames = 5
+
+        processor1.compute_inst_matrix()
+
         datapipe1.set_processor(processor1)
         datapipe2.set_processor(processor2)
         datapipe1.compute_inst_matrix()
         datapipe2.compute_inst_matrix()
 
-        datapipe1.run_BGCorrTest_reconstruction(bg_pipe.get_processor())
-        datapipe2.run_BGCorrTest_reconstruction(bg_pipe.get_processor())
+        datapipe1.run_reconstruction_BG_correction(bg_pipe.get_processor())
+        datapipe2.run_reconstruction_BG_correction(bg_pipe.get_processor())
 
 
 if __name__ == '__main__':

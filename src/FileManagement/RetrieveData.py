@@ -28,7 +28,8 @@ class RetrieveData():
 
         # hard code the path to test raw data
         # this value is should be used only when running tests
-        self.testData = "./testData/rawData/2018_10_02_MouseBrainSlice/"
+        # self.testData = "./testData/rawData/2018_10_02_MouseBrainSlice/"
+        self.testData = "../tests/testData/rawData/2018_10_02_MouseBrainSlice/"
 
     def set_gateway(self, gateway):
         self.gate = gateway
@@ -96,5 +97,6 @@ class RetrieveData():
             return np.memmap(filename, dtype='uint16', offset=0, mode='r', shape=(512, 512, 1))
         elif type == 'Test':
             img = cv2.imread(filename, -1)
-            return img.astype(np.float32, copy=False)
+            return img
+            # return img.astype(np.float32, copy=False)
 
