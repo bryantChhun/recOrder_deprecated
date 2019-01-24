@@ -10,6 +10,9 @@
 
 import numpy as np
 import cv2
+import os
+
+from tests.testMetrics import testDataPath
 
 from src.FileManagement.FileExceptions import InvalidDataTypeError, InvalidChannelNameError, \
     InvalidDatatypeAndChannelError, GatewayNotEstablishedError
@@ -29,7 +32,8 @@ class RetrieveData():
         # hard code the path to test raw data
         # this value is should be used only when running tests
         # self.testData = "./testData/rawData/2018_10_02_MouseBrainSlice/"
-        self.testData = "../tests/testData/rawData/2018_10_02_MouseBrainSlice/"
+        # self.testData = "../tests/testData/rawData/2018_10_02_MouseBrainSlice/"
+        self.testData = testDataPath()
 
     def set_gateway(self, gateway):
         self.gate = gateway
@@ -92,6 +96,9 @@ class RetrieveData():
             raise InvalidDataTypeError("Type must be one of: 'Py4J', 'MemMap', 'File', 'Test'")
 
         filename = self._get_file_name(channel_name, type=type, sample_type=sample_type)
+
+        if not os.path.isfile(filename):
+            raise FileNotFoundError("no file found with path: "+filename)
 
         if type =='Py4J':
             return np.memmap(filename, dtype='uint16', offset=0, mode='r', shape=(512, 512, 1))
