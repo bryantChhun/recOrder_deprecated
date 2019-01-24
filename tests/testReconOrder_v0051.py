@@ -11,19 +11,23 @@
 import sys
 from PyQt5.QtWidgets import QApplication
 
-from src.GUI.NapariWindowOverlay import NapariWindowOverlay
+from src.GUI.NapariWindowOverlay_v0051 import NapariWindowOverlay
 from src.DataPipe.PipeToReconOrder import PipeToReconOrder
+from src.DataPipe.SignalController import SignalController
 from src.Processing.ReconOrder import ReconOrder
 
+from napari_gui import Window, Viewer
 
 if __name__ == '__main__':
     # starting
     application = QApplication(sys.argv)
 
     #create Viewer, Windows
-    overlay = NapariWindowOverlay()
+    viewer = Viewer()
+    win = Window(Viewer(), show=False)
+    overlay_window = NapariWindowOverlay(win)
 
-    #create file loaders
+    #initialize file loaders
     loader = PipeToReconOrder(type="Test", sample_type="Sample1")
     loader_bg = PipeToReconOrder(type="Test", sample_type='BG')
 
@@ -32,14 +36,23 @@ if __name__ == '__main__':
     processor_bg = ReconOrder()
     processor_localGauss = ReconOrder()
 
+    #initialize SignalController
+    signals = SignalController(processor)
+
+    #Connections: Pipeline to/from Processor
     processor.frames = 5
     processor_bg.frames = 5
     loader.set_processor(processor)
     loader_bg.set_processor(processor_bg)
 
-    #Connections to GUI
-    overlay.make_conection(loader)
-    loader.make_connection(overlay)
+    #Connections: Pipeline to/from GUI
+    overlay_window.make_connection(loader)
+    loader.make_connection(overlay_window)
+
+    #Connections: SignalController to/from GUI
+    # for gui-initiated pipeline or processing events
+    overlay_window.make_connection(signals)
+    signals.make_connection(overlay_window)
 
     # BGprocess first
     loader_bg.run_reconstruction(threaded=False)

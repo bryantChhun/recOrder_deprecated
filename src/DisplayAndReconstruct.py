@@ -1,12 +1,18 @@
 #!/usr/bin/env python
-# title           : this_python_file.py
-# description     :This will create a header for a python script.
+# title           : DisplayAndReconstruct.py
+# description     :Simple execution of Reconstruction Package
 # author          :bryant.chhun
 # date            :12/3/18
 # version         :0.0
-# usage           :python this_python_file.py -flags
+# usage           :from terminal: python DisplayAndReconstruct.py
 # notes           :
 # python_version  :3.6
+
+"""
+This code describes simple execution of Reconstruction and Visualization code.
+    Data is received from Micromanager using mm2Python, is processed in this python package,
+    and then is displayed in a viewer.
+"""
 
 import sys
 from PyQt5.QtWidgets import QApplication

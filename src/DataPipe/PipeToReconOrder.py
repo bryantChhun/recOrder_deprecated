@@ -53,12 +53,12 @@ class PipeToReconOrder(QObject):
     @timer
     def fetch_images(self):
         print('fetching images')
-        self._Recon.set_state(0, self.retrieve_file.get_array_from_filename('State0', type=self.type, sample_type=self.sample_type))
-        self._Recon.set_state(1, self.retrieve_file.get_array_from_filename('State1', type=self.type, sample_type=self.sample_type))
-        self._Recon.set_state(2, self.retrieve_file.get_array_from_filename('State2', type=self.type, sample_type=self.sample_type))
-        self._Recon.set_state(3, self.retrieve_file.get_array_from_filename('State3', type=self.type, sample_type=self.sample_type))
+        self._Recon.state = (0, self.retrieve_file.get_array_from_filename('State0', type=self.type, sample_type=self.sample_type))
+        self._Recon.state = (1, self.retrieve_file.get_array_from_filename('State1', type=self.type, sample_type=self.sample_type))
+        self._Recon.state = (2, self.retrieve_file.get_array_from_filename('State2', type=self.type, sample_type=self.sample_type))
+        self._Recon.state = (3, self.retrieve_file.get_array_from_filename('State3', type=self.type, sample_type=self.sample_type))
         if self._Recon.frames == 5:
-            self._Recon.set_state(4, self.retrieve_file.get_array_from_filename('State3', type=self.type,
+            self._Recon.state = (4, self.retrieve_file.get_array_from_filename('State3', type=self.type,
                                                                                 sample_type=self.sample_type))
         return True
 
@@ -67,12 +67,6 @@ class PipeToReconOrder(QObject):
     def compute_stokes(self):
         print("compute stokes")
         self._Recon.compute_stokes()
-        return True
-
-    @timer
-    def compute_jones(self):
-        print("compute jones")
-        self._Recon.compute_jones()
         return True
 
     @timer
@@ -104,10 +98,6 @@ class PipeToReconOrder(QObject):
         self.fetch_images()
         self.compute_stokes()
 
-    def fetch_and_compute_jones(self):
-        self.fetch_images()
-        self.compute_jones()
-
     def fetch_and_correct_background_and_recon_image(self, background: object):
         '''
         Performs both standard background correction from BG images AND
@@ -117,24 +107,21 @@ class PipeToReconOrder(QObject):
         '''
         self.fetch_images()
         self.compute_stokes()
-        # self.compute_jones()
         self.correct_background(background)
-        #self.correct_background_localGauss()
         self.reconstruct_image()
 
     # to receive callbacks from GUI
-    @pyqtSlot(object)
-    def report_from_window(self, max_value: object):
-        print(str(max_value))
+    @pyqtSlot(str)
+    def report_from_window(self, message: str):
+        print(message)
 
     def make_connection(self, window):
-        window.debug.connect(self.report_from_window)
+        window.update_complete.connect(self.report_from_window)
 
     '''
     Threads for running reconstruction.  Needed to prevent blocking UI.
         Pyqt slots/signals will notify UI that data is ready.
     '''
-
     #Todo: remove or think again about how to multi thread processing.  could call static executor
     def run_reconstruction(self, threaded = False):
         if threaded:
@@ -143,7 +130,6 @@ class PipeToReconOrder(QObject):
         else:
             print("\t bg calculation")
             self.fetch_and_compute_stokes()
-            # self.fetch_and_compute_jones()
 
     def run_reconstruction_BG_correction(self, background : object, threaded = False):
         if threaded:
