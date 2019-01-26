@@ -18,10 +18,14 @@ from src.DataPipe.PipeToReconOrder import PipeToReconOrder
 from src.DataPipe.SignalController import SignalController
 from src.Processing.ReconOrder import ReconOrder
 
+from typing import Union
+
 
 class NapariWindowOverlay(QWidget):
 
-    avg_change = pyqtSignal(object)
+    average_change = pyqtSignal(object)
+    length_change = pyqtSignal(object)
+
     update_complete = pyqtSignal(str)
 
     def __init__(self, window, type='Py4J'):
@@ -52,8 +56,8 @@ class NapariWindowOverlay(QWidget):
         self.pos[:, 1] = yv.flatten()
 
         self.layer1 = self.viewer.add_vectors(self.pos)
-        # self.layer1.cmap = 'grays'
-        self.layer1.bind_to(self.compute_average)
+        self.layer1.averaging_bind_to(self.compute_vector)
+        self.layer1.length_bind_to(self.compute_length)
 
         self.layer2 = self.viewer.add_image(self.init_data_1, {})
         # self.layer2.cmap = 'grays'
@@ -68,8 +72,12 @@ class NapariWindowOverlay(QWidget):
 
         self.layers = [self.layer1, self.layer2, self.layer3, self.layer4]
 
-    def compute_average(self, averaging: str):
-        self.avg_change.emit(averaging)
+    def compute_vector(self, update: str):
+        self.average_change.emit(update)
+
+    def compute_length(self, update: [int, float]):
+        print('length change detected from reconorder, emitting update')
+        self.length_change.emit(update)
 
     def set_gateway(self, gateway):
         self.gate = gateway
@@ -92,9 +100,8 @@ class NapariWindowOverlay(QWidget):
 
             self.update_complete.emit("Received and updated images")
 
-        # elif type(instance) == numpy.ndarray:
         else:
-            print("gui received object of type + "+str(type(instance)))
+            print("gui received vector or averaging update")
             self.layer1.vectors = instance
 
 
@@ -104,6 +111,6 @@ class NapariWindowOverlay(QWidget):
             reconstruction.recon_complete.connect(self.update_layer_image)
         elif isinstance(reconstruction, SignalController):
             print("connecting signal controller to gui")
-            reconstruction.average_computed.connect(self.update_layer_image)
+            reconstruction.vector_computed.connect(self.update_layer_image)
         else:
             print("no matching implementation found for: "+str(type(reconstruction)))
