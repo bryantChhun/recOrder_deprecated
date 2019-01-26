@@ -8,11 +8,6 @@
 # notes           :
 # python_version  :3.6
 
-from os import path
-import sys
-sys.path.append(path.abspath('/Users/bryant.chhun/PycharmProjects/napari-gui'))
-# from napari-gui import napari_gui
-
 import unittest
 
 import cv2
