@@ -16,10 +16,9 @@ from src.Processing.AzimuthToVector import convert_to_vector, compute_average
 
 from datetime import datetime
 
-import weakref
 
 '''
-ReconOrder contains all methods to reconstruct polarization images.
+ReconOrder contains all methods to reconstruct polarization images (transmittance, retardance, orientation, scattering)
     The number of frames (4 or 5 frame acquisition), and each image for each frame
     must be explicitly set or errors will be thrown during reconstruction.
     
@@ -253,7 +252,7 @@ class ReconOrder(object):
         self.B = -self.s2 / self.s3
 
 
-    def reconstruct_img(self, flipPol=False, avg_kernel="1x1"):
+    def reconstruct_img(self, flipPol=False, avg_kernel=(1,1)):
 
         self.retard = np.arctan2(np.sqrt(self.s1 ** 2 + self.s2 ** 2), self.s3)
         self.retard = self.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
@@ -268,7 +267,7 @@ class ReconOrder(object):
         self.scattering = 1 - self.polarization
         self.azimuth_degree = self.azimuth/np.pi*180
         # self.azimuth_vector = convert_to_vector(self.azimuth - (0.5*np.pi))
-        self.azimuth_vector = compute_average(self.s1, self.s2, kernel=avg_kernel, flipPol=flipPol)
+        _, _, self.azimuth_vector = compute_average(self.s1, self.s2, self.s3, kernel=avg_kernel, length=5, flipPol=flipPol)
 
         self.rescale_bitdepth()
 
