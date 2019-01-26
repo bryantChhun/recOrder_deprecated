@@ -9,10 +9,16 @@
 # python_version  :3.6
 
 import numpy as np
+from typing import Union
 
 import cv2
 
-def convert_to_vector(azimuth: np.array, retardance: np.array, stride_x: int = 1, stride_y: int = 1) -> np.array:
+
+def convert_to_vector(azimuth: np.array,
+                      retardance: np.array,
+                      stride_x: int = 1,
+                      stride_y: int = 1,
+                      length: Union[int, float] = 10) -> np.array:
     """
     This function converts an "azimuth" (radian) array into a vector array
     Method:
@@ -22,10 +28,12 @@ def convert_to_vector(azimuth: np.array, retardance: np.array, stride_x: int = 1
 
     *** timed at roughly 5ms compute, after 50ms initialization ***
 
-    :param azimuth: np array of angles in radians
+    :param azimuth: ndarray of angles in radians
+    :param retardance: ndarray of fractions of a wavelength
     :param stride_x: if converting an averaging result, expand the image by a factor
     :param stride_y: if converting an averaging result, expand the image by a factor
-    :return:
+    :param length:
+    :return: vector ndarray of shape (N, 2)
     """
 
     xdim = azimuth.shape[0]
@@ -45,27 +53,28 @@ def convert_to_vector(azimuth: np.array, retardance: np.array, stride_x: int = 1
     pos[:, 0] = xv.flatten()
     pos[:, 1] = yv.flatten()
 
-    if stride_x > 1:
-        pos[0::2,0] -= stride_x
-        pos[1::2,0] += stride_x
+    #pixel midpoints are the first x-value of positions
+    midpt = np.zeros((xdim*ydim, 2), dtype=np.float32)
+    midpt[:, 0] = pos[0::2, 0]
+    midpt[:, 1] = pos[0::2, 1]
 
     #adjust second coordinate to represent azimuth angle
     azimuth_flat = azimuth.flatten()
-    xdiff = pos[1::2,0] - pos[0::2,0]
-    pos[1::2, 0] += retardance[::] * np.cos(azimuth_flat[::]) - xdiff[::]
-    pos[1::2, 1] += retardance[::] * np.sin(azimuth_flat[::])
-
-    #subtract and add kernel offsets to "stretch" the line
-    # if avg_offset_x > 1:
-    #     pos[0::2,0] -= avg_offset_x
-    #     pos[1::2,0] += avg_offset_x
-    # if avg_offset_y > 1:
-    #     pos[0::2,1] -= avg_offset_y
-    #     pos[1::2,1] += avg_offset_y
+    retard_flat = retardance.flatten()
+    pos[0::2, 0] = midpt[:, 0] - (stride_x/2)*length*retard_flat[::]*np.cos(azimuth_flat[::])
+    pos[0::2, 1] = midpt[:, 1] - (stride_y/2)*length*retard_flat[::]*np.sin(azimuth_flat[::])
+    pos[1::2, 0] = midpt[:, 0] + (stride_x/2)*length*retard_flat[::]*np.cos(azimuth_flat[::])
+    pos[1::2, 1] = midpt[:, 1] + (stride_y/2)*length*retard_flat[::]*np.sin(azimuth_flat[::])
 
     return pos
 
-def compute_average(s1, s2, s3, kernel: str = '1x1', flipPol=False) -> np.array:
+
+def compute_average(s1,
+                    s2,
+                    s3,
+                    kernel: tuple = (1,1),
+                    length: Union[int, float] = 10,
+                    flipPol=False) -> np.array:
     """
     This function computes the average azimuth_vector from the constituent stokes vectors
 
@@ -74,16 +83,12 @@ def compute_average(s1, s2, s3, kernel: str = '1x1', flipPol=False) -> np.array:
     :param s1: stokes image of type np.ndarray
     :param s2: stokes image of type np.ndarray
     :param kernel: dims over which averaging occurs.
+    :param length:
+    :param flipPol:
     :return:
     """
-    kernel_dict = {'1x1': (1, 1),
-                   '3x3': (3, 3),
-                   '5x5': (5, 5),
-                   '7x7': (7, 7),
-                   '9x9': (9, 9),
-                   '11x11': (11, 11)}
-    x = kernel_dict[kernel][0]
-    y = kernel_dict[kernel][1]
+    x = kernel[0]
+    y = kernel[1]
     x_offset = int((x-1)/2)
     y_offset = int((y-1)/2)
 
@@ -92,10 +97,11 @@ def compute_average(s1, s2, s3, kernel: str = '1x1', flipPol=False) -> np.array:
     s3_avg = cv2.blur(s3, (x,y))[x_offset:-x_offset-1:x, y_offset:-y_offset-1:y]
 
     if flipPol == 'rcp':
-        azimuth = (0.5 * np.arctan2(-s1_avg, s2_avg) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
+        azimuth_avg = (0.5 * np.arctan2(-s1_avg, s2_avg) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
     else:
-        azimuth = (0.5 * np.arctan2(s1_avg, s2_avg) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
-    retard_avg = np.arctan2(np.sqrt(s1 ** 2 + s2 ** 2), s3) (2 * np.pi)
+        azimuth_avg = (0.5 * np.arctan2(s1_avg, s2_avg) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
+    retard_avg = np.arctan2(np.sqrt(s1_avg ** 2 + s2_avg ** 2), s3_avg) / (2 * np.pi)
 
-    return convert_to_vector(azimuth - (0.5 * np.pi),retardance=retard_avg, stride_x=x, stride_y=y)
+    vectors = convert_to_vector(azimuth_avg - (0.5 * np.pi), retardance=retard_avg, stride_x=x, stride_y=y, length=length)
 
+    return azimuth_avg, retard_avg, vectors
