@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import QApplication
 
 from src.GUI.NapariWindowOverlay_v0051 import NapariWindowOverlay
 from src.DataPipe.PipeToReconOrder import PipeToReconOrder
-from src.DataPipe.SignalController import SignalController
+from src.SignalController.SignalController import SignalController
 from src.Processing.ReconOrder import ReconOrder
 
 from napari_gui import Window, Viewer

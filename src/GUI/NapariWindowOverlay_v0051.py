@@ -15,10 +15,8 @@ import numpy as np
 
 from src.FileManagement.RetrieveData import RetrieveData
 from src.DataPipe.PipeToReconOrder import PipeToReconOrder
-from src.DataPipe.SignalController import SignalController
+from src.SignalController.SignalController import SignalController
 from src.Processing.ReconOrder import ReconOrder
-
-from typing import Union
 
 
 class NapariWindowOverlay(QWidget):
@@ -103,7 +101,6 @@ class NapariWindowOverlay(QWidget):
         else:
             print("gui received vector or averaging update")
             self.layer1.vectors = instance
-
 
     def make_connection(self, reconstruction: object):
         if isinstance(reconstruction, PipeToReconOrder):

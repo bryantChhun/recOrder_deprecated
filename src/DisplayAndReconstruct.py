@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import QApplication
 from py4j.java_gateway import JavaGateway
 
 from src.GUI import NapariWindow
-from src.DataPipe import BasicMonitorDatastores
+from src.FileManagement import BasicMonitorDatastores
 
 if __name__ == '__main__':
     # starting

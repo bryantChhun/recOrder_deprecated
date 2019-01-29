@@ -17,14 +17,14 @@ import cv2
 
 from src.FileManagement.RetrieveData import RetrieveData
 
-from napari_gui.elements import Window
+from napari_gui import Window, Viewer
 
 
 class NapariWindowOverlay(QWidget):
 
     debug = pyqtSignal(object)
 
-    def __init__(self, type='Py4J'):
+    def __init__(self, window,  type='Py4J'):
         super().__init__()
 
         # Data handling methods
@@ -35,8 +35,10 @@ class NapariWindowOverlay(QWidget):
         self.channels_reconOrder = ['State0', 'State1', 'State2', 'State3', 'State4']
 
         # UI initialization methods
-        self.win = Window()
-        self.viewer = self.win.add_viewer()
+        self.win = window
+        self.viewer = self.win.viewer
+        # self.win = Window()
+        # self.viewer = self.win.add_viewer()
 
         self.meta = dict(name='3D1C', itype='mono')
         h, w = 2048, 2048

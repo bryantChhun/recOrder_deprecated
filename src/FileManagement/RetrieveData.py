@@ -15,7 +15,7 @@ import os
 from tests.testMetrics import testDataPath
 
 from src.FileManagement.FileExceptions import InvalidDataTypeError, InvalidChannelNameError, \
-    InvalidDatatypeAndChannelError, GatewayNotEstablishedError
+    InvalidDataTypeAndChannelError, GatewayNotEstablishedError
 
 """
 Class to retrieve data and return as np.array
@@ -79,7 +79,7 @@ class RetrieveData():
             file = self.testData+"BG_2018_1002_1625_1/Pos0/img_000000000_%s - Acquired Image_000.tif" % channel_name
             return file
         else:
-            raise InvalidDatatypeAndChannelError("Implementation for data type %s and sample type %s not supported"
+            raise InvalidDataTypeAndChannelError("Implementation for data type %s and sample type %s not supported"
                                                  % (type, sample_type))
 
     def get_array_from_filename(self, channel_name, type="Py4J", sample_type='None') -> np.array:

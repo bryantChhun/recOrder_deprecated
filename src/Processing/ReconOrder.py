@@ -52,7 +52,7 @@ class ReconOrder(object):
 
         # self.method = method
         #swing is hard coded based on metadata info.
-        swing = 0.1
+        swing = 0.3
         self.swing = swing*2*np.pi # covert swing from fraction of wavelength to radian
         self.wavelength = 532
         self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (100,100))
@@ -145,7 +145,6 @@ class ReconOrder(object):
     #     self.local_gauss.dAB = cv2.GaussianBlur(self.dAB, (401, 401), 0)
     #     self.correct_background(self.local_gauss)
     #     return True
-
 
     def compute_inst_matrix(self):
         chi = self.swing

@@ -22,11 +22,13 @@ class InvalidChannelNameError(Exception):
         Exception.__init__(self, message)
         self.message = message
 
-class InvalidDatatypeAndChannelError(Exception):
+
+class InvalidDataTypeAndChannelError(Exception):
 
     def __init__(self, message):
         Exception.__init__(self, message)
         self.message = message
+
 
 class GatewayNotEstablishedError(Exception):
 
