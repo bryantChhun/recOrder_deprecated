@@ -14,6 +14,7 @@ from src.Processing.ReconOrder import ReconOrder
 from src.Processing.AzimuthToVector import compute_average, convert_to_vector
 
 from typing import Union
+import numpy as np
 
 
 class SignalController(QObject):
@@ -72,7 +73,7 @@ class SignalController(QObject):
         return vector_avg
 
     def recompute_length(self, length: Union[int, float]):
-        newlength_vector = convert_to_vector(azimuth=self._recon.azimuth,
+        newlength_vector = convert_to_vector(azimuth=self._recon.azimuth - (0.5 * np.pi),
                                              retardance=self._recon.retard,
                                              stride_x=self.current_avg_kernel[0],
                                              stride_y=self.current_avg_kernel[1],

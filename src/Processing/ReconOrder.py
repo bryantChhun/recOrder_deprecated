@@ -11,11 +11,7 @@
 import numpy as np
 import cv2
 
-from src.Processing.ReconExceptions import InsufficientDataError, InvalidFrameNumberDeclarationError, InvalidBackgroundObject
-from src.Processing.AzimuthToVector import convert_to_vector, compute_average
-
-from datetime import datetime
-
+from src.Processing.AzimuthToVector import compute_average
 
 '''
 ReconOrder contains all methods to reconstruct polarization images (transmittance, retardance, orientation, scattering)
@@ -52,7 +48,7 @@ class ReconOrder(object):
 
         # self.method = method
         #swing is hard coded based on metadata info.
-        swing = 0.3
+        swing = 0.1
         self.swing = swing*2*np.pi # covert swing from fraction of wavelength to radian
         self.wavelength = 532
         self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (100,100))
@@ -93,8 +89,8 @@ class ReconOrder(object):
             self._frames = num_frames
 
     @property
-    def state(self, polstate: int) -> np.array:
-        return self._states[polstate]
+    def state(self) -> np.array:
+        return self._states
 
     @state.setter
     def state(self, statemap: tuple):
@@ -215,10 +211,14 @@ class ReconOrder(object):
         # I_90 = img_raw[1, :, :]  # Sigma2 in Fig.2
         # I_135 = img_raw[2, :, :]  # Sigma4 in Fig.2
         # I_45 = img_raw[3, :, :]  # Sigma3 in Fig.2
-        I_ext = self._states[0]  # Sigma0 in Fig.2
-        I_90 = self._states[1]  # Sigma2 in Fig.2
-        I_135 = self._states[2]  # Sigma4 in Fig.2
-        I_45 = self._states[3]  # Sigma3 in Fig.2
+        # I_ext = self._states[0]  # Sigma0 in Fig.2
+        # I_90 = self._states[1]  # Sigma2 in Fig.2
+        # I_135 = self._states[2]  # Sigma4 in Fig.2
+        # I_45 = self._states[3]  # Sigma3 in Fig.2
+        I_ext = self.state[0]  # Sigma0 in Fig.2
+        I_90 = self.state[1]  # Sigma2 in Fig.2
+        I_135 = self.state[2]  # Sigma4 in Fig.2
+        I_45 = self.state[3]  # Sigma3 in Fig.2
         # images = [I_ext, I_90, I_135, I_45]
         # titles = ['I_ext', 'I_90', 'I_135', 'I_45']
         # plot_sub_images(images, titles, self.output_path, 'raw')
@@ -231,7 +231,7 @@ class ReconOrder(object):
                                  [1, -np.sin(chi), 0, -np.cos(chi)],
                                  [1, 0, -np.sin(chi), -np.cos(chi)]])
         elif self._frames == 5:  # if the images were taken using 5-frame scheme
-            I_0 = self._states[4]
+            I_0 = self.state[4]
             img_raw = np.stack((I_ext, I_0, I_45, I_90, I_135))  # order the channel following stokes calculus convention
             self.n_chann = np.shape(img_raw)[0]
             inst_mat = np.array([[1, 0, 0, -1],
@@ -341,3 +341,22 @@ class ReconOrder(object):
         self.scattering = self.bitconvert(self.scattering)
         self.retard = self.bitconvert(self.retard)
         self.I_trans = self.bitconvert(self.I_trans)
+
+
+class InsufficientDataError(Exception):
+
+    def __init__(self, message):
+        Exception.__init__(self, message)
+        self.message = message
+
+class InvalidFrameNumberDeclarationError(Exception):
+
+    def __init__(self, message):
+        Exception.__init__(self, message)
+        self.message = message
+
+class InvalidBackgroundObject(Exception):
+
+    def __init__(self, message):
+        Exception.__init__(self, message)
+        self.message = message

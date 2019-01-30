@@ -11,7 +11,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication
 
-from src.GUI.NapariWindowOverlay_v0051 import NapariWindowOverlay
+from src.GUI.NapariWindowOverlay import NapariWindowOverlay
 from src.DataPipe.PipeToReconOrder import PipeToReconOrder
 from src.Processing.ReconOrder import ReconOrder
 

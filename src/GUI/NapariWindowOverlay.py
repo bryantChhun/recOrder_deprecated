@@ -13,18 +13,20 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 import numpy as np
 
-import cv2
-
 from src.FileManagement.RetrieveData import RetrieveData
-
-from napari_gui import Window, Viewer
+from src.DataPipe.PipeToReconOrder import PipeToReconOrder
+from src.SignalController.SignalController import SignalController
+from src.Processing.ReconOrder import ReconOrder
 
 
 class NapariWindowOverlay(QWidget):
 
-    debug = pyqtSignal(object)
+    average_change = pyqtSignal(object)
+    length_change = pyqtSignal(object)
 
-    def __init__(self, window,  type='Py4J'):
+    update_complete = pyqtSignal(str)
+
+    def __init__(self, window, type='Py4J'):
         super().__init__()
 
         # Data handling methods
@@ -37,39 +39,43 @@ class NapariWindowOverlay(QWidget):
         # UI initialization methods
         self.win = window
         self.viewer = self.win.viewer
-        # self.win = Window()
-        # self.viewer = self.win.add_viewer()
 
-        self.meta = dict(name='3D1C', itype='mono')
-        h, w = 2048, 2048
-        self.init_data_1 = (65536 * 1 / 4) * np.zeros(shape=(h, w), dtype='uint16')
-        self.init_data_2 = (65536 * 2 / 4) * np.zeros(shape=(h, w), dtype='uint16')
-        self.init_data_3 = (65536 * 3 / 4) * np.zeros(shape=(h, w), dtype='uint16')
-        self.init_data_4 = (65536 * 4 / 4) * np.zeros(shape=(h, w), dtype='uint16')
+        # self.meta = dict(name='2D1C', itype='mono')
 
-        self.layer1 = self.viewer.add_image(self.init_data_1, self.meta)
-        self.layer1.cmap = 'grays'
-        self.layer1.interpolation = 'spline36'
-        self.layer1.clim = np.min(self.init_data_1), np.max(self.init_data_1)
+        #init image data
+        self.init_data_1 = 2**16 * np.random.rand(512,512)
+        #init vector data
+        N = 512
+        N2 = N * N
+        self.pos = np.zeros((N2, 2), dtype=np.float32)
+        dim = np.linspace(0, 4*N - 1, N)
+        xv, yv = np.meshgrid(dim, dim)
+        self.pos[:, 0] = xv.flatten()
+        self.pos[:, 1] = yv.flatten()
 
-        self.layer2 = self.viewer.add_image(self.init_data_2, self.meta)
-        self.layer2.cmap = 'grays'
-        self.layer2.interpolation = 'spline36'
-        self.layer2.clim = np.min(self.init_data_2), np.max(self.init_data_2)
+        self.layer1 = self.viewer.add_vectors(self.pos)
+        self.layer1.averaging_bind_to(self.compute_vector)
+        self.layer1.length_bind_to(self.compute_length)
 
-        self.layer3 = self.viewer.add_image(self.init_data_3, self.meta)
-        self.layer3.cmap = 'grays'
-        self.layer3.interpolation = 'spline36'
-        self.layer3.clim = np.min(self.init_data_3), np.max(self.init_data_3)
+        self.layer2 = self.viewer.add_image(self.init_data_1, {})
+        # self.layer2.cmap = 'grays'
 
-        self.layer4 = self.viewer.add_image(self.init_data_4, self.meta)
-        self.layer4.cmap = 'grays'
-        self.layer4.interpolation = 'spline36'
-        self.layer4.clim = np.min(self.init_data_4), np.max(self.init_data_4)
+        self.layer3 = self.viewer.add_image(self.init_data_1, {})
+        # self.layer3.cmap = 'grays'
+
+        self.layer4 = self.viewer.add_image(self.init_data_1, {})
+        # self.layer4.cmap = 'grays'
 
         self.win.show()
 
         self.layers = [self.layer1, self.layer2, self.layer3, self.layer4]
+
+    def compute_vector(self, update: str):
+        self.average_change.emit(update)
+
+    def compute_length(self, update: [int, float]):
+        print('length change detected from reconorder, emitting update')
+        self.length_change.emit(update)
 
     def set_gateway(self, gateway):
         self.gate = gateway
@@ -79,28 +85,29 @@ class NapariWindowOverlay(QWidget):
         return self.gate
 
     @pyqtSlot(object)
-    def update_layer_image(self, inst_reconOrder: object):
+    def update_layer_image(self, instance: object):
         self.win.show()
-        self.layer1.image = inst_reconOrder.I_trans
 
-        cv2.imwrite('/Volumes/RAM_disk/trans_img.tif', inst_reconOrder.I_trans)
-        self.layer1.clim = np.min(inst_reconOrder.I_trans), np.max(inst_reconOrder.I_trans)
-        self.debug.emit("I_trans median = "+str(np.median(self.layer1.image)))
+        if isinstance(instance, ReconOrder):
+            print("gui received object of type = "+str(type(instance)))
+            self.layer1.vectors = instance.azimuth_vector
+            # self.layer2.image = inst_reconOrder.scattering
+            self.layer2.image = instance.azimuth_degree
+            self.layer3.image = instance.retard
+            self.layer4.image = instance.I_trans
 
-        self.layer2.image = inst_reconOrder.retard
-        cv2.imwrite('/Volumes/RAM_disk/retard_img.tif', inst_reconOrder.retard)
-        self.layer2.clim = np.min(inst_reconOrder.retard), np.max(inst_reconOrder.retard)
-        self.debug.emit("retard median = "+str(np.median(self.layer2.image)))
+            self.update_complete.emit("Received and updated images")
 
-        self.layer3.image = inst_reconOrder.scattering
-        cv2.imwrite('/Volumes/RAM_disk/azimuth_img.tif', inst_reconOrder.azimuth)
-        self.layer3.clim = np.min(inst_reconOrder.azimuth), np.max(inst_reconOrder.azimuth)
-        self.debug.emit("scattering median = "+str(np.median(self.layer3.image)))
+        else:
+            print("gui received vector or averaging update")
+            self.layer1.vectors = instance
 
-        self.layer4.image = inst_reconOrder.azimuth_degree
-        cv2.imwrite('/Volumes/RAM_disk/polarization_img.tif', inst_reconOrder.polarization)
-        self.layer4.clim = np.min(inst_reconOrder.polarization), np.max(inst_reconOrder.polarization)
-        self.debug.emit("azimuth_degree median = "+str(np.median(self.layer4.image)))
-
-    def make_conection(self, reconstruction):
-        reconstruction.recon_complete.connect(self.update_layer_image)
+    def make_connection(self, reconstruction: object):
+        if isinstance(reconstruction, PipeToReconOrder):
+            print("connecting pipe to gui")
+            reconstruction.recon_complete.connect(self.update_layer_image)
+        elif isinstance(reconstruction, SignalController):
+            print("connecting signal controller to gui")
+            reconstruction.vector_computed.connect(self.update_layer_image)
+        else:
+            print("no matching implementation found for: "+str(type(reconstruction)))
