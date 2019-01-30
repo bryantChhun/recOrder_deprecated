@@ -58,13 +58,13 @@ def convert_to_vector(azimuth: np.array,
     midpt[:, 0] = pos[0::2, 0]
     midpt[:, 1] = pos[0::2, 1]
 
-    #adjust second coordinate to represent azimuth angle
+    #rotate coordinates about midpoint to represent azimuth angle and length
     azimuth_flat = azimuth.flatten()
     retard_flat = retardance.flatten()
-    pos[0::2, 0] = midpt[:, 0] - (stride_x/2)*length*retard_flat[::]*np.cos(azimuth_flat[::])
-    pos[0::2, 1] = midpt[:, 1] - (stride_y/2)*length*retard_flat[::]*np.sin(azimuth_flat[::])
-    pos[1::2, 0] = midpt[:, 0] + (stride_x/2)*length*retard_flat[::]*np.cos(azimuth_flat[::])
-    pos[1::2, 1] = midpt[:, 1] + (stride_y/2)*length*retard_flat[::]*np.sin(azimuth_flat[::])
+    pos[0::2, 0] = midpt[:, 0] - (stride_x/2) * length * retard_flat * np.cos(azimuth_flat)
+    pos[0::2, 1] = midpt[:, 1] - (stride_y/2) * length * retard_flat * np.sin(azimuth_flat)
+    pos[1::2, 0] = midpt[:, 0] + (stride_x/2) * length * retard_flat * np.cos(azimuth_flat)
+    pos[1::2, 1] = midpt[:, 1] + (stride_y/2) * length * retard_flat * np.sin(azimuth_flat)
 
     return pos
 
