@@ -1,20 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0d446754-444f-430e-a4cb-d4fb4436def2" name="Default" comment="cleaned up some tests">
-      <change afterPath="$PROJECT_DIR$/src/DataPipe/PipeToSobel.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/SignalController/__init__.py" afterDir="false" />
+    <list default="true" id="0d446754-444f-430e-a4cb-d4fb4436def2" name="Default" comment="test master vs optimized branch">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/DataPipe/BasicMonitorDatastores.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileManagement/BasicMonitorDatastores.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/DataPipe/SignalController.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/SignalController/SignalController.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/DisplayAndReconstruct.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/DisplayAndReconstruct.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FileManagement/FileExceptions.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileManagement/FileExceptions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FileManagement/RetrieveData.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileManagement/RetrieveData.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GUI/NapariWindowOverlay.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/GUI/NapariWindowOverlay.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GUI/NapariWindowOverlay_v0051.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/GUI/NapariWindowOverlay_v0051.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Processing/ReconOrder.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Processing/ReconOrder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Processing/plotting.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/testReconOrder_v0051.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/testReconOrder_v0051.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -24,94 +12,124 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="NapariWindowOverlay_v0051.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/GUI/NapariWindowOverlay_v0051.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1485">
-              <caret line="99" lean-forward="true" selection-start-line="99" selection-end-line="99" />
-              <folding>
-                <element signature="e#308#343#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PipeToReconOrder.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/DataPipe/PipeToReconOrder.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="176">
-              <caret line="25" column="21" lean-forward="true" selection-start-line="25" selection-start-column="21" selection-end-line="25" selection-end-column="21" />
-              <folding>
-                <element signature="e#307#361#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BasicMonitorDatastores.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/FileManagement/BasicMonitorDatastores.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="317">
-              <caret line="42" column="31" lean-forward="true" selection-start-line="42" selection-start-column="31" selection-end-line="42" selection-end-column="31" />
-              <folding>
-                <element signature="e#307#318#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PipeToSobel.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/DataPipe/PipeToSobel.py">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file leaf-file-name="SignalController.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/SignalController/SignalController.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="17" lean-forward="true" selection-start-line="17" selection-end-line="17" />
-              <folding>
-                <element signature="e#307#361#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="testReconOrder_v0051.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/testReconOrder_v0051.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="243">
-              <caret line="27" column="45" lean-forward="true" selection-start-line="27" selection-start-column="45" selection-end-line="27" selection-end-column="45" />
-              <folding>
-                <element signature="e#308#318#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RetrieveData.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/FileManagement/RetrieveData.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="545">
-              <caret line="92" column="11" lean-forward="true" selection-start-line="92" selection-start-column="11" selection-end-line="92" selection-end-column="11" />
-              <folding>
-                <element signature="e#307#325#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SobelEdge.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Processing/SobelEdge.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="19" column="15" lean-forward="true" selection-start-line="19" selection-start-column="15" selection-end-line="19" selection-end-column="15" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <splitter split-orientation="horizontal" split-proportion="0.44497102">
+      <split-first>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file leaf-file-name="NapariWindowOverlay.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/GUI/NapariWindowOverlay.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-9">
+                  <caret line="52" column="37" lean-forward="true" selection-start-line="52" selection-start-column="37" selection-end-line="52" selection-end-column="37" />
+                  <folding>
+                    <element signature="e#308#343#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="ReconOrder.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/Processing/ReconOrder.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="1811">
+                  <caret line="135" column="5" lean-forward="true" selection-start-line="135" selection-start-column="5" selection-end-line="135" selection-end-column="5" />
+                  <folding>
+                    <element signature="e#307#325#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="AzimuthToVector.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/Processing/AzimuthToVector.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="1533">
+                  <caret line="104" column="39" selection-start-line="104" selection-start-column="39" selection-end-line="104" selection-end-column="39" />
+                  <folding>
+                    <element signature="e#307#325#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="FromPy4J_ReconstructAndDisplay.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/src/FromPy4J_ReconstructAndDisplay.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="369">
+                  <caret line="46" column="28" lean-forward="true" selection-start-line="46" selection-start-column="28" selection-end-line="46" selection-end-column="28" />
+                  <folding>
+                    <element signature="e#541#551#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="MonitorDatastores.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/FileManagement/MonitorDatastores.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="232">
+                  <caret line="19" column="32" lean-forward="true" selection-start-line="19" selection-start-column="32" selection-end-line="19" selection-end-column="32" />
+                  <folding>
+                    <element signature="e#307#318#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file leaf-file-name="RetrieveData.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/FileManagement/RetrieveData.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="395">
+                  <caret line="79" column="23" lean-forward="true" selection-start-line="79" selection-start-column="23" selection-end-line="79" selection-end-column="23" />
+                  <folding>
+                    <element signature="e#307#325#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="SignalController.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/SignalController/SignalController.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="483">
+                  <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
+                  <folding>
+                    <element signature="e#307#361#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="PipeToReconOrder.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/DataPipe/PipeToReconOrder.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="420">
+                  <caret line="28" column="72" selection-start-line="28" selection-start-column="72" selection-end-line="28" selection-end-column="72" />
+                  <folding>
+                    <element signature="e#307#361#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="PipeFromPy4j.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/src/DataPipe/PipeFromPy4j.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="486">
+                  <caret line="100" column="33" lean-forward="true" selection-start-line="100" selection-start-column="33" selection-end-line="100" selection-end-column="33" />
+                  <folding>
+                    <element signature="e#208#262#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -123,13 +141,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>optimi</find>
-      <find>self</find>
-      <find>print</find>
-      <find>correct</find>
-      <find>composite</find>
-      <find>set_state</find>
-      <find>sample1</find>
       <find>swing</find>
       <find>wavelength</find>
       <find>I_trans</find>
@@ -145,7 +156,6 @@
       <find>emit</find>
       <find>recon_complete</find>
       <find>slot</find>
-      <find>state</find>
       <find>gateway</find>
       <find>flippol</find>
       <find>states</find>
@@ -153,6 +163,14 @@
       <find>datetime</find>
       <find>azimuth_degree</find>
       <find>._node</find>
+      <find>._state</find>
+      <find>._states</find>
+      <find>self._states</find>
+      <find>self.channels</find>
+      <find>localGauss</find>
+      <find>state</find>
+      <find>fetch_images</find>
+      <find>self.type</find>
     </findStrings>
     <replaceStrings>
       <replace>self._Recon</replace>
@@ -164,15 +182,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/tests/ray_notebook.ipynb" />
-        <option value="$PROJECT_DIR$/src/DataPipe/PipeToReconOrder_ray.py" />
-        <option value="$PROJECT_DIR$/src/GUI/NapariWindow.py" />
-        <option value="$PROJECT_DIR$/src/Processing/ReconOrder_ray.py" />
-        <option value="$PROJECT_DIR$/tests/testReconOrder_mse_ray.py" />
-        <option value="$PROJECT_DIR$/src/timing.ipynb" />
-        <option value="$PROJECT_DIR$/src/recon_ray.ipynb" />
-        <option value="$PROJECT_DIR$/src/Vispy_lines.ipynb" />
-        <option value="$PROJECT_DIR$/tests/testReconOrder_BGWindow_v0051.py" />
         <option value="$PROJECT_DIR$/src/thing.py" />
         <option value="$PROJECT_DIR$/src/GUI/PureVispy_Scene.py" />
         <option value="$PROJECT_DIR$/src/GUI/PureVispy.py" />
@@ -193,7 +202,6 @@
         <option value="$PROJECT_DIR$/src/Processing/ReconExceptions.py" />
         <option value="$PROJECT_DIR$/tests/Experiments/proc_vs_recon.ipynb" />
         <option value="$PROJECT_DIR$/src/Processing/plotting.py" />
-        <option value="$PROJECT_DIR$/src/DisplayAndReconstruct.py" />
         <option value="$PROJECT_DIR$/tests/testMetrics.py" />
         <option value="$PROJECT_DIR$/src/__init__.py" />
         <option value="$PROJECT_DIR$/src/GUI/NapariWindowOverlay.py" />
@@ -204,24 +212,34 @@
         <option value="$PROJECT_DIR$/../napari-gui/napari_gui/layers/_vectors_layer.py" />
         <option value="$PROJECT_DIR$/src/Experiments/bryants_experiments.ipynb" />
         <option value="$PROJECT_DIR$/tests/testReconOrder_v0051.py" />
-        <option value="$PROJECT_DIR$/src/DataPipe/PipeToReconOrder.py" />
         <option value="$PROJECT_DIR$/tests/testReconOrder_mse.py" />
-        <option value="$PROJECT_DIR$/src/Processing/AzimuthToVector.py" />
         <option value="$PROJECT_DIR$/src/DataPipe/SignalController.py" />
         <option value="$PROJECT_DIR$/src/FileManagement/FileExceptions.py" />
-        <option value="$PROJECT_DIR$/src/Processing/ReconOrder.py" />
-        <option value="$PROJECT_DIR$/src/Processing/ReconOrder.py" />
         <option value="$PROJECT_DIR$/src/GUI/NapariWindowOverlay_v0051.py" />
         <option value="$PROJECT_DIR$/src/FileManagement/RetrieveData.py" />
         <option value="$PROJECT_DIR$/src/FileManagement/RetrieveData.py" />
         <option value="$PROJECT_DIR$/src/DataPipe/PipeToSobel.py" />
+        <option value="$PROJECT_DIR$/src/Processing/ReconOrder.py" />
+        <option value="$PROJECT_DIR$/src/Processing/ReconOrder.py" />
+        <option value="$PROJECT_DIR$/src/DisplayAndReconstruct.py" />
+        <option value="$PROJECT_DIR$/src/DataPipe/PipeToReconOrder.py" />
+        <option value="$PROJECT_DIR$/../napari-gui/gui/layers/_vectors_layer.py" />
+        <option value="$PROJECT_DIR$/src/SignalController/SignalController.py" />
+        <option value="$PROJECT_DIR$/src/Processing/AzimuthToVector.py" />
+        <option value="$PROJECT_DIR$/tests/test_py4j.py" />
+        <option value="$PROJECT_DIR$/tests/testUtils.py" />
+        <option value="$PROJECT_DIR$/tests/test_FileManagement.py" />
+        <option value="$PROJECT_DIR$/src/ReconstructAndDisplay.py" />
+        <option value="$PROJECT_DIR$/src/FileManagement/MonitorDatastores.py" />
+        <option value="$PROJECT_DIR$/src/FromPy4J_ReconstructAndDisplay.py" />
+        <option value="$PROJECT_DIR$/src/DataPipe/PipeFromPy4j.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="y" value="-1080" />
-    <option name="width" value="1920" />
-    <option name="height" value="1080" />
+  <component name="ProjectFrameBounds">
+    <option name="y" value="23" />
+    <option name="width" value="1680" />
+    <option name="height" value="971" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -282,6 +300,12 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="SignalController" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="ReconstructOrder_napari" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ReconstructOrder_napari" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="ReconstructOrder_napari" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -290,7 +314,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
@@ -310,11 +334,11 @@
       <recent name="$PROJECT_DIR$/src" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src" />
+      <recent name="$PROJECT_DIR$/src/FileManagement" />
       <recent name="$PROJECT_DIR$/src/Experiments" />
       <recent name="$PROJECT_DIR$/tests" />
       <recent name="$PROJECT_DIR$/tests/Experiments" />
-      <recent name="$PROJECT_DIR$/src/DataPipe" />
-      <recent name="$PROJECT_DIR$/src/Processing" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -329,7 +353,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.testReconOrder_v0051">
+  <component name="RunManager" selected="Python tests.py.test for test_FileManagement.TestImageReconstruction.test_timeout">
     <configuration name="ReconstructOrder_napari" type="JupiterNotebook" factoryName="Jupyter Notebook">
       <module name="ReconstructOrder_napari" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -346,7 +370,7 @@
       <option name="ipnbHost" value="127.0.0.1" />
       <option name="ipnbPort" value="8888" />
     </configuration>
-    <configuration name="NapariWindowOverlay_v0051" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="DisplayAndReconstruct" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="ReconstructOrder_napari" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -354,47 +378,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/GUI" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/GUI/NapariWindowOverlay_v0051.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="demo_mult_image_vectors (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="ReconstructOrder_napari" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../napari-gui/examples" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../napari-gui/examples/demo_mult_image_vectors.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="demo_mult_image_vectors" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="ReconstructOrder_napari" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/Experiments" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/Experiments/demo_mult_image_vectors.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/ReconstructAndDisplay.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -418,6 +406,34 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
+    <configuration name="py.test for test_FileManagement.TestImageReconstruction" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="ReconstructOrder_napari" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_FileManagement.TestImageReconstruction&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+    </configuration>
+    <configuration name="py.test for test_FileManagement.TestImageReconstruction.test_timeout" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="ReconstructOrder_napari" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_FileManagement.TestImageReconstruction.test_timeout&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+    </configuration>
     <configuration name="py.test in testReconOrder_mse.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="ReconstructOrder_napari" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -436,17 +452,17 @@
       <item itemvalue="Jupyter Notebook.ReconstructOrder_napari" />
       <item itemvalue="Python tests.py.test in testReconOrder_mse.py" />
       <item itemvalue="Python.testReconOrder_v0051" />
-      <item itemvalue="Python.demo_mult_image_vectors" />
-      <item itemvalue="Python.demo_mult_image_vectors (1)" />
-      <item itemvalue="Python.NapariWindowOverlay_v0051" />
+      <item itemvalue="Python.DisplayAndReconstruct" />
+      <item itemvalue="Python tests.py.test for test_FileManagement.TestImageReconstruction" />
+      <item itemvalue="Python tests.py.test for test_FileManagement.TestImageReconstruction.test_timeout" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python tests.py.test for test_FileManagement.TestImageReconstruction.test_timeout" />
+        <item itemvalue="Python tests.py.test for test_FileManagement.TestImageReconstruction" />
+        <item itemvalue="Python.DisplayAndReconstruct" />
         <item itemvalue="Python.testReconOrder_v0051" />
-        <item itemvalue="Python.NapariWindowOverlay_v0051" />
-        <item itemvalue="Python.demo_mult_image_vectors (1)" />
         <item itemvalue="Python tests.py.test in testReconOrder_mse.py" />
-        <item itemvalue="Python.demo_mult_image_vectors" />
       </list>
     </recent_temporary>
   </component>
@@ -552,28 +568,80 @@
       <option name="project" value="LOCAL" />
       <updated>1548543645005</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="last update before branch">
+      <created>1548802884339</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1548802884339</updated>
+    </task>
+    <task id="LOCAL-00015" summary="test master vs optimized branch">
+      <created>1548803188649</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1548803188649</updated>
+    </task>
+    <task id="LOCAL-00016" summary="removed optimization code">
+      <created>1548804850188</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1548804850188</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Moved files around&#10;fixed length-averaging orientation flip bug">
+      <created>1548808221919</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1548808221919</updated>
+    </task>
+    <task id="LOCAL-00018" summary="DataPipe for Py4J">
+      <created>1548882481320</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1548882481320</updated>
+    </task>
+    <task id="LOCAL-00019" summary="File loader - monitor that receives from py4j, 2.5 min timeout">
+      <created>1548882513760</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1548882513760</updated>
+    </task>
+    <task id="LOCAL-00020" summary="cleaned up some code for clarity">
+      <created>1548882532582</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1548882532582</updated>
+    </task>
+    <task id="LOCAL-00021" summary="executable for launching monitor-to-recon pipe">
+      <created>1548882567063</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1548882567063</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Removed local gauss as it is not implemented">
+      <created>1548882595310</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1548882595310</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Template for some py4j testing.&#10;Much code is taken from Py4J's test suite from github.">
+      <created>1548882623976</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1548882623976</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="py_test_in_testReconOrder_mse_py - 2019.01.20 at 15h 56m 39s.xml">
-      <configuration name="py.test in testReconOrder_mse.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_testReconOrder_mse_py - 2019.01.20 at 15h 57m 23s.xml">
-      <configuration name="py.test in testReconOrder_mse.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_testReconOrder_mse_py - 2019.01.20 at 15h 58m 55s.xml">
-      <configuration name="py.test in testReconOrder_mse.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_testReconOrder_mse_py - 2019.01.20 at 16h 00m 16s.xml">
-      <configuration name="py.test in testReconOrder_mse.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_testReconOrder_mse_py - 2019.01.20 at 16h 27m 51s.xml">
-      <configuration name="py.test in testReconOrder_mse.py" configurationId="tests" />
-    </history-entry>
-    <history-entry file="py_test_in_testReconOrder_mse_py - 2019.01.20 at 16h 28m 49s.xml">
-      <configuration name="py.test in testReconOrder_mse.py" configurationId="tests" />
-    </history-entry>
     <history-entry file="py_test_in_testReconOrder_mse_py - 2019.01.20 at 16h 31m 42s.xml">
       <configuration name="py.test in testReconOrder_mse.py" configurationId="tests" />
     </history-entry>
@@ -586,16 +654,36 @@
     <history-entry file="py_test_in_testReconOrder_mse_py - 2019.01.25 at 13h 26m 15s.xml">
       <configuration name="py.test in testReconOrder_mse.py" configurationId="tests" />
     </history-entry>
+    <history-entry file="py_test_in_testReconOrder_mse_py - 2019.01.29 at 15h 33m 06s.xml">
+      <configuration name="py.test in testReconOrder_mse.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_in_testReconOrder_mse_py - 2019.01.29 at 15h 58m 28s.xml">
+      <configuration name="py.test in testReconOrder_mse.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_for_test_FileManagement_TestImageReconstruction - 2019.01.29 at 23h 12m 39s.xml">
+      <configuration name="py.test for test_FileManagement.TestImageReconstruction" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_for_test_FileManagement_TestImageReconstruction - 2019.01.29 at 23h 13m 10s.xml">
+      <configuration name="py.test for test_FileManagement.TestImageReconstruction" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_for_test_FileManagement_TestImageReconstruction - 2019.01.29 at 23h 15m 11s.xml">
+      <configuration name="py.test for test_FileManagement.TestImageReconstruction" configurationId="tests" />
+    </history-entry>
+    <history-entry file="py_test_for_test_FileManagement_TestImageReconstruction_test_timeout - 2019.01.29 at 23h 15m 38s.xml">
+      <configuration name="py.test for test_FileManagement.TestImageReconstruction.test_timeout" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="-1080" width="1920" height="1080" extended-state="0" />
+    <frame x="0" y="0" width="1680" height="1050" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.22064245" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2145871" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5002633" side_tool="true" weight="0.22505091" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4997367" visible="true" weight="0.1700611" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32983193" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4997367" weight="0.35234216" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32983193" />
-      <window_info anchor="bottom" id="Python Console" order="7" sideWeight="0.4997367" weight="0.28105906" />
+      <window_info anchor="bottom" id="Python Console" order="7" sideWeight="0.4997367" weight="0.28046218" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.3299389" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
@@ -607,7 +695,6 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.3299389" />
     </layout>
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -646,60 +733,24 @@
     <MESSAGE value="default kernel is now passed as tuple." />
     <MESSAGE value="added signal for length updates&#10;added observer to napari-gui length element updates" />
     <MESSAGE value="removed unnecessary code and comments" />
-    <option name="LAST_COMMIT_MESSAGE" value="removed unnecessary code and comments" />
+    <MESSAGE value="last update before branch" />
+    <MESSAGE value="test master vs optimized branch" />
+    <MESSAGE value="removed optimization code" />
+    <MESSAGE value="Moved files around&#10;fixed length-averaging orientation flip bug" />
+    <MESSAGE value="DataPipe for Py4J" />
+    <MESSAGE value="File loader - monitor that receives from py4j, 2.5 min timeout" />
+    <MESSAGE value="cleaned up some code for clarity" />
+    <MESSAGE value="executable for launching monitor-to-recon pipe" />
+    <MESSAGE value="Removed local gauss as it is not implemented" />
+    <MESSAGE value="Template for some py4j testing.&#10;Much code is taken from Py4J's test suite from github." />
+    <option name="LAST_COMMIT_MESSAGE" value="Template for some py4j testing.&#10;Much code is taken from Py4J's test suite from github." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="2" />
+      <option name="time" value="3" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/tests/Experiments/ray_notebook.ipynb">
-      <provider selected="true" editor-type-id="ipnb-editor">
-        <state>
-          <selected id="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/testData/LiveProcessed/azimuth_degree.tif">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/testData/Processed/2018_10_02_MouseBrainSlice/SM_2018_1002_1640_1_BG_2018_1002_1625_1/img_Transmission_t000_p000_z000.tif">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/testData/LiveProcessed/I_trans.tif">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/testData/Processed/2018_10_02_MouseBrainSlice/SM_2018_1002_1633_1_BG_2018_1002_1625_1/img_Transmission_t000_p000_z000.tif">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/testData/LiveProcessed/scattering.tif">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/testData/Processed/2018_10_02_MouseBrainSlice/SM_2018_1002_1633_1_BG_2018_1002_1625_1/img_Scattering_t000_p000_z000.tif">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/testData/LiveProcessed/retard.tif">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/testData/Processed/2018_10_02_MouseBrainSlice/SM_2018_1002_1633_1_BG_2018_1002_1625_1/img_Retardance_t000_p000_z000.tif">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/Experiments/proc_vs_recon.ipynb">
-      <provider selected="true" editor-type-id="ipnb-editor">
-        <state>
-          <selected id="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/Experiments/bryants_process.ipynb">
-      <provider selected="true" editor-type-id="ipnb-editor">
-        <state>
-          <selected id="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/anaconda3/envs/ReconOrder/lib/python3.7/site-packages/napari_gui-0.0.5.1+9.g3801f60.dirty-py3.7.egg/napari_gui/layers/_vectors_layer.py" />
     <entry file="file://$USER_HOME$/anaconda3/envs/ReconOrder/lib/python3.7/site-packages/napari_gui-0.0.5.1+9.g3801f60.dirty-py3.7.egg/napari_gui/layers/qt/_vectors_layer.py" />
     <entry file="file://$USER_HOME$/anaconda3/envs/ReconOrder/lib/python3.7/site-packages/napari_gui-0.0.5.1+9.g3801f60.dirty-py3.7.egg/napari_gui/__init__.py" />
     <entry file="file://$USER_HOME$/anaconda3/envs/ReconOrder/lib/python3.7/site-packages/napari_gui-0.0.5.1+9.g3801f60.dirty-py3.7.egg/napari_gui/elements/_viewer.py" />
@@ -741,26 +792,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/GUI/NapariWindow.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="25" selection-start-line="25" selection-end-line="25" />
-          <folding>
-            <element signature="e#307#342#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/testReconOrder_mse.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
-          <folding>
-            <element signature="e#309#324#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../napari-gui/napari_gui/layers/_vectors_layer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="945">
@@ -793,16 +824,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="217">
           <caret line="17" column="10" lean-forward="true" selection-start-line="17" selection-start-column="10" selection-end-line="17" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Processing/AzimuthToVector.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="764">
-          <caret line="60" column="56" selection-start-line="60" selection-start-column="56" selection-end-line="60" selection-end-column="56" />
-          <folding>
-            <element signature="e#307#325#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -899,13 +920,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../napari-gui/gui/layers/_vectors_layer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-405">
-          <caret line="71" column="22" lean-forward="true" selection-start-line="71" selection-start-column="22" selection-end-line="71" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/SignalController/__init__.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -919,20 +933,165 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/SignalController/SignalController.py">
+    <entry file="file://$PROJECT_DIR$/tests/Experiments/testReconOrder_mse_ray.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" lean-forward="true" selection-start-line="17" selection-end-line="17" />
+        <state relative-caret-position="210">
+          <caret line="14" column="5" selection-start-line="14" selection-start-column="5" selection-end-line="14" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/GUI/NapariWindow.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="25" selection-start-line="25" selection-end-line="25" />
           <folding>
-            <element signature="e#307#361#0" expanded="true" />
+            <element signature="e#307#342#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/GUI/NapariWindowABC.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" column="28" lean-forward="true" selection-start-line="6" selection-start-column="28" selection-end-line="6" selection-end-column="28" />
+          <folding>
+            <element signature="e#307#346#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Processing/Executor/ThreadPoolProcessor.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Processing/ReconExceptions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" selection-start-line="11" selection-end-line="27" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Processing/SobelEdge.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="19" column="15" selection-start-line="19" selection-start-column="15" selection-end-line="19" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/GUI/NapariWindowOverlay.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1028">
+          <caret line="99" selection-start-line="99" selection-end-line="99" />
+          <folding>
+            <element signature="e#308#343#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/FileManagement/BasicMonitorDatastores.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
+          <folding>
+            <element signature="e#307#318#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/testReconOrder_v0051.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="334">
+          <caret line="39" column="41" lean-forward="true" selection-start-line="39" selection-start-column="41" selection-end-line="39" selection-end-column="41" />
+          <folding>
+            <element signature="e#308#318#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../napari-gui/gui/layers/_vectors_layer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="23" column="14" lean-forward="true" selection-start-line="23" selection-start-column="14" selection-end-line="23" selection-end-column="14" />
+          <folding>
+            <element signature="e#269#293#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/testMetrics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="15" column="26" lean-forward="true" selection-start-line="15" selection-start-column="26" selection-end-line="15" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_FileManagement.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="25" column="31" lean-forward="true" selection-start-line="25" selection-start-column="31" selection-end-line="25" selection-end-column="31" />
+          <folding>
+            <element signature="e#208#223#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/testUtils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="28" column="11" lean-forward="true" selection-start-line="28" selection-start-column="11" selection-end-line="28" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_py4j.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" selection-start-line="12" selection-end-line="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ReconstructAndDisplay.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="31" column="21" lean-forward="true" selection-start-line="31" selection-start-column="21" selection-end-line="31" selection-end-column="21" />
+          <folding>
+            <element signature="e#552#562#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/testReconOrder_mse.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="71">
+          <caret line="54" lean-forward="true" selection-start-line="54" selection-end-line="54" />
+          <folding>
+            <element signature="e#308#323#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Processing/AzimuthToVector.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1533">
+          <caret line="104" column="39" selection-start-line="104" selection-start-column="39" selection-end-line="104" selection-end-column="39" />
+          <folding>
+            <element signature="e#307#325#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/DataPipe/PipeToReconOrder.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="25" column="21" lean-forward="true" selection-start-line="25" selection-start-column="21" selection-end-line="25" selection-end-column="21" />
+        <state relative-caret-position="420">
+          <caret line="28" column="72" selection-start-line="28" selection-start-column="72" selection-end-line="28" selection-end-column="72" />
+          <folding>
+            <element signature="e#307#361#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/SignalController/SignalController.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="483">
+          <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
           <folding>
             <element signature="e#307#361#0" expanded="true" />
           </folding>
@@ -941,63 +1100,63 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/FileManagement/RetrieveData.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="545">
-          <caret line="92" column="11" lean-forward="true" selection-start-line="92" selection-start-column="11" selection-end-line="92" selection-end-column="11" />
+        <state relative-caret-position="395">
+          <caret line="79" column="23" lean-forward="true" selection-start-line="79" selection-start-column="23" selection-end-line="79" selection-end-column="23" />
           <folding>
             <element signature="e#307#325#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Processing/SobelEdge.py">
+    <entry file="file://$PROJECT_DIR$/src/GUI/NapariWindowOverlay.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="19" column="15" lean-forward="true" selection-start-line="19" selection-start-column="15" selection-end-line="19" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Processing/ReconOrder.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2900">
-          <caret line="51" selection-start-line="51" selection-end-line="51" />
-          <folding>
-            <element signature="e#307#325#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/GUI/NapariWindowOverlay_v0051.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1485">
-          <caret line="99" lean-forward="true" selection-start-line="99" selection-end-line="99" />
+        <state relative-caret-position="-9">
+          <caret line="52" column="37" lean-forward="true" selection-start-line="52" selection-start-column="37" selection-end-line="52" selection-end-column="37" />
           <folding>
             <element signature="e#308#343#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/testReconOrder_v0051.py">
+    <entry file="file://$PROJECT_DIR$/src/Processing/ReconOrder.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="243">
-          <caret line="27" column="45" lean-forward="true" selection-start-line="27" selection-start-column="45" selection-end-line="27" selection-end-column="45" />
+        <state relative-caret-position="1811">
+          <caret line="135" column="5" lean-forward="true" selection-start-line="135" selection-start-column="5" selection-end-line="135" selection-end-column="5" />
           <folding>
-            <element signature="e#308#318#0" expanded="true" />
+            <element signature="e#307#325#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/FileManagement/BasicMonitorDatastores.py">
+    <entry file="file://$PROJECT_DIR$/src/DataPipe/PipeFromPy4j.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="317">
-          <caret line="42" column="31" lean-forward="true" selection-start-line="42" selection-start-column="31" selection-end-line="42" selection-end-column="31" />
+        <state relative-caret-position="486">
+          <caret line="100" column="33" lean-forward="true" selection-start-line="100" selection-start-column="33" selection-end-line="100" selection-end-column="33" />
+          <folding>
+            <element signature="e#208#262#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/FileManagement/MonitorDatastores.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="232">
+          <caret line="19" column="32" lean-forward="true" selection-start-line="19" selection-start-column="32" selection-end-line="19" selection-end-column="32" />
           <folding>
             <element signature="e#307#318#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/DataPipe/PipeToSobel.py">
-      <provider selected="true" editor-type-id="text-editor" />
+    <entry file="file://$PROJECT_DIR$/src/FromPy4J_ReconstructAndDisplay.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="369">
+          <caret line="46" column="28" lean-forward="true" selection-start-line="46" selection-start-column="28" selection-end-line="46" selection-end-column="28" />
+          <folding>
+            <element signature="e#541#551#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
     </entry>
   </component>
 </project>
