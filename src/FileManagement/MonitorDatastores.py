@@ -12,69 +12,80 @@ import time
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 import threading
 
+from src.DataPipe.PipeFromPy4j import PipeFromPy4j
+
+
 class MonitorDatastores(QObject):
 
-    newImage = pyqtSignal(int)
+    newImage = pyqtSignal(tuple)
 
     '''
     flow controls:
-        self.switch answers "Is data rendered to UI? ok to query next image?"
-        self.quad answers "have we already rendered this image in this set of four channels?"
+        self.ui_ready answers "Is data rendered to UI? ok to query next image?"
+        self.polstates answers "have we already rendered this image in this set of four channels?"
     '''
     def __init__(self, gate):
         super().__init__()
         self.gateway = gate
-        self.switch = True
-        self.quad = set()
+        self.ui_ready = True
+        self.polstates = set()
 
-    @pyqtSlot()
-    def toggle_switch(self):
-        self.switch = not self.switch
+    @pyqtSlot(bool)
+    def _toggle_switch(self, ready: bool):
+        self.ui_ready = ready
 
     def make_connection(self, notify_object):
-        notify_object.successful_update.connect(self.toggle_switch)
+        if isinstance(notify_object, PipeFromPy4j):
+            notify_object.poll_newdata.connect(self._toggle_switch)
+        # else:
+        #     notify_object.successful_update.connect(self._toggle_switch)
 
-    def start_monitor(self):
+    def _start_monitor(self):
 
         count = 0
         while True:
             time.sleep(0.001)
 
-            # use lambdas here?
-            if not self.switch:
+            if not self.ui_ready:
                 continue
-            elif self.gateway.storeByChannelNameExists("Cy5") and (0 not in self.quad):
-                self.newImage.emit(0)
-                print("Cy5 image emitting")
-                self.quad.add(0)
-                self.switch = False
-            elif self.gateway.storeByChannelNameExists("DAPI") and (1 not in self.quad):
-                self.newImage.emit(1)
-                print("DAPI image emitting")
-                self.quad.add(1)
-                self.switch = False
-            elif self.gateway.storeByChannelNameExists("FITC") and (2 not in self.quad):
-                self.newImage.emit(2)
-                print("FITC image emitting")
-                self.quad.add(2)
-                self.switch = False
-            elif self.gateway.storeByChannelNameExists("Rhodamine") and (3 not in self.quad):
-                self.newImage.emit(3)
-                print("Rhodamine image emitting")
-                self.quad.add(3)
-                self.switch = False
-            elif count >= 10000:
+            if self.gateway.storeByChannelNameExists("State0") and (0 not in self.polstates):
+                self.newImage.emit((0, self.gateway.retrieveFileByChannelName("State0")))
+                print("Pol State 0 image emitting")
+                self.polstates.add(0)
+                self.ui_ready = False
+            elif self.gateway.storeByChannelNameExists("State1") and (1 not in self.polstates):
+                self.newImage.emit((1, self.gateway.retrieveFileByChannelName("State1")))
+                print("Pol State 1 image emitting")
+                self.polstates.add(1)
+                self.ui_ready = False
+            elif self.gateway.storeByChannelNameExists("State2") and (2 not in self.polstates):
+                self.newImage.emit((2, self.gateway.retrieveFileByChannelName("State2")))
+                print("Pol State 2 image emitting")
+                self.polstates.add(2)
+                self.ui_ready = False
+            elif self.gateway.storeByChannelNameExists("State3") and (3 not in self.polstates):
+                self.newImage.emit((3, self.gateway.retrieveFileByChannelName("State3")))
+                print("Pol State 3 image emitting")
+                self.polstates.add(3)
+                self.ui_ready = False
+            elif self.gateway.storeByChannelNameExists("State4") and (4 not in self.polstates):
+                self.newImage.emit((4, self.gateway.retrieveFileByChannelName("State4")))
+                print("Pol State 4 image emitting")
+                self.polstates.add(4)
+                self.ui_ready = False
+            elif count >= 150000:
+                #timeout is 2.5 minutes
                 print("timeout waiting for more data")
                 break
-            elif len(self.quad) >= 4:
-                print("\t ===set of four acquired, resetting===")
-                self.quad = set()
-                #self.quad.clear()
+            elif len(self.polstates) >= 5:
+                print("\t ===set of five acquired, resetting===")
+                self.polstates = set()
             else:
                 count += 1
                 if count%100 == 0:
                     print('waiting')
 
     def run(self):
-        t1 = threading.Thread(target=self.start_monitor)
+        t1 = threading.Thread(target=self._start_monitor)
         t1.start()
+
