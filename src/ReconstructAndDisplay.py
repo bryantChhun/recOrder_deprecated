@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-# title           : DisplayAndReconstruct.py
+# title           : ReconstructAndDisplay.py
 # description     :Simple execution of Reconstruction Package
 # author          :bryant.chhun
 # date            :12/3/18
 # version         :0.0
-# usage           :from terminal: python DisplayAndReconstruct.py
+# usage           :from terminal: python ReconstructAndDisplay.py
 # notes           :
 # python_version  :3.6
 
@@ -40,7 +40,6 @@ if __name__ == '__main__':
     #initialize processors
     processor = ReconOrder()
     processor_bg = ReconOrder()
-    processor_localGauss = ReconOrder()
 
     #initialize SignalController
     signals = SignalController(processor)
