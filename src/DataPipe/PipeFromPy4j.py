@@ -34,6 +34,7 @@ class PipeFromPy4j(QObject):
     def __init__(self):
         super().__init__()
         #it would be nice to be able to link monitor signals from pipe
+        # currently we link the signals in main.
         # self.retrieve_file = MonitorDatastores()
         self._Recon = None
         self.recon_counter = 0
@@ -50,11 +51,11 @@ class PipeFromPy4j(QObject):
     def get_processor(self):
         return self._Recon
 
-    # to receive callbacks from the Monitor
     @pyqtSlot(tuple)
     def _fetch_images(self, memmap_path: tuple):
         """
-        fetch_images both update the underlying processor data and kicks off reconstruction threads
+        Slot to receive callbacks from the Monitor
+        fetch_images both updates the underlying processor data and kicks off reconstruction threads
         :param memmap_path:
         :return:
         """
@@ -71,10 +72,10 @@ class PipeFromPy4j(QObject):
             print("count mismanagement, resetting")
             self.recon_counter = 0
 
-    # to receive callbacks from GUI
     @pyqtSlot(str)
     def _report_from_window(self, message: str):
         """
+        Slot to receive callbacks from GUI
         Signals the data monitor to pull next data (or newest data?)
         :param message:
         :return:

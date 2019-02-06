@@ -8,7 +8,7 @@
 # notes           :
 # python_version  :3.6
 
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QThreadPool, QRunnable
 import threading
 
 from src.FileManagement.RetrieveData import RetrieveData
@@ -25,6 +25,17 @@ def timer(func):
         print( (stop-start).microseconds)
     return timer_wrap
 
+class ProcessRunnable(QRunnable):
+    def __init__(self, target, args):
+        QRunnable.__init__(self)
+        self.t = target
+        self.args = args
+
+    def run(self):
+        self.t(*self.args)
+
+    def start(self):
+        QThreadPool.globalInstance().start(self)
 
 # Todo: allow passing of processing object, arbitrary use of processing object
 # Todo:     ideally, we can have processing objects inherit from ABC, such that the same commands are called from here
@@ -122,19 +133,22 @@ class PipeToReconOrder(QObject):
     Threads for running reconstruction.  Needed to prevent blocking UI.
         Pyqt slots/signals will notify UI that data is ready.
     '''
-    #Todo: remove or think again about how to multi thread processing.  could call static executor
     def run_reconstruction(self, threaded = False):
         if threaded:
-            t1 = threading.Thread(target=self.fetch_and_compute_stokes())
-            t1.start()
+            self.process = ProcessRunnable(target=self.fetch_and_compute_stokes, args=())
+            self.process.start()
+            # t1 = threading.Thread(target=self.fetch_and_compute_stokes())
+            # t1.start()
         else:
             print("\t bg calculation")
             self.fetch_and_compute_stokes()
 
     def run_reconstruction_BG_correction(self, background : object, threaded = False):
         if threaded:
-            t1 = threading.Thread(target=self.fetch_and_correct_background_and_recon_image(background))
-            t1.start()
+            self.process = ProcessRunnable(target=self.fetch_and_correct_background_and_recon_image, args=(background,))
+            self.process.start()
+            # t1 = threading.Thread(target=self.fetch_and_correct_background_and_recon_image(background))
+            # t1.start()
         else:
             print('\n Sample Reconstruction')
             self.fetch_and_correct_background_and_recon_image(background)
