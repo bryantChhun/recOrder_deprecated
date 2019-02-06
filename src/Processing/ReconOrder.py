@@ -258,10 +258,10 @@ class ReconOrder(object):
 
         if flipPol == 'rcp':
             self.flipPol = flipPol
-            self.azimuth = (0.5 * np.arctan2(-self.s1, self.s2) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
+            self.azimuth = (0.5 * np.arctan2(-self.s1, self.s2) % np.pi)  # make azimuth fall in [0,pi]
         else:
             self.flipPol = 'lcp'
-            self.azimuth = (0.5 * np.arctan2(self.s1, self.s2) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
+            self.azimuth = (0.5 * np.arctan2(self.s1, self.s2) % np.pi)  # make azimuth fall in [0,pi]
 
         self.scattering = 1 - self.polarization
         self.azimuth_degree = self.azimuth/np.pi*180
