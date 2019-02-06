@@ -105,3 +105,13 @@ def compute_average(s1,
     vectors = convert_to_vector(azimuth_avg - (0.5 * np.pi), retardance=retard_avg, stride_x=x, stride_y=y, length=length)
 
     return azimuth_avg, retard_avg, vectors
+
+
+def convert_to_vector_map(azimuth,
+                          retardance,
+                          stride_x: int = 1,
+                          stride_y: int = 1,
+                          length: Union[int, float] = 10) -> np.array:
+    out = np.array(list(zip(azimuth.flatten(), retardance.flatten())))
+    return out.reshape(azimuth.shape[0], azimuth.shape[0], 2)
+
