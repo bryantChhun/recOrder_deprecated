@@ -44,6 +44,7 @@ class NapariWindowOverlay(QWidget):
 
         #init image data
         self.init_data_1 = 2**16 * np.random.rand(512,512)
+
         #init vector data
         N = 512
         N2 = N * N
@@ -53,6 +54,7 @@ class NapariWindowOverlay(QWidget):
         self.pos[:, 0] = xv.flatten()
         self.pos[:, 1] = yv.flatten()
 
+        #init layers with vector data and subscribe to gui notifications
         self.layer1 = self.viewer.add_vectors(self.pos)
         self.layer1.averaging_bind_to(self.compute_vector)
         self.layer1.length_bind_to(self.compute_length)
@@ -101,6 +103,7 @@ class NapariWindowOverlay(QWidget):
         else:
             print("gui received vector or averaging update")
             self.layer1.vectors = instance
+            # self.layer2.image = 65536*np.random.rand(2048,2048)
 
     def make_connection(self, reconstruction: object):
         if isinstance(reconstruction, PipeToReconOrder):
