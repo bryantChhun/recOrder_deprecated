@@ -40,14 +40,11 @@ if __name__ == '__main__':
 
     #initialize file loaders
     pipe = PipeFromPy4j()
-    #loader_bg = PipeFromPy4j(flag)
     monitor = MonitorDatastores(gateway)
 
     #initialize processors
     processor = ReconOrder()
     processor.frames = 5
-    # processor_bg = ReconOrder()
-    # processor_bg.frames = 5
 
     #initialize SignalController
     signals = SignalController(processor)
@@ -69,9 +66,5 @@ if __name__ == '__main__':
     # such as averaging, adjusting line widths, etc.
     overlay_window.make_connection(signals)
     signals.make_connection(overlay_window)
-
-    # BGprocess first
-    # pipe_bg.run_reconstruction(threaded=False)
-    # pipe.run_reconstruction_BG_correction(pipe.get_processor(), threaded=True)
 
     sys.exit(application.exec_())
