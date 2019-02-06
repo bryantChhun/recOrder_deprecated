@@ -11,7 +11,7 @@
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 
 from src.Processing.ReconOrder import ReconOrder
-from src.Processing.AzimuthToVector import compute_average, convert_to_vector
+from src.Processing.AzimuthToVector import compute_average, convert_to_vector, convert_to_vector_map
 
 from typing import Union
 import numpy as np
