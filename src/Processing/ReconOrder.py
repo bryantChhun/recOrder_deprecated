@@ -9,7 +9,6 @@
 # python_version  :3.6
 
 import numpy as np
-import cv2
 
 from src.Processing.AzimuthToVector import compute_average
 
@@ -31,9 +30,9 @@ ReconOrder contains all methods to reconstruct polarization images (transmittanc
     5) Call reconstruct_img
 '''
 
+
 class ReconOrder(object):
 
-    # recon_complete = pyqtSignal(object)
     inst_mat_inv = None
 
     def __init__(self):
@@ -41,19 +40,14 @@ class ReconOrder(object):
         self._states = [None] * 5
         self._frames = None
 
-        # self.img_raw_bg = img_raw_bg
-        # self.n_chann = np.shape(img_raw_bg)[0]
         self.height = None
         self.width = None
 
-        # self.method = method
-        #swing is hard coded based on metadata info.
-        swing = 0.1
-        self.swing = swing*2*np.pi # covert swing from fraction of wavelength to radian
+        self._swing = 0.1
+        self._swing_rad = self._swing*2*np.pi # covert swing from fraction of wavelength to radian
         self.wavelength = 532
-        self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (100,100))
 
-        self.flipPol = None
+        self.flip_pol = None
 
         # Stokes vectors
         self.s0 = None
@@ -68,6 +62,7 @@ class ReconOrder(object):
         self.B = None
         self.dAB = None
 
+        # physical images
         self.retard = None
         self.azimuth = None
         self.scattering = None
@@ -83,6 +78,11 @@ class ReconOrder(object):
 
     @frames.setter
     def frames(self, num_frames=4):
+        """
+        set how many polarization intensity images are used for this reconstruction
+        :param num_frames: integer 4 or 5
+        :return:
+        """
         if num_frames != 4 and num_frames != 5:
             raise InvalidFrameNumberDeclarationError("support only 4 or 5 frame reconstructions")
         else:
@@ -94,25 +94,32 @@ class ReconOrder(object):
 
     @state.setter
     def state(self, statemap: tuple):
+        """
+        Assigns an image to a list of states.  Each image corresponds to one of required polarizations
+        :param statemap: tuple of (state index, np.array)
+        :return: none
+        """
         if len(statemap) != 2:
             raise ValueError("invalid state parameter: state setter receives tuple of (index, image)")
         self._states[statemap[0]] = statemap[1]
         self.height = self._states[statemap[0]].shape[0]
         self.width = self._states[statemap[0]].shape[1]
 
-    # def set_state(self, state: int, img: np.array):
-    #     """
-    #     Assigns an image to a list of states.  Each image corresponds to one of required polarizations
-    #     :param state: list index used for assignment
-    #     :param img: 2d numpy array.
-    #     :return: None
-    #     """
-    #     self._states[state] = img
-    #     self.height = self._states[state].shape[0]
-    #     self.width = self._states[state].shape[1]
-    #
-    # def get_state(self, state: int) -> np.array:
-    #     return self._states[state]
+    @property
+    def swing(self):
+        return self._swing
+
+    @swing.setter
+    def swing(self, x: float):
+        """
+        The swing used during LC calibration for this dataset
+        :param x: float value should be fraction of wavelength
+        :return:
+        """
+        if x < -1 or x > 1:
+            raise ValueError("swing of %f is too low or high.  Should be fraction of wavelength between -1 and 1" % x)
+        self._swing = x
+        self._swing_rad = self._swing*2*np.pi
 
     def correct_background(self, background: object):
 
@@ -131,19 +138,8 @@ class ReconOrder(object):
         else:
             raise InvalidBackgroundObject("background parameter must be a ReconOrder object or None (for local Gauss)")
 
-    # def correct_background_localGauss(self):
-    #     self.local_gauss = ReconOrder()
-    #
-    #     self.local_gauss.I_trans = cv2.GaussianBlur(self.I_trans, (401, 401), 0)
-    #     self.local_gauss.polarization = cv2.GaussianBlur(self.polarization, (401, 401), 0)
-    #     self.local_gauss.A = cv2.GaussianBlur(self.A, (401, 401), 0)
-    #     self.local_gauss.B = cv2.GaussianBlur(self.B, (401, 401), 0)
-    #     self.local_gauss.dAB = cv2.GaussianBlur(self.dAB, (401, 401), 0)
-    #     self.correct_background(self.local_gauss)
-    #     return True
-
     def compute_inst_matrix(self):
-        chi = self.swing
+        chi = self._swing_rad
         if self._frames == 4:
             inst_mat = np.array([[1, 0, 0, -1],
                                  [1, 0, np.sin(chi), -np.cos(chi)],
@@ -158,7 +154,6 @@ class ReconOrder(object):
         else:
             raise InvalidFrameNumberDeclarationError('Frames not set to 4 or 5:  Required for calculation of instrument matrix')
         self.inst_mat_inv = np.linalg.pinv(inst_mat)
-        # print('instrument matrix calculated, value is : %s', type(self.inst_mat_inv))
         return None
 
     '''
@@ -169,68 +164,22 @@ class ReconOrder(object):
         1) I change all functions to set class properties instead of passing image data
     '''
 
-    # def compute_stokes(self) -> bool:
-    #     if self._frames is None or self._frames < 4 or self._frames > 5:
-    #         raise InvalidFrameNumberDeclarationError("Number of frames not defined")
-    #     for idx, element in enumerate(self._states[:-1]):
-    #         if element is None:
-    #             raise InsufficientDataError("No image loaded for index = %01d" % idx)
-    #
-    #     I_ext = self._states[0] # Sigma0 in Fig.2
-    #     I_90 = self._states[1] # Sigma2 in Fig.2
-    #     I_135 = self._states[2] # Sigma4 in Fig.2
-    #     I_45 = self._states[3] # Sigma3 in Fig.2
-    #
-    #     if self._frames == 4:
-    #         img_raw = np.stack((I_ext, I_45, I_90, I_135))  # order the channel following stokes calculus convention
-    #     elif self._frames == 5:  # if the images were taken using 5-frame scheme
-    #         if self._states[4] is None:
-    #             raise InsufficientDataError("No image loaded for index = 4")
-    #         I_0 = self._states[4]
-    #         img_raw = np.stack((I_ext, I_0, I_45, I_90, I_135))  # order the channel following stokes calculus convention
-    #
-    #     # if self.inst_mat_inv is None:
-    #     self.compute_inst_matrix()
-    #
-    #     img_raw_flat = np.reshape(img_raw,(self._frames, self.height*self.width))
-    #     img_stokes_flat = np.dot(self.inst_mat_inv, img_raw_flat)
-    #
-    #     img_stokes = np.reshape(img_stokes_flat, (img_stokes_flat.shape[0], self.height, self.width))
-    #     [self.s0, self.s1, self.s2, self.s3] = [img_stokes[i, :, :] for i in range(0, img_stokes.shape[0])]
-    #
-    #     self.A = self.s1 / self.s3
-    #     self.B = -self.s2 / self.s3
-    #     self.I_trans = self.s0
-    #     #
-    #     self.polarization = np.sqrt(self.s1 ** 2 + self.s2 ** 2 + self.s3 ** 2)/self.s0
-    #     return True
-
     def compute_stokes(self):
-        chi = self.swing
-        # I_ext = img_raw[0, :, :]  # Sigma0 in Fig.2
-        # I_90 = img_raw[1, :, :]  # Sigma2 in Fig.2
-        # I_135 = img_raw[2, :, :]  # Sigma4 in Fig.2
-        # I_45 = img_raw[3, :, :]  # Sigma3 in Fig.2
-        # I_ext = self._states[0]  # Sigma0 in Fig.2
-        # I_90 = self._states[1]  # Sigma2 in Fig.2
-        # I_135 = self._states[2]  # Sigma4 in Fig.2
-        # I_45 = self._states[3]  # Sigma3 in Fig.2
-        I_ext = self.state[0]  # Sigma0 in Fig.2
-        I_90 = self.state[1]  # Sigma2 in Fig.2
-        I_135 = self.state[2]  # Sigma4 in Fig.2
-        I_45 = self.state[3]  # Sigma3 in Fig.2
-        # images = [I_ext, I_90, I_135, I_45]
-        # titles = ['I_ext', 'I_90', 'I_135', 'I_45']
-        # plot_sub_images(images, titles, self.output_path, 'raw')
-        polarization = np.ones((self.height, self.width))  # polorization is always 1 for Jones calculus
-        if self._frames == 4:  # if the images were taken using 4-frame scheme
+        chi = self._swing_rad
+        I_ext = self.state[0]
+        I_90 = self.state[1]
+        I_135 = self.state[2]
+        I_45 = self.state[3]
+
+        # define our instrument matrix based on self.frames
+        if self._frames == 4:
             img_raw = np.stack((I_ext, I_45, I_90, I_135))  # order the channel following stokes calculus convention
             self.n_chann = np.shape(img_raw)[0]
             inst_mat = np.array([[1, 0, 0, -1],
                                  [1, 0, np.sin(chi), -np.cos(chi)],
                                  [1, -np.sin(chi), 0, -np.cos(chi)],
                                  [1, 0, -np.sin(chi), -np.cos(chi)]])
-        elif self._frames == 5:  # if the images were taken using 5-frame scheme
+        elif self._frames == 5:
             I_0 = self.state[4]
             img_raw = np.stack((I_ext, I_0, I_45, I_90, I_135))  # order the channel following stokes calculus convention
             self.n_chann = np.shape(img_raw)[0]
@@ -239,76 +188,71 @@ class ReconOrder(object):
                                  [1, 0, np.sin(chi), -np.cos(chi)],
                                  [1, -np.sin(chi), 0, -np.cos(chi)],
                                  [1, 0, -np.sin(chi), -np.cos(chi)]])
+
+        # calculate stokes
         inst_mat_inv = np.linalg.pinv(inst_mat)
         img_raw_flat = np.reshape(img_raw,(self.n_chann, self.height*self.width))
         img_stokes_flat = np.dot(inst_mat_inv, img_raw_flat)
         img_stokes = np.reshape(img_stokes_flat, (img_stokes_flat.shape[0], self.height, self.width))
         [self.s0, self.s1, self.s2, self.s3] = [img_stokes[i, :, :] for i in range(0, img_stokes.shape[0])]
 
-        self.I_trans = self.s0
-        self.polarization = np.sqrt(self.s1 ** 2 + self.s2 ** 2 + self.s3 ** 2) / self.s0
+        # assign normalized vectors for bg correction
         self.A = self.s1 / self.s3
         self.B = -self.s2 / self.s3
 
+    def reconstruct_img(self, flip_pol='rcp', avg_kernel=(1,1)):
+        '''
+        defines physical results from the stokes vectors
+            transmittance
+            retardance
+            polarization
+            scattering
+            azimuth
+            azimuth_vector
+        :param flip_pol:
+        :param avg_kernel: kernel over which to average azimuth
+        :return:
+        '''
 
-    def reconstruct_img(self, flipPol=False, avg_kernel=(1,1)):
-
+        self.I_trans = self.s0
         self.retard = np.arctan2(np.sqrt(self.s1 ** 2 + self.s2 ** 2), self.s3)
-        self.retard = self.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
+        self.polarization = np.sqrt(self.s1 ** 2 + self.s2 ** 2 + self.s3 ** 2) / self.s0
+        self.scattering = 1 - self.polarization
 
-        if flipPol == 'rcp':
-            self.flipPol = flipPol
+        if flip_pol == 'rcp':
+            self.flip_pol = flip_pol
             self.azimuth = (0.5 * np.arctan2(-self.s1, self.s2) % np.pi)  # make azimuth fall in [0,pi]
         else:
-            self.flipPol = 'lcp'
+            self.flip_pol = 'lcp'
             self.azimuth = (0.5 * np.arctan2(self.s1, self.s2) % np.pi)  # make azimuth fall in [0,pi]
 
-        self.scattering = 1 - self.polarization
-        self.azimuth_degree = self.azimuth/np.pi*180
+        #make the arrays displayable by scaling to more meaningful values
+        # self.retard = self.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
+        # self.azimuth_degree = self.azimuth/np.pi*180
         # self.azimuth_vector = convert_to_vector(self.azimuth - (0.5*np.pi))
-        _, _, self.azimuth_vector = compute_average(self.s1, self.s2, self.s3, kernel=avg_kernel, length=5, flipPol=flipPol)
+        _, _, self.azimuth_vector = compute_average(self.s1, self.s2, self.s3, kernel=avg_kernel, length=5, flipPol=flip_pol)
 
-        self.rescale_bitdepth()
+        # self.rescale_bitdepth()
+
+        return True
+
+    def reformat_for_render(self):
+        self.retard = self.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
+        self.azimuth_degree = self.azimuth/np.pi*180
 
         return True
 
     def rescale_bitdepth(self):
-        print('\t rescaling bitdepth')
-
-        # self.I_trans = imBitConvert(I_trans * 10 ** 3, bit=16, norm=False)  # AU, set norm to False for tiling images
-        # self.retard = imBitConvert(retard * 10 ** 3, bit=16)  # scale to pm
-        # self.scattering = imBitConvert(self.scattering * 10 ** 4, bit=16)
-        # self.azimuth_degree = imBitConvert(self.azimuth_degree * 100, bit=16)  # scale to [0, 18000], 100*degree
+        # print('\t rescaling bitdepth')
 
         self.I_trans = self.imBitConvert(self.I_trans * 10 ** 3, bit=16, norm=True)  # AU, set norm to False for tiling images
         self.retard = self.imBitConvert(self.retard * 10 ** 3, bit=16)  # scale to pm
         self.scattering = self.imBitConvert(self.scattering * 10 ** 4, bit=16)
         self.azimuth_degree = self.imBitConvert(self.azimuth_degree * 100, bit=16)  # scale to [0, 18000], 100*degree
-        # print("bit conversion I_trans (type, min, max, std) = %s %s %s %s" %(str(np.dtype(np.amin(self.I_trans))),
-        #                                                               str(np.amin(self.I_trans)),
-        #                                                               str(np.amax(self.I_trans)),
-        #                                                               str(np.std(self.I_trans)) ))
-        # print("bit conversion retard (type, min, max, std) = %s %s %s %s" %(str(np.dtype(np.amin(self.retard))),
-        #                                                               str(np.amin(self.retard)),
-        #                                                               str(np.amax(self.retard)),
-        #                                                               str(np.std(self.retard)) ))
-        # print("bit conversion scattering (type, min, max, std) = %s %s %s %s" %(str(np.dtype(np.amin(self.scattering))),
-        #                                                               str(np.amin(self.scattering)),
-        #                                                               str(np.amax(self.scattering)),
-        #                                                               str(np.std(self.scattering)) ))
-        # print("bit conversion azimuth_degree (type, min, max, std) = %s %s %s %s" %(str(np.dtype(np.amin(self.azimuth_degree))),
-        #                                                               str(np.amin(self.azimuth_degree)),
-        #                                                               str(np.amax(self.azimuth_degree)),
-        #                                                               str(np.std(self.azimuth_degree)) ))
-        # cv2.imwrite('../tests/testData/LiveProcessed/I_trans.tif', self.I_trans)
-        # cv2.imwrite('../tests/testData/LiveProcessed/retard.tif', self.retard)
-        # cv2.imwrite('../tests/testData/LiveProcessed/scattering.tif', self.scattering)
-        # cv2.imwrite('../tests/testData/LiveProcessed/azimuth_degree.tif', self.azimuth_degree)
 
         return True
 
     def imBitConvert(self, im, bit=16, norm=False, limit=None):
-        # print('\t bit conversion')
         im = im.astype(np.float32, copy=False)  # convert to float32 without making a copy to save memory
         if norm:  # local or global normalization (for tiling)
             if not limit:  # if lmit is not provided, perform local normalization, otherwise global (for tiling)
@@ -322,26 +266,6 @@ class ReconOrder(object):
             im = im.astype(np.uint16, copy=False)  # convert to 16 bit
         return im
 
-    '''
-    #===============================================================================
-    #=========  some extra stuff ===================================================
-    #===============================================================================
-    Key notes:
-        1) I change all functions to set class properties instead of passing image data
-    '''
-
-    def bitconvert(self, im):
-        max = np.max(im)
-        min = np.min(im)
-        im = (2**16) * (im - min) / (max - min)
-        return im.astype(np.float32, copy=False)
-
-    def scale_all(self):
-        self.azimuth_degree = self.bitconvert(self.azimuth_degree)
-        self.scattering = self.bitconvert(self.scattering)
-        self.retard = self.bitconvert(self.retard)
-        self.I_trans = self.bitconvert(self.I_trans)
-
 
 class InsufficientDataError(Exception):
 
@@ -349,11 +273,13 @@ class InsufficientDataError(Exception):
         Exception.__init__(self, message)
         self.message = message
 
+
 class InvalidFrameNumberDeclarationError(Exception):
 
     def __init__(self, message):
         Exception.__init__(self, message)
         self.message = message
+
 
 class InvalidBackgroundObject(Exception):
 
