@@ -10,6 +10,9 @@
 
 import numpy as np
 
+from src.DataStructures.IntensityData import IntensityData
+from src.DataStructures.PhysicalData import PhysicalData
+from src.DataStructures.StokesData import StokesData
 from src.Processing.AzimuthToVector import compute_average
 
 
@@ -38,6 +41,7 @@ class ReconOrder(object):
 
     def __init__(self):
         super().__init__()
+        self.intensity = IntensityData()
         self._states = [None] * 5
         self._frames = None
 

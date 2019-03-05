@@ -10,6 +10,11 @@
 
 import cv2
 
+'''
+This module exists as a placeholder for future, simple processing declarations.
+
+'''
+
 def rotate_and_sobel(image, deg):
     return cv2_rotate( cv2_sobel_edge_with_binary(image), deg)
 

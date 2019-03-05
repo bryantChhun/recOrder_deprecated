@@ -41,30 +41,9 @@ def convert_to_vector(azimuth: np.array,
 
     #create empty vector of necessary shape
     # every pixel has 2 coordinates,
-    pos = np.zeros((2*xdim*ydim, 2), dtype=np.float32)
-
-    #create coordinate spacing for x-y
-    # double the num of elements by doubling x sampling
-    xspace = np.linspace(0, stride_x * xdim, 2 * xdim)
-    yspace = np.linspace(0, stride_y * ydim, ydim)
-    xv, yv = np.meshgrid(xspace, yspace)
-
-    #assign coordinates (pos) to all pixels
-    pos[:, 0] = xv.flatten()
-    pos[:, 1] = yv.flatten()
-
-    #pixel midpoints are the first x-value of positions
-    midpt = np.zeros((xdim*ydim, 2), dtype=np.float32)
-    midpt[:, 0] = pos[0::2, 0]
-    midpt[:, 1] = pos[0::2, 1]
-
-    #rotate coordinates about midpoint to represent azimuth angle and length
-    azimuth_flat = azimuth.flatten()
-    retard_flat = retardance.flatten()
-    pos[0::2, 0] = midpt[:, 0] - (stride_x/2) * length * retard_flat * np.cos(azimuth_flat)
-    pos[0::2, 1] = midpt[:, 1] - (stride_y/2) * length * retard_flat * np.sin(azimuth_flat)
-    pos[1::2, 0] = midpt[:, 0] + (stride_x/2) * length * retard_flat * np.cos(azimuth_flat)
-    pos[1::2, 1] = midpt[:, 1] + (stride_y/2) * length * retard_flat * np.sin(azimuth_flat)
+    pos = np.zeros((xdim, ydim, 2), dtype=np.float32)
+    pos[:, :, 0] = (stride_x/2) * length * retardance * np.cos(azimuth)
+    pos[:, :, 1] = (stride_y/2) * length * retardance * np.sin(azimuth)
 
     return pos
 
@@ -105,13 +84,4 @@ def compute_average(s1,
     vectors = convert_to_vector(azimuth_avg - (0.5 * np.pi), retardance=retard_avg, stride_x=x, stride_y=y, length=length)
 
     return azimuth_avg, retard_avg, vectors
-
-
-def convert_to_vector_map(azimuth,
-                          retardance,
-                          stride_x: int = 1,
-                          stride_y: int = 1,
-                          length: Union[int, float] = 10) -> np.array:
-    out = np.array(list(zip(azimuth.flatten(), retardance.flatten())))
-    return out.reshape(azimuth.shape[0], azimuth.shape[0], 2)
 
