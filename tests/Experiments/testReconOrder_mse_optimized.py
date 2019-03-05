@@ -14,7 +14,7 @@ import cv2
 
 from src.DataPipe.PipeToReconOrder_optimized import PipeToReconOrder
 from src.Processing.ReconOrder_optimized import ReconOrder
-from tests.testMetrics import mse
+from tests.testUtils.testMetrics import mse
 
 
 '''

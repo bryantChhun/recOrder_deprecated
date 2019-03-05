@@ -14,7 +14,7 @@ import cv2
 
 from src.DataPipe.PipeToReconOrder_ray import PipeToReconOrder_ray
 from src.Processing.ReconOrder_ray import ReconOrder_ray
-from tests.testMetrics import mse
+from tests.testUtils.testMetrics import mse
 
 import ray
 

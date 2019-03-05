@@ -12,7 +12,7 @@ import sys
 from PyQt5.QtWidgets import QApplication
 
 from src.GUI.NapariWindowOverlay import NapariWindowOverlay
-from src.DataPipe.PipeToReconOrder import PipeToReconOrder
+from src.DataPipe.PipeFromFiles import PipeFromFiles
 from src.Processing.ReconOrder import ReconOrder
 
 if __name__ == '__main__':
@@ -22,8 +22,8 @@ if __name__ == '__main__':
     win = NapariWindowOverlay()
 
     #create file loaders
-    loader = PipeToReconOrder(type="Test", sample_type="Sample1")
-    loader_bg = PipeToReconOrder(type="Test", sample_type='BG')
+    loader = PipeFromFiles(type="Test", sample_type="Sample1")
+    loader_bg = PipeFromFiles(type="Test", sample_type='BG')
 
     #initialize processors
     processor = ReconOrder()

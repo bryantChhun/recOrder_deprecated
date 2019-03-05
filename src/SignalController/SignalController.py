@@ -6,12 +6,12 @@
 # version         :0.0
 # usage           :python this_python_file.py -flags
 # notes           :
-# python_version  :3.6
+# python_version  :3.6xf
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 
 from src.Processing.ReconOrder import ReconOrder
-from src.Processing.AzimuthToVector import compute_average, convert_to_vector, convert_to_vector_map
+from src.Processing.AzimuthToVector import compute_average, convert_to_vector
 
 from typing import Union
 import numpy as np
@@ -41,21 +41,13 @@ class SignalController(QObject):
     @pyqtSlot(object)
     def receive_from_window(self, update: Union[str, int, float]):
         if type(update) == str:
-            print("received update from window: averaging change to "+str(update))
-
             self.current_avg_kernel = self.kernel_dict[update]
             avg_vectors = self.recompute_average(kernel=self.current_avg_kernel, length=self.current_length)
-
-            print("transmitting AVG vector to gui: "+str(type(avg_vectors)))
             self.vector_computed.emit(avg_vectors)
 
         elif type(update) == int or float:
-            print("received update from window: length change to "+str(update))
-
             self.current_length = update
             newlength_vectors = self.recompute_length(length=self.current_length)
-
-            print("transmitting LENGTH vector to gui: "+str(type(newlength_vectors)))
             self.vector_computed.emit(newlength_vectors)
 
     def recompute_average(self, kernel: tuple, length=5):
@@ -67,7 +59,7 @@ class SignalController(QObject):
                                                               s3,
                                                               kernel=kernel,
                                                               length=length,
-                                                              flipPol=self._recon.flipPol)
+                                                              flipPol=self._recon.flip_pol)
         self._recon.azimuth = azimuth_avg
         self._recon.retard = retard_avg
         return vector_avg

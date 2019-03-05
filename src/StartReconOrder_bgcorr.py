@@ -16,55 +16,64 @@ This code describes simple execution of Reconstruction and Visualization code.
 
 import sys
 from PyQt5.QtWidgets import QApplication
+from PyQt5 import QtWidgets
 
 from src.GUI.NapariWindowOverlay import NapariWindowOverlay
-from src.DataPipe.PipeToReconOrder import PipeToReconOrder
-from src.FileManagement.MonitorDatastores import MonitorDatastores
-from src.DataPipe.PipeFromPy4j import PipeFromPy4j
+from src.DataPipe.PipeFromFiles import PipeFromFiles
+from src.GUI.qtdesigner.ReconOrderUI import Ui_ReconOrderUI
 from src.SignalController.SignalController import SignalController
 from src.Processing.ReconOrder import ReconOrder
 from py4j.java_gateway import JavaGateway
 
 from napari_gui import Window, Viewer
 
-
 if __name__ == '__main__':
     # starting
     application = QApplication(sys.argv)
 
-    #create Viewer, Windows, gateway
+    gateway = JavaGateway()
+
+    ReconOrderUI = QtWidgets.QDialog()
+    ui = Ui_ReconOrderUI()
+    ui.setupUi(ReconOrderUI, gateway)
+    ReconOrderUI.show()
+
+    #create Viewer, Windows
     viewer = Viewer()
     win = Window(Viewer(), show=False)
     overlay_window = NapariWindowOverlay(win)
-    gateway = JavaGateway()
 
     #initialize file loaders
-    pipe = PipeFromPy4j()
-    monitor = MonitorDatastores(gateway)
+    loader = PipeFromFiles(type="Test", sample_type="Sample1")
+    loader_bg = PipeFromFiles(type="Test", sample_type='BG')
 
     #initialize processors
     processor = ReconOrder()
-    processor.frames = 5
+    processor_bg = ReconOrder()
 
     #initialize SignalController
     signals = SignalController(processor)
 
-    #Connections: Monitor to/from Pipeline
-    monitor.make_connection(pipe)
-    pipe.make_connection(monitor)
-
     #Connections: Pipeline to/from Processor
-    pipe.set_processor(processor)
-    # loader_bg.set_processor(processor_bg)
+    processor.frames = 5
+    processor_bg.frames = 5
+    loader.set_processor(processor)
+    loader_bg.set_processor(processor_bg)
 
     #Connections: Pipeline to/from GUI
-    overlay_window.make_connection(pipe)
-    pipe.make_connection(overlay_window)
+    overlay_window.make_connection(loader)
+    loader.make_connection(overlay_window)
 
     #Connections: SignalController to/from GUI
     # for gui-initiated pipeline or processing events
-    # such as averaging, adjusting line widths, etc.
     overlay_window.make_connection(signals)
     signals.make_connection(overlay_window)
+
+    # BGprocess first
+    loader_bg.run_reconstruction(threaded=False)
+    loader.run_reconstruction_BG_correction(loader_bg.get_processor(), threaded=True)
+
+    #connect so button launches bgprocess
+    ui.assign_pipes(loader, loader_bg)
 
     sys.exit(application.exec_())
