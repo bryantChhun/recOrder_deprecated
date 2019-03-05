@@ -1,20 +1,24 @@
 #!/usr/bin/env python
-# title           : this_python_file.py
-# description     :This will create a header for a python script.
+# title           : PipeFromFiles.py
+# description     :
 # author          :bryant.chhun
 # date            :12/4/18
 # version         :0.0
-# usage           :python this_python_file.py -flags
+# usage           :
 # notes           :
 # python_version  :3.6
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QThreadPool, QRunnable
-import threading
 
-from src.FileManagement.RetrieveData import RetrieveData
+from src.FileManagement.RetrieveFiles import RetrieveData
 from src.Processing.ReconOrder import ReconOrder
 
 from datetime import datetime
+
+"""
+PipeToReconOrder is a communication interface between data retrieval methods (under "FileManagement") 
+    and 
+"""
 
 
 def timer(func):
@@ -22,8 +26,9 @@ def timer(func):
         start = datetime.now()
         func(*args,**kwargs)
         stop = datetime.now()
-        print( (stop-start).microseconds)
+        print("\t"+str((stop-start).microseconds))
     return timer_wrap
+
 
 class ProcessRunnable(QRunnable):
     def __init__(self, target, args):
@@ -37,9 +42,8 @@ class ProcessRunnable(QRunnable):
     def start(self):
         QThreadPool.globalInstance().start(self)
 
-# Todo: allow passing of processing object, arbitrary use of processing object
-# Todo:     ideally, we can have processing objects inherit from ABC, such that the same commands are called from here
-class PipeToReconOrder(QObject):
+
+class PipeFromFiles(QObject):
 
     recon_complete = pyqtSignal(object)
 
@@ -69,15 +73,27 @@ class PipeToReconOrder(QObject):
         self._Recon.state = (2, self.retrieve_file.get_array_from_filename('State2', type=self.type, sample_type=self.sample_type))
         self._Recon.state = (3, self.retrieve_file.get_array_from_filename('State3', type=self.type, sample_type=self.sample_type))
         if self._Recon.frames == 5:
-            self._Recon.state = (4, self.retrieve_file.get_array_from_filename('State3', type=self.type,
+            self._Recon.state = (4, self.retrieve_file.get_array_from_filename('State4', type=self.type,
                                                                                 sample_type=self.sample_type))
         return True
 
-    #todo: could probably move these to a more appropriate class
     @timer
     def compute_stokes(self):
         print("compute stokes")
         self._Recon.compute_stokes()
+        return True
+
+    @timer
+    def reconstruct_image(self):
+        print("Reconstruct image")
+        self._Recon.compute_physical()
+        self.recon_complete.emit(self._Recon)
+        return True
+
+    @timer
+    def rescale_bitdepth(self):
+        print("rescaling bitdepth for display")
+        self._Recon.rescale_bitdepth()
         return True
 
     @timer
@@ -92,34 +108,22 @@ class PipeToReconOrder(QObject):
         self._Recon.correct_background(background)
         return True
 
-    @timer
-    def correct_background_localGauss(self):
-        print("correct background local gauss")
-        self._Recon.correct_background_localGauss()
-        return True
-
-    @timer
-    def reconstruct_image(self):
-        print("Reconstruct image")
-        self._Recon.reconstruct_img()
-        self.recon_complete.emit(self._Recon)
-        return True
-
-    def fetch_and_compute_stokes(self):
+    def fetch_stokes_physical(self):
+        print('fetch stokes physical')
         self.fetch_images()
         self.compute_stokes()
+        self.reconstruct_image()
 
-    def fetch_and_correct_background_and_recon_image(self, background: object):
+    def fetch_stokes_physical_bgcorr(self, background: object):
         '''
         Performs both standard background correction from BG images AND
             local background correction using GaussianBlur
         :param background: ReconOrder object that contains stokes calculations for BG images
         :return: True if successful
         '''
-        self.fetch_images()
-        self.compute_stokes()
+        self.fetch_stokes_physical()
         self.correct_background(background)
-        self.reconstruct_image()
+        self.rescale_bitdepth()
 
     # to receive callbacks from GUI
     @pyqtSlot(str)
@@ -135,22 +139,17 @@ class PipeToReconOrder(QObject):
     '''
     def run_reconstruction(self, threaded = False):
         if threaded:
-            self.process = ProcessRunnable(target=self.fetch_and_compute_stokes, args=())
+            print('starting thread')
+            self.process = ProcessRunnable(target=self.fetch_stokes_physical, args=())
             self.process.start()
-            # t1 = threading.Thread(target=self.fetch_and_compute_stokes())
-            # t1.start()
         else:
             print("\t bg calculation")
-            self.fetch_and_compute_stokes()
+            self.fetch_stokes_physical()
 
     def run_reconstruction_BG_correction(self, background : object, threaded = False):
         if threaded:
-            self.process = ProcessRunnable(target=self.fetch_and_correct_background_and_recon_image, args=(background,))
+            self.process = ProcessRunnable(target=self.fetch_stokes_physical_bgcorr, args=(background,))
             self.process.start()
-            # t1 = threading.Thread(target=self.fetch_and_correct_background_and_recon_image(background))
-            # t1.start()
         else:
             print('\n Sample Reconstruction')
-            self.fetch_and_correct_background_and_recon_image(background)
-
-
+            self.fetch_stokes_physical_bgcorr(background)

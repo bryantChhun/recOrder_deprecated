@@ -8,13 +8,25 @@
 # notes           :
 # python_version  :3.6
 
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
-import threading
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QThreadPool, QRunnable
 import numpy as np
 
 from src.FileManagement.MonitorDatastores import MonitorDatastores
 from src.GUI.NapariWindowOverlay import NapariWindowOverlay
 from src.Processing.ReconOrder import ReconOrder
+
+
+class ProcessRunnable(QRunnable):
+    def __init__(self, target, args):
+        QRunnable.__init__(self)
+        self.t = target
+        self.args = args
+
+    def run(self):
+        self.t(*self.args)
+
+    def start(self):
+        QThreadPool.globalInstance().start(self)
 
 
 class PipeFromPy4j(QObject):
@@ -26,30 +38,26 @@ class PipeFromPy4j(QObject):
     Pipe receives signals from both window (update_complete) and from Monitor (image data)
     """
 
-    #TODO: consider putting all signals into the signal processor
-
     recon_complete = pyqtSignal(object)
     poll_newdata = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
-        #it would be nice to be able to link monitor signals from pipe
-        # currently we link the signals in main.
-        # self.retrieve_file = MonitorDatastores()
         self._Recon = None
         self.recon_counter = 0
         self.background_processor = None
 
-    def set_processor(self, processor):
+    @property
+    def processor(self):
+        return self._Recon
+
+    @processor.setter
+    def processor(self, processor):
         if isinstance(processor, ReconOrder):
             self._Recon = processor
-            return True
         else:
             self._Recon = None
-            raise ValueError("processor wrong type")
-
-    def get_processor(self):
-        return self._Recon
+            raise NotImplementedError("Support only for Processor of type 'ReconOrder'")
 
     @pyqtSlot(tuple)
     def _fetch_images(self, memmap_path: tuple):
@@ -63,10 +71,10 @@ class PipeFromPy4j(QObject):
         self._Recon.state = (memmap_path[0], np.memmap(memmap_path[1], dtype='uint16', offset=0, mode='r', shape=(1024,1024)))
         self.recon_counter += 1
         if self._Recon.frames == 4 and self.recon_counter == 4:
-            self.kickoffRecon()
+            self._kickoffRecon()
             self.recon_counter = 0
         elif self._Recon.frames == 5 and self.recon_counter ==5:
-            self.kickoffRecon()
+            self._kickoffRecon()
             self.recon_counter = 0
         elif self.recon_counter > 5:
             print("count mismanagement, resetting")
@@ -101,19 +109,20 @@ class PipeFromPy4j(QObject):
 
     def _reconstruct_image(self):
         print("Reconstruct image")
-        self._Recon.reconstruct_img()
+        self._Recon.compute_physical()
         print("recon complete")
         self.recon_complete.emit(self._Recon)
         return True
 
     # ========================= Sequences of core compute ===============
     def _kickoffRecon(self):
-        t1 = threading.Thread(target=self._compute_and_render())
-        t1.start()
+        self.process = ProcessRunnable(target=self._compute_and_render, args=())
+        self.process.start()
 
     def _compute_and_render(self):
         self._compute_stokes()
-        # self._correct_background(self.background_processor)
+        if self.background_processor:
+            self._correct_background(self.background_processor)
         self._reconstruct_image()
 
     # ========================= connect signals =========================
@@ -125,5 +134,7 @@ class PipeFromPy4j(QObject):
         elif isinstance(event, MonitorDatastores):
             print("connecting monitor's signal to pipe's slot")
             event.newImage.connect(self._fetch_images)
+
+
 
 
