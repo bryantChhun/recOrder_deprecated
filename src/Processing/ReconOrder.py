@@ -12,6 +12,7 @@ import numpy as np
 
 from src.Processing.AzimuthToVector import compute_average
 
+
 '''
 ReconOrder contains all methods to reconstruct polarization images (transmittance, retardance, orientation, scattering)
     The number of frames (4 or 5 frame acquisition), and each image for each frame
@@ -122,7 +123,6 @@ class ReconOrder(object):
         self._swing_rad = self._swing*2*np.pi
 
     def correct_background(self, background: object):
-
         """
         Uses computed result from background images to calculate the correction
         :param background: ReconOrder object that is constructed from background images
@@ -156,20 +156,19 @@ class ReconOrder(object):
         self.inst_mat_inv = np.linalg.pinv(inst_mat)
         return None
 
-    '''
-    #===============================================================================
-    #=========  Everything below is taken from Syuan-Ming's reconOrder code ========
-    #===============================================================================
-    Key notes:
-        1) I change all functions to set class properties instead of passing image data
-    '''
-
     def compute_stokes(self):
+        """
+        computes stokes vectors from the polarization intensities and instrument matrix
+
+        :return:
+        """
         chi = self._swing_rad
         I_ext = self.state[0]
         I_90 = self.state[1]
         I_135 = self.state[2]
         I_45 = self.state[3]
+
+        # pdb.set_trace()
 
         # define our instrument matrix based on self.frames
         if self._frames == 4:
@@ -189,6 +188,7 @@ class ReconOrder(object):
                                  [1, -np.sin(chi), 0, -np.cos(chi)],
                                  [1, 0, -np.sin(chi), -np.cos(chi)]])
 
+        # pdb.set_trace()
         # calculate stokes
         inst_mat_inv = np.linalg.pinv(inst_mat)
         img_raw_flat = np.reshape(img_raw,(self.n_chann, self.height*self.width))
@@ -196,13 +196,14 @@ class ReconOrder(object):
         img_stokes = np.reshape(img_stokes_flat, (img_stokes_flat.shape[0], self.height, self.width))
         [self.s0, self.s1, self.s2, self.s3] = [img_stokes[i, :, :] for i in range(0, img_stokes.shape[0])]
 
+        # pdb.set_trace()
         # assign normalized vectors for bg correction
         self.A = self.s1 / self.s3
         self.B = -self.s2 / self.s3
 
-    def reconstruct_img(self, flip_pol='rcp', avg_kernel=(1,1)):
+    def compute_physical(self, flip_pol='rcp', avg_kernel=(1, 1)):
         '''
-        defines physical results from the stokes vectors
+        computes physical results from the stokes vectors
             transmittance
             retardance
             polarization
@@ -214,36 +215,33 @@ class ReconOrder(object):
         :return:
         '''
 
+        # compute s1 and s2 from background corrected A and B
+        s1 = self.A * self.s3
+        s2 = -self.B * self.s3
+
         self.I_trans = self.s0
-        self.retard = np.arctan2(np.sqrt(self.s1 ** 2 + self.s2 ** 2), self.s3)
-        self.polarization = np.sqrt(self.s1 ** 2 + self.s2 ** 2 + self.s3 ** 2) / self.s0
+        self.retard = np.arctan2(np.sqrt(s1 ** 2 + s2 ** 2), self.s3)
+        self.polarization = np.sqrt(s1 ** 2 + s2 ** 2 + self.s3 ** 2) / self.s0
         self.scattering = 1 - self.polarization
 
         if flip_pol == 'rcp':
             self.flip_pol = flip_pol
-            self.azimuth = (0.5 * np.arctan2(-self.s1, self.s2) % np.pi)  # make azimuth fall in [0,pi]
+            self.azimuth = (0.5 * np.arctan2(-s1, s2) % np.pi)  # make azimuth fall in [0,pi]
         else:
             self.flip_pol = 'lcp'
-            self.azimuth = (0.5 * np.arctan2(self.s1, self.s2) % np.pi)  # make azimuth fall in [0,pi]
+            self.azimuth = (0.5 * np.arctan2(s1, s2) % np.pi)  # make azimuth fall in [0,pi]
 
         #make the arrays displayable by scaling to more meaningful values
         # self.retard = self.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
         # self.azimuth_degree = self.azimuth/np.pi*180
         # self.azimuth_vector = convert_to_vector(self.azimuth - (0.5*np.pi))
-        _, _, self.azimuth_vector = compute_average(self.s1, self.s2, self.s3, kernel=avg_kernel, length=5, flipPol=flip_pol)
-
-        # self.rescale_bitdepth()
-
-        return True
-
-    def reformat_for_render(self):
-        self.retard = self.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
-        self.azimuth_degree = self.azimuth/np.pi*180
+        _, _, self.azimuth_vector = compute_average(s1, s2, self.s3, kernel=avg_kernel, length=5, flipPol=flip_pol)
 
         return True
 
     def rescale_bitdepth(self):
-        # print('\t rescaling bitdepth')
+        self.retard = self.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
+        self.azimuth_degree = self.azimuth/np.pi*180
 
         self.I_trans = self.imBitConvert(self.I_trans * 10 ** 3, bit=16, norm=True)  # AU, set norm to False for tiling images
         self.retard = self.imBitConvert(self.retard * 10 ** 3, bit=16)  # scale to pm
