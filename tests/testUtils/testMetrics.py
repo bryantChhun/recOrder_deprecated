@@ -8,13 +8,24 @@
 # notes           :
 # python_version  :3.6
 
-from sklearn.metrics import mean_squared_error
+# from sklearn.metrics import mean_squared_error
 from datetime import datetime
 import os
+import numpy as np
+
+# def mse(y_pred, y_target):
+#     start = datetime.now()
+#     mse = mean_squared_error(y_target, y_pred, )
+#     stop = datetime.now()
+#     print("\tmse value = "+str(mse))
+#     print("\ttime for MSE calculation = " + str((stop - start).microseconds) +"\n")
+#
+#     return mse
 
 def mse(y_pred, y_target):
     start = datetime.now()
-    mse = mean_squared_error(y_target, y_pred)
+    sqer = (y_target - y_pred)**2
+    mse = np.mean(sqer)
     stop = datetime.now()
     print("\tmse value = "+str(mse))
     print("\ttime for MSE calculation = " + str((stop - start).microseconds) +"\n")
@@ -28,5 +39,5 @@ def testDataPath():
     :return:
     '''
     dir = os.path.dirname(__file__)
-    test_data_path = os.path.join(dir, './testData/rawData/2018_10_02_MouseBrainSlice/')
+    test_data_path = os.path.join(dir, '../testData/rawData/')
     return test_data_path

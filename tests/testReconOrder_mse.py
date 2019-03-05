@@ -12,9 +12,9 @@ import unittest
 
 import cv2
 
-from src.DataPipe.PipeToReconOrder import PipeToReconOrder
+from src.DataPipe.PipeFromFiles import PipeFromFiles
 from src.Processing.ReconOrder import ReconOrder
-from tests.testMetrics import mse
+from tests.testUtils.testMetrics import mse
 
 
 '''
@@ -41,8 +41,8 @@ class TestImageReconstruction(unittest.TestCase):
 
     def construct_all(self):
         # create file loaders
-        datapipe = PipeToReconOrder(type="Test", sample_type="Sample1")
-        datapipe_bg = PipeToReconOrder(type="Test", sample_type='BG')
+        datapipe = PipeFromFiles(type="Test", sample_type="Sample1")
+        datapipe_bg = PipeFromFiles(type="Test", sample_type='BG')
 
         # initialize processors
         self.processor = ReconOrder()
@@ -61,12 +61,11 @@ class TestImageReconstruction(unittest.TestCase):
         datapipe.run_reconstruction_BG_correction(datapipe_bg.get_processor())
 
     def construct_BG_only(self):
-        datapipe_bg = PipeToReconOrder(type="Test", sample_type='BG')
+        datapipe_bg = PipeFromFiles(type="Test", sample_type='BG')
         self.processor_bg = ReconOrder()
         self.processor_bg.frames = 5
         self.processor_bg.compute_inst_matrix()
         datapipe_bg.set_processor(self.processor_bg)
-        # datapipe_bg.compute_inst_matrix()
         datapipe_bg.run_reconstruction()
         return datapipe_bg
 
@@ -92,8 +91,8 @@ class TestImageReconstruction(unittest.TestCase):
 
     def test_mse_ReuseBackground(self):
         bg_pipe = self.construct_BG_only()
-        datapipe1 = PipeToReconOrder(type="Test", sample_type="Sample1")
-        datapipe2 = PipeToReconOrder(type="Test", sample_type="Sample2")
+        datapipe1 = PipeFromFiles(type="Test", sample_type="Sample1")
+        datapipe2 = PipeFromFiles(type="Test", sample_type="Sample2")
         processor1 = ReconOrder()
         processor2 = ReconOrder()
         processor1.frames = 5
