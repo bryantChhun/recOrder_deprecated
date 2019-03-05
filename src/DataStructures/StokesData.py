@@ -22,7 +22,6 @@ class StokesData:
         self._s1 = None
         self._s2 = None
         self._s3 = None
-        self._s4 = None
         self._A = None
         self._B = None
 
@@ -105,11 +104,3 @@ class StokesData:
             self.A = False
         if self._s2 is not None:
             self.B = False
-
-    @property
-    def s4(self):
-        return self._s4
-
-    @s4.setter
-    def s4(self, data: np.ndarray):
-        self._s4 = deepcopy(data)
