@@ -13,8 +13,8 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 import numpy as np
 
-from src.FileManagement.RetrieveData import RetrieveData
-from src.DataPipe.PipeToReconOrder import PipeToReconOrder
+from src.FileManagement.RetrieveFiles import RetrieveData
+from src.DataPipe.PipeFromFiles import PipeFromFiles
 from src.SignalController.SignalController import SignalController
 from src.Processing.ReconOrder import ReconOrder
 
@@ -23,7 +23,6 @@ class NapariWindowOverlay(QWidget):
 
     average_change = pyqtSignal(object)
     length_change = pyqtSignal(object)
-
     update_complete = pyqtSignal(str)
 
     def __init__(self, window, type='Py4J'):
@@ -40,19 +39,16 @@ class NapariWindowOverlay(QWidget):
         self.win = window
         self.viewer = self.win.viewer
 
-        # self.meta = dict(name='2D1C', itype='mono')
-
         #init image data
         self.init_data_1 = 2**16 * np.random.rand(512,512)
 
         #init vector data
-        N = 512
-        N2 = N * N
-        self.pos = np.zeros((N2, 2), dtype=np.float32)
-        dim = np.linspace(0, 4*N - 1, N)
+        N = 1028
+        self.pos = np.zeros((N, N, 2), dtype=np.float32)
+        dim = np.linspace(0, N - 1, N)
         xv, yv = np.meshgrid(dim, dim)
-        self.pos[:, 0] = xv.flatten()
-        self.pos[:, 1] = yv.flatten()
+        self.pos[:, :, 0] = xv
+        self.pos[:, :, 1] = yv
 
         #init layers with vector data and subscribe to gui notifications
         self.layer1 = self.viewer.add_vectors(self.pos)
@@ -76,7 +72,6 @@ class NapariWindowOverlay(QWidget):
         self.average_change.emit(update)
 
     def compute_length(self, update: [int, float]):
-        print('length change detected from reconorder, emitting update')
         self.length_change.emit(update)
 
     def set_gateway(self, gateway):
@@ -94,6 +89,7 @@ class NapariWindowOverlay(QWidget):
             print("gui received object of type = "+str(type(instance)))
             self.layer1.vectors = instance.azimuth_vector
             # self.layer2.image = inst_reconOrder.scattering
+            # self.layer2.image = inst_reconOrder.phase
             self.layer2.image = instance.azimuth_degree
             self.layer3.image = instance.retard
             self.layer4.image = instance.I_trans
@@ -106,7 +102,7 @@ class NapariWindowOverlay(QWidget):
             # self.layer2.image = 65536*np.random.rand(2048,2048)
 
     def make_connection(self, reconstruction: object):
-        if isinstance(reconstruction, PipeToReconOrder):
+        if isinstance(reconstruction, PipeFromFiles):
             print("connecting pipe to gui")
             reconstruction.recon_complete.connect(self.update_layer_image)
         elif isinstance(reconstruction, SignalController):
