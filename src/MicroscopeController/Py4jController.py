@@ -12,6 +12,8 @@ from py4j.java_gateway import JavaGateway
 import numpy as np
 
 from src.DataStructures.BackgroundData import BackgroundData
+from src.DataStructures.IntensityData import IntensityData
+from src.DataStructures.PhysicalData import PhysicalData
 from src.Processing.ReconOrder import ReconOrder
 
 
@@ -43,46 +45,81 @@ def snap_channel(channel: str, gateway: JavaGateway):
     data = np.memmap(filename=data_filename, dtype=depth, offset=0, shape=data_pixelshape)
     return data
 
-def py4j_snap_and_correct(gateway: JavaGateway):
-    #snap states 0,1,2,3,4
-    # retrieve images
-    # launch simple recon and send to display
-    return None
+
+def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData):
+    try:
+        temp_int = IntensityData()
+        temp_physical = PhysicalData()
+        processor = ReconOrder()
+        processor.frames = 5
+
+        temp_int.state0 = snap_channel('State0', gateway)
+        temp_int.state1 = snap_channel('State1', gateway)
+        temp_int.state2 = snap_channel('State2', gateway)
+        temp_int.state3 = snap_channel('State3', gateway)
+        temp_int.state4 = snap_channel('State4', gateway)
+
+        processor.compute_stokes()
+        processor.compute_physical()
+        processor.correct_background(background)
+        temp_physical.I_trans = processor.I_trans
+        temp_physical.retard = processor.retard
+        temp_physical.polarization = processor.polarization
+        temp_physical.scattering = processor.scattering
+        temp_physical.azimuth = processor.azimuth
+
+        return temp_physical
+
+    except Exception as ex:
+        print("Exception when collecting background: "+str(ex))
+        return False
+
 
 def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData):
-    bg_raw.state0 = snap_channel('State0', gateway)
-    bg_raw.state1 = snap_channel('State1', gateway)
-    bg_raw.state2 = snap_channel('State2', gateway)
-    bg_raw.state3 = snap_channel('State3', gateway)
-    bg_raw.state4 = snap_channel('State4', gateway)
-    processor = ReconOrder()
-    processor.frames = 5
+    try:
+        bg_raw.state0 = snap_channel('State0', gateway)
+        bg_raw.state1 = snap_channel('State1', gateway)
+        bg_raw.state2 = snap_channel('State2', gateway)
+        bg_raw.state3 = snap_channel('State3', gateway)
+        bg_raw.state4 = snap_channel('State4', gateway)
+        processor = ReconOrder()
+        processor.frames = 5
 
-    #connect pipeline to GUI if necessary
+        #assign intensity states
+        processor.state = (0, bg_raw.state0)
+        processor.state = (1, bg_raw.state1)
+        processor.state = (2, bg_raw.state2)
+        processor.state = (3, bg_raw.state3)
+        processor.state = (4, bg_raw.state4)
 
-    #assign intensity states
-    processor.state = (0, bg_raw.state0)
-    processor.state = (1, bg_raw.state1)
-    processor.state = (2, bg_raw.state2)
-    processor.state = (3, bg_raw.state3)
-    processor.state = (4, bg_raw.state4)
+        # construct and assign stokes to bg_raw
+        processor.compute_stokes()
+        bg_raw.s0 = processor.s0
+        bg_raw.s1 = processor.s1
+        bg_raw.s2 = processor.s2
+        bg_raw.s3 = processor.s3
 
-    # construct and assign stokes to bg_raw
-    processor.compute_stokes()
-    bg_raw.s0 = processor.s0
-    bg_raw.s1 = processor.s1
-    bg_raw.s2 = processor.s2
-    bg_raw.s3 = processor.s3
+        # construct and assign physical to bg_raw
+        processor.compute_physical()
+        bg_raw.I_trans = processor.I_trans
+        bg_raw.retard = processor.retard
+        bg_raw.polarization = processor.polarization
+        bg_raw.scattering = processor.scattering
+        bg_raw.azimuth = processor.azimuth
 
-    # construct and assign physical to bg_raw
-    processor.compute_physical()
-    bg_raw.I_trans = processor.I_trans
-    bg_raw.retard = processor.retard
-    bg_raw.polarization = processor.polarization
-    bg_raw.scattering = processor.scattering
-    bg_raw.azimuth = processor.azimuth
-    return None
+        return bg_raw
 
+        # write to disk
+            # create a folder with a name
+            # this write should iterate through all attributes and create a .npy file for each?
+
+        # update UI field to reflect new folder
+        # in reconOrderUI we will have the text field trigger another method that
+        #   will read the .npy files and update ReconOrderUI's self.Background object
+
+    except Exception as ex:
+        print("Exception when collecting background: "+str(ex))
+        return False
 
 
 def py4j_calibrate_lc(gateway: JavaGateway):
