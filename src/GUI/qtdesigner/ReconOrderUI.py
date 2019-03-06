@@ -7,7 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QObject, pyqtSlot
+from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 from PyQt5.QtWidgets import QFileDialog, QWidget, QDesktopWidget
 from src.DataPipe.PipeFromFiles import PipeFromFiles
 from src.DataPipe.PipeFromPy4j import PipeFromPy4j
@@ -15,6 +15,12 @@ from src.MicroscopeController.Py4jController import *
 
 
 class Ui_ReconOrderUI(QWidget):
+
+    Background = None
+    gate = None
+
+    window_update_signal = pyqtSignal()
+
     def setupUi(self, ReconOrderUI, gateway):
         ReconOrderUI.setObjectName("ReconOrderUI")
         ReconOrderUI.resize(500, 229)
@@ -74,6 +80,8 @@ class Ui_ReconOrderUI(QWidget):
         # QtCore.QMetaObject.connectSlotsByName(ReconOrderUI)
 
         self.gate = gateway
+        self.Background = BackgroundData()
+        # self.window = window
 
         # move the windows apart!
         # cp = QDesktopWidget().availableGeometry().center()
@@ -103,19 +111,17 @@ class Ui_ReconOrderUI(QWidget):
     #     pipe_bg.run_reconstruction(threaded=False)
     #     pipe.run_reconstruction_BG_correction(pipe_bg.get_processor(), threaded=True)
 
+    # Py4J Controller calls
     @pyqtSlot(bool)
     def snap_and_correct(self):
         print("snap and correct background called")
-        # py4j controller call!
-        self.pipe_bg.run_reconstruction(threaded=False)
-        self.pipe.run_reconstruction_BG_correction(self.pipe_bg.get_processor(), threaded=True)
+        self.window_update_signal.emit(py4j_snap_and_correct(self.gate, self.Background))
 
     @pyqtSlot(bool)
     def collect_background(self):
-        # py4j controller call!
         print("collect background called")
-        py4j_collect_background(self.gate)
-        raise NotImplementedError
+        bg_obj = py4j_collect_background(self.gate, self.Background)
+        self.window_update_signal.emit(bg_obj)
 
     @pyqtSlot(bool)
     def file_browser(self):
