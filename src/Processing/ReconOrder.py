@@ -13,6 +13,7 @@ import numpy as np
 from src.DataStructures.IntensityData import IntensityData
 from src.DataStructures.PhysicalData import PhysicalData
 from src.DataStructures.StokesData import StokesData
+from src.DataStructures.BackgroundData import BackgroundData
 from src.Processing.AzimuthToVector import compute_average
 
 
@@ -133,7 +134,7 @@ class ReconOrder(object):
         :return: None
         """
 
-        if isinstance(background, ReconOrder):
+        if isinstance(background, ReconOrder) or isinstance(background, BackgroundData):
             self.I_trans = self.I_trans / background.I_trans
             self.polarization = self.polarization / background.polarization
             self.A = self.A - background.A
