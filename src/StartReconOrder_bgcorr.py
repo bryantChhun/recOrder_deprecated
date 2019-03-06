@@ -33,15 +33,15 @@ if __name__ == '__main__':
 
     gateway = JavaGateway()
 
-    ReconOrderUI = QtWidgets.QDialog()
-    ui = Ui_ReconOrderUI()
-    ui.setupUi(ReconOrderUI, gateway)
-    ReconOrderUI.show()
-
     #create Viewer, Windows
     viewer = Viewer()
     win = Window(Viewer(), show=False)
     overlay_window = NapariWindowOverlay(win)
+
+    ReconOrderUI = QtWidgets.QDialog()
+    ui = Ui_ReconOrderUI()
+    ui.setupUi(ReconOrderUI, gateway)
+    ReconOrderUI.show()
 
     #initialize file loaders
     loader = PipeFromFiles(type="Test", sample_type="Sample1")
