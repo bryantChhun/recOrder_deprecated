@@ -22,7 +22,7 @@ class Singleton(type):
         return cls._instances[cls]
 
 
-class BackgroundData(metaclass=Singleton, IntensityData, StokesData, PhysicalData):
+class BackgroundData(IntensityData, StokesData, PhysicalData, metaclass=Singleton):
 
     def __init__(self):
         super().__init__()

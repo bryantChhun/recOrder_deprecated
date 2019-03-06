@@ -23,6 +23,8 @@ class PhysicalData:
         self._polarization = None
         self._scattering = None
         self._azimuth = None
+        self._azimuth_vector = None
+        self._azimuth_degree = None
 
     @property
     def I_trans(self):
@@ -55,6 +57,22 @@ class PhysicalData:
     @azimuth.setter
     def azimuth(self, data: np.ndarray):
         self._azimuth = deepcopy(data)
+
+    @property
+    def azimuth_vector(self):
+        return self._azimuth_vector
+
+    @azimuth_vector.setter
+    def azimuth_vector(self, data: np.ndarray):
+        self._azimuth_vector = deepcopy(data)
+
+    @property
+    def azimuth_degree(self):
+        return self._azimuth_vector
+
+    @azimuth_degree.setter
+    def azimuth_degree(self, data: np.ndarray):
+        self._azimuth_degree = deepcopy(data)
 
     @property
     def scattering(self):
