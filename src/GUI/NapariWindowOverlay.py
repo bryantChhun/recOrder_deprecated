@@ -14,8 +14,7 @@ from PyQt5.QtCore import pyqtSignal, pyqtSlot
 import numpy as np
 
 from src.FileManagement.RetrieveFiles import RetrieveData
-from src.DataPipe.PipeFromFiles import PipeFromFiles
-from src.SignalController.SignalController import SignalController
+from src.DataStructures.PhysicalData import PhysicalData
 from src.Processing.ReconOrder import ReconOrder
 
 
@@ -85,7 +84,7 @@ class NapariWindowOverlay(QWidget):
     def update_layer_image(self, instance: object):
         self.win.show()
 
-        if isinstance(instance, ReconOrder):
+        if isinstance(instance, ReconOrder) or isinstance(instance, PhysicalData):
             print("gui received object of type = "+str(type(instance)))
             self.layer1.vectors = instance.azimuth_vector
             # self.layer2.image = inst_reconOrder.scattering
@@ -95,18 +94,24 @@ class NapariWindowOverlay(QWidget):
             self.layer4.image = instance.I_trans
 
             self.update_complete.emit("Received and updated images")
-
         else:
             print("gui received vector or averaging update")
             self.layer1.vectors = instance
             # self.layer2.image = 65536*np.random.rand(2048,2048)
 
     def make_connection(self, reconstruction: object):
+        from src.DataPipe.PipeFromFiles import PipeFromFiles
+        from src.SignalController.SignalController import SignalController
+        from src.GUI.qtdesigner.ReconOrderUI import Ui_ReconOrderUI
+
         if isinstance(reconstruction, PipeFromFiles):
             print("connecting pipe to gui")
             reconstruction.recon_complete.connect(self.update_layer_image)
         elif isinstance(reconstruction, SignalController):
             print("connecting signal controller to gui")
             reconstruction.vector_computed.connect(self.update_layer_image)
+        elif isinstance(reconstruction, Ui_ReconOrderUI):
+            print("connecting LC calibration to GUI")
+            reconstruction.window_update_signal.connect(self.update_layer_image)
         else:
             print("no matching implementation found for: "+str(type(reconstruction)))
