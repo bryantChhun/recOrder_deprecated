@@ -12,7 +12,6 @@ from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QThreadPool, QRunnable
 import numpy as np
 
 from src.FileManagement.MonitorDatastores import MonitorDatastores
-from src.GUI.NapariWindowOverlay import NapariWindowOverlay
 from src.Processing.ReconOrder import ReconOrder
 
 
@@ -128,6 +127,7 @@ class PipeFromPy4j(QObject):
     # ========================= connect signals =========================
 
     def make_connection(self, event):
+        from src.GUI.NapariWindowOverlay import NapariWindowOverlay
         if isinstance(event, NapariWindowOverlay):
             print("connecting window's signal to pipe's slot")
             event.update_complete.connect(self._report_from_window)

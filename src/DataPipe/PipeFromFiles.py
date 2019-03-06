@@ -17,7 +17,6 @@ from datetime import datetime
 
 """
 PipeToReconOrder is a communication interface between data retrieval methods (under "FileManagement") 
-    and 
 """
 
 
@@ -108,6 +107,7 @@ class PipeFromFiles(QObject):
         self._Recon.correct_background(background)
         return True
 
+    # the lower two methods do not call the private recon attribute.
     def fetch_stokes_physical(self):
         print('fetch stokes physical')
         self.fetch_images()
