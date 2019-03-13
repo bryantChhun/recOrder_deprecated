@@ -24,7 +24,7 @@ from src.GUI.qtdesigner.ReconOrderUI import Ui_ReconOrderUI
 from src.SignalController.SignalController import SignalController
 from src.Processing.ReconOrder import ReconOrder
 
-from napari_gui import Window, Viewer
+from gui import Window, Viewer
 
 if __name__ == '__main__':
     # starting

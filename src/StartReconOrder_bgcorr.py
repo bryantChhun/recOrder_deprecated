@@ -25,7 +25,7 @@ from src.SignalController.SignalController import SignalController
 from src.Processing.ReconOrder import ReconOrder
 from py4j.java_gateway import JavaGateway
 
-from napari_gui import Window, Viewer
+from gui import Window, Viewer
 
 if __name__ == '__main__':
     # starting
@@ -37,11 +37,6 @@ if __name__ == '__main__':
     viewer = Viewer()
     win = Window(Viewer(), show=False)
     overlay_window = NapariWindowOverlay(win)
-
-    ReconOrderUI = QtWidgets.QDialog()
-    ui = Ui_ReconOrderUI()
-    ui.setupUi(ReconOrderUI, gateway)
-    ReconOrderUI.show()
 
     #initialize file loaders
     loader = PipeFromFiles(type="Test", sample_type="Sample1")
@@ -72,6 +67,12 @@ if __name__ == '__main__':
     # BGprocess first
     loader_bg.run_reconstruction(threaded=False)
     loader.run_reconstruction_BG_correction(loader_bg.get_processor(), threaded=True)
+
+    ReconOrderUI = QtWidgets.QDialog()
+    ui = Ui_ReconOrderUI()
+    ui.setupUi(ReconOrderUI)
+    ui.gateway = gateway
+    ReconOrderUI.show()
 
     #connect so button launches bgprocess
     ui.assign_pipes(loader, loader_bg)
