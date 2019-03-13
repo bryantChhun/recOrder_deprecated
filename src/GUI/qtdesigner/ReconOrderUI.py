@@ -17,11 +17,11 @@ from src.MicroscopeController.Py4jController import *
 class Ui_ReconOrderUI(QWidget):
 
     Background = None
-    gate = None
+    _gate = None
 
     window_update_signal = pyqtSignal()
 
-    def setupUi(self, ReconOrderUI, gateway):
+    def setupUi(self, ReconOrderUI):
         ReconOrderUI.setObjectName("ReconOrderUI")
         ReconOrderUI.resize(500, 229)
         self.tabWidget = QtWidgets.QTabWidget(ReconOrderUI)
@@ -79,7 +79,7 @@ class Ui_ReconOrderUI(QWidget):
         self.qline_wavelength.editingFinished.connect(self.wavelength_changed)
         # QtCore.QMetaObject.connectSlotsByName(ReconOrderUI)
 
-        self.gate = gateway
+        self._gate = None
         self.Background = BackgroundData()
         # self.window = window
 
@@ -89,6 +89,14 @@ class Ui_ReconOrderUI(QWidget):
         # x, y = geo.x(), geo.y()
         # x.
         # self.move(x+1000,y)
+
+    @property
+    def gateway(self):
+        return self._gate
+
+    @gateway.setter
+    def gateway(self, gateway_):
+        self._gate = gateway_
 
     def assign_pipes(self, pipe, pipe_bg):
         if not isinstance(pipe, PipeFromFiles) and not isinstance(pipe_bg, PipeFromFiles) \
@@ -107,21 +115,21 @@ class Ui_ReconOrderUI(QWidget):
             print(fileName)
             self.qline_bg_corr_path.setText(fileName)
 
-    # def _run_pipe(self, pipe: PipeFromFiles, pipe_bg: PipeFromFiles):
-    #     pipe_bg.run_reconstruction(threaded=False)
-    #     pipe.run_reconstruction_BG_correction(pipe_bg.get_processor(), threaded=True)
-
     # Py4J Controller calls
     @pyqtSlot(bool)
     def snap_and_correct(self):
         print("snap and correct background called")
-        self.window_update_signal.emit(py4j_snap_and_correct(self.gate, self.Background))
+        snap_bg_corr = py4j_snap_and_correct(self._gate, self.Background)
+        self.window_update_signal.emit(snap_bg_corr)
 
     @pyqtSlot(bool)
     def collect_background(self):
         print("collect background called")
-        bg_obj = py4j_collect_background(self.gate, self.Background)
-        self.window_update_signal.emit(bg_obj)
+        bg_obj = py4j_collect_background(self._gate, self.Background)
+        if bg_obj is False:
+            return None
+        else:
+            self.window_update_signal.emit(bg_obj)
 
     @pyqtSlot(bool)
     def file_browser(self):
