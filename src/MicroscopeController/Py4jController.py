@@ -10,14 +10,17 @@
 
 from py4j.java_gateway import JavaGateway
 import numpy as np
+import time
 
 from src.DataStructures.BackgroundData import BackgroundData
 from src.DataStructures.IntensityData import IntensityData
 from src.DataStructures.PhysicalData import PhysicalData
 from src.Processing.ReconOrder import ReconOrder
 
+from copy import deepcopy
 
-def snap_channel(channel: str, gateway: JavaGateway):
+
+def _snap_channel(channel: str, gateway: JavaGateway):
     """
     Snaps an image on micromanager and returns the memmap data
 
@@ -28,21 +31,32 @@ def snap_channel(channel: str, gateway: JavaGateway):
     mmc = gateway.entry_point.getCMMCore()
     mm = gateway.entry_point.getStudio()
 
+    mmc.setChannelGroup('Channel')
     mmc.setConfig('Channel', channel)
     livemanager = mm.getSnapLiveManager()
-    livemanager.snap(False)
+    livemanager.snap(True)
+
+    ct = 0
+    while not gateway.entry_point.fileExists(channel):
+        time.sleep(0.01)
+        ct += 1
+        if ct >= 1000:
+            print('timeout waiting for file exists')
+            break
 
     data_filename = gateway.entry_point.getFile(channel)
-    store = gateway.entry_point.getStore(channel)
-    data_pixelshape = (store.x_dim, store.y_dim)
-    data_pixeldepth = 8*store.bitdepth
-    if data_pixeldepth == 16:
-        depth = np.uint16
-    elif data_pixeldepth == 8:
-        depth = np.uint8
-    else:
-        depth = np.uint16
-    data = np.memmap(filename=data_filename, dtype=depth, offset=0, shape=data_pixelshape)
+    if data_filename is None:
+        print("no file with name %s exists" % channel)
+    # store = gateway.entry_point.getStore(channel)
+    # data_pixelshape = (store.x_dim, store.y_dim)
+    # data_pixeldepth = 8*store.bitdepth
+    # if data_pixeldepth == 16:
+    #     depth = np.uint16
+    # elif data_pixeldepth == 8:
+    #     depth = np.uint8
+    # else:
+    #     depth = np.uint16
+    data = deepcopy(np.memmap(filename=data_filename, dtype=np.uint16, offset=0, shape=(512, 512)))
     return data
 
 
@@ -53,12 +67,16 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData):
         processor = ReconOrder()
         processor.frames = 5
 
-        temp_int.state0 = snap_channel('State0', gateway)
-        temp_int.state1 = snap_channel('State1', gateway)
-        temp_int.state2 = snap_channel('State2', gateway)
-        temp_int.state3 = snap_channel('State3', gateway)
-        temp_int.state4 = snap_channel('State4', gateway)
+        temp_int.state0 = _snap_channel('State0', gateway)
+        temp_int.state1 = _snap_channel('State1', gateway)
+        temp_int.state2 = _snap_channel('State2', gateway)
+        temp_int.state3 = _snap_channel('State3', gateway)
+        temp_int.state4 = _snap_channel('State4', gateway)
+    except Exception as ex:
+        print("Exception when collecting background: " + str(ex))
+        return False
 
+    try:
         processor.compute_stokes()
         processor.compute_physical()
         processor.correct_background(background)
@@ -69,19 +87,22 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData):
         temp_physical.azimuth = processor.azimuth
 
         return temp_physical
-
     except Exception as ex:
-        print("Exception when collecting background: "+str(ex))
+        print("Exception when processing background: " +str(ex))
         return False
 
 
+
+
 def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData):
+    # add query of State0,1,2,3,4 in config group channel
+    # should be accomplished through micromanager
     try:
-        bg_raw.state0 = snap_channel('State0', gateway)
-        bg_raw.state1 = snap_channel('State1', gateway)
-        bg_raw.state2 = snap_channel('State2', gateway)
-        bg_raw.state3 = snap_channel('State3', gateway)
-        bg_raw.state4 = snap_channel('State4', gateway)
+        bg_raw.state0 = _snap_channel('State0', gateway)
+        bg_raw.state1 = _snap_channel('State1', gateway)
+        bg_raw.state2 = _snap_channel('State2', gateway)
+        bg_raw.state3 = _snap_channel('State3', gateway)
+        bg_raw.state4 = _snap_channel('State4', gateway)
         processor = ReconOrder()
         processor.frames = 5
 
