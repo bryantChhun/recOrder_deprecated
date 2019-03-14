@@ -42,7 +42,7 @@ class ReconOrder(object):
 
     def __init__(self):
         super().__init__()
-        self.intensity = IntensityData()
+        self._intensity = IntensityData()
         self._states = [None] * 5
         self._frames = None
 
@@ -79,6 +79,19 @@ class ReconOrder(object):
         self.local_gauss = None
 
     @property
+    def IntensityData(self):
+        return self._intensity
+
+    @IntensityData.setter
+    def IntensityData(self, int_obj: IntensityData):
+        self._intensity = int_obj
+        self.state = (0, int_obj.Iext)
+        self.state = (1, int_obj.Iext)
+        self.state = (2, int_obj.Iext)
+        self.state = (3, int_obj.Iext)
+        self.state = (4, int_obj.Iext)
+
+    @property
     def frames(self) -> int:
         return self._frames
 
@@ -108,6 +121,8 @@ class ReconOrder(object):
         if len(statemap) != 2:
             raise ValueError("invalid state parameter: state setter receives tuple of (index, image)")
         self._states[statemap[0]] = statemap[1]
+        self._intensity.set_angle_from_index(statemap[0], statemap[1])
+
         self.height = self._states[statemap[0]].shape[0]
         self.width = self._states[statemap[0]].shape[1]
 

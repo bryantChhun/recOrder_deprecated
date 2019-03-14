@@ -67,11 +67,13 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData):
         processor = ReconOrder()
         processor.frames = 5
 
-        temp_int.state0 = _snap_channel('State0', gateway)
-        temp_int.state1 = _snap_channel('State1', gateway)
-        temp_int.state2 = _snap_channel('State2', gateway)
-        temp_int.state3 = _snap_channel('State3', gateway)
-        temp_int.state4 = _snap_channel('State4', gateway)
+        temp_int.Iext = _snap_channel('State0', gateway)
+        temp_int.I0 = _snap_channel('State1', gateway)
+        temp_int.I45 = _snap_channel('State2', gateway)
+        temp_int.I90 = _snap_channel('State3', gateway)
+        temp_int.I135 = _snap_channel('State4', gateway)
+
+        processor.IntensityData = temp_int
     except Exception as ex:
         print("Exception when collecting background: " + str(ex))
         return False

@@ -24,6 +24,18 @@ class IntensityData:
         self._I90 = None
         self._I135 = None
 
+    def set_angle_from_index(self, index: int, image: np.ndarray):
+        if index == 0:
+            self.IExt = image
+        elif index == 1:
+            self.I0 = image
+        elif index == 2:
+            self.I45 = image
+        elif index == 3:
+            self.I90 = image
+        elif index == 4:
+            self.I135 = image
+
     @property
     def IExt(self):
         return self._IExt
