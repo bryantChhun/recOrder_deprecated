@@ -19,7 +19,7 @@ class Ui_ReconOrderUI(QWidget):
     Background = None
     _gate = None
 
-    window_update_signal = pyqtSignal()
+    window_update_signal = pyqtSignal(object)
 
     def setupUi(self, ReconOrderUI):
         ReconOrderUI.setObjectName("ReconOrderUI")
@@ -81,7 +81,6 @@ class Ui_ReconOrderUI(QWidget):
 
         self._gate = None
         self.Background = BackgroundData()
-        # self.window = window
 
         # move the windows apart!
         # cp = QDesktopWidget().availableGeometry().center()
@@ -126,7 +125,7 @@ class Ui_ReconOrderUI(QWidget):
     def collect_background(self):
         print("collect background called")
         bg_obj = py4j_collect_background(self._gate, self.Background)
-        if bg_obj is False:
+        if bg_obj is False or None:
             return None
         else:
             self.window_update_signal.emit(bg_obj)
