@@ -26,9 +26,6 @@ class BackgroundData(IntensityData, StokesData, PhysicalData, metaclass=Singleto
 
     def __init__(self):
         super(BackgroundData, self).__init__()
-        IntensityData.__init__(self)
-        StokesData.__init__(self)
-        PhysicalData.__init__(self)
 
     def return_none_vals(self):
         intensity = ['IExt', 'I0', 'I45', 'I90', 'I135']

@@ -41,7 +41,7 @@ class ReconOrder(object):
     inst_mat_inv = None
 
     def __init__(self):
-        super().__init__()
+        super(ReconOrder, self).__init__()
         self._intensity = IntensityData()
         self._states = [None] * 5
         self._frames = None

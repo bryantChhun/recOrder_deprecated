@@ -12,12 +12,13 @@ import numpy as np
 from copy import deepcopy
 
 
-class PhysicalData:
+class PhysicalData(object):
     """
     Data Structure that contains all computed physical data
     """
 
     def __init__(self):
+        super(PhysicalData, self).__init__()
         self._I_trans = None
         self._retard = None
         self._polarization = None

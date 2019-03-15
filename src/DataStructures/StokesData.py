@@ -12,12 +12,13 @@ import numpy as np
 from copy import deepcopy
 
 
-class StokesData:
+class StokesData(object):
     """
     Data Structure that contains all stokes vector images
     """
 
     def __init__(self):
+        super(StokesData, self).__init__()
         self._s0 = None
         self._s1 = None
         self._s2 = None

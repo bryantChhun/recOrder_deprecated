@@ -12,12 +12,13 @@ import numpy as np
 from copy import deepcopy
 
 
-class IntensityData:
+class IntensityData(object):
     """
     Data Structure that contains all raw intensity images
     """
 
     def __init__(self):
+        super(IntensityData, self).__init__()
         self._IExt = None
         self._I0 = None
         self._I45 = None
