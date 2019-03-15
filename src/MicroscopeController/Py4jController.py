@@ -33,12 +33,12 @@ def _snap_channel(channel: str, gateway: JavaGateway):
 
     mmc.setChannelGroup('Channel')
     mmc.setConfig('Channel', channel)
-    livemanager = mm.getSnapLiveManager()
-    livemanager.snap(True)
+    live_manager = mm.getSnapLiveManager()
+    live_manager.snap(True)
 
     ct = 0
     while not gateway.entry_point.fileExists(channel):
-        time.sleep(0.01)
+        time.sleep(0.001)
         ct += 1
         if ct >= 1000:
             print('timeout waiting for file exists')
@@ -47,9 +47,11 @@ def _snap_channel(channel: str, gateway: JavaGateway):
     data_filename = gateway.entry_point.getFile(channel)
     if data_filename is None:
         print("no file with name %s exists" % channel)
+
+    # retrieve metadata
     store = gateway.entry_point.getStore(channel)
-    data_pixelshape = (store.x_dim, store.y_dim)
-    data_pixeldepth = 8*store.bitdepth
+    data_pixelshape = (store.getxRange(), store.getyRange())
+    data_pixeldepth = 8*store.getBitDepth()
     if data_pixeldepth == 16:
         depth = np.uint16
     elif data_pixeldepth == 8:
@@ -94,15 +96,14 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData):
         return False
 
 
-def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData):
-    # add query of State0,1,2,3,4 in config group channel
-    # should be accomplished through micromanager
+def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averaging: int = 10):
+
     try:
-        bg_raw.state0 = _snap_channel('State0', gateway)
-        bg_raw.state1 = _snap_channel('State1', gateway)
-        bg_raw.state2 = _snap_channel('State2', gateway)
-        bg_raw.state3 = _snap_channel('State3', gateway)
-        bg_raw.state4 = _snap_channel('State4', gateway)
+        bg_raw.state0 = np.mean([_snap_channel('State0', gateway) for i in range(0, averaging)])
+        bg_raw.state1 = np.mean([_snap_channel('State1', gateway) for i in range(0, averaging)])
+        bg_raw.state2 = np.mean([_snap_channel('State2', gateway) for i in range(0, averaging)])
+        bg_raw.state3 = np.mean([_snap_channel('State3', gateway) for i in range(0, averaging)])
+        bg_raw.state4 = np.mean([_snap_channel('State4', gateway) for i in range(0, averaging)])
         processor = ReconOrder()
         processor.frames = 5
         print("all states snapped")
