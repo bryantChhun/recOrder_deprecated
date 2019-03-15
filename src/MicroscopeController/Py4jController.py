@@ -99,11 +99,11 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData):
 def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averaging: int = 10):
 
     try:
-        bg_raw.state0 = np.mean([_snap_channel('State0', gateway) for i in range(0, averaging)])
-        bg_raw.state1 = np.mean([_snap_channel('State1', gateway) for i in range(0, averaging)])
-        bg_raw.state2 = np.mean([_snap_channel('State2', gateway) for i in range(0, averaging)])
-        bg_raw.state3 = np.mean([_snap_channel('State3', gateway) for i in range(0, averaging)])
-        bg_raw.state4 = np.mean([_snap_channel('State4', gateway) for i in range(0, averaging)])
+        bg_raw.state0 = np.mean([_snap_channel('State0', gateway).flatten() for i in range(0, averaging)], axis=0).reshape((512,512))
+        bg_raw.state1 = np.mean([_snap_channel('State1', gateway).flatten() for i in range(0, averaging)], axis=0).reshape((512,512))
+        bg_raw.state2 = np.mean([_snap_channel('State2', gateway).flatten() for i in range(0, averaging)], axis=0).reshape((512,512))
+        bg_raw.state3 = np.mean([_snap_channel('State3', gateway).flatten() for i in range(0, averaging)], axis=0).reshape((512,512))
+        bg_raw.state4 = np.mean([_snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0).reshape((512,512))
         processor = ReconOrder()
         processor.frames = 5
         print("all states snapped")
