@@ -118,6 +118,7 @@ class Ui_ReconOrderUI(QWidget):
     @pyqtSlot(bool)
     def snap_and_correct(self):
         print("snap and correct background called")
+        #snap_bg_corr is an object of type PhysicalData
         snap_bg_corr = py4j_snap_and_correct(self._gate, self.Background)
         self.window_update_signal.emit(snap_bg_corr)
 
