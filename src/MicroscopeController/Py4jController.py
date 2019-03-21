@@ -49,9 +49,9 @@ def _snap_channel(channel: str, gateway: JavaGateway):
         print("no file with name %s exists" % channel)
 
     # retrieve metadata
-    store = gateway.entry_point.getStore(channel)
-    data_pixelshape = (store.getxRange(), store.getyRange())
-    data_pixeldepth = 8*store.getBitDepth()
+    meta = gateway.entry_point.getStore(channel)
+    data_pixelshape = (meta.getxRange(), meta.getyRange())
+    data_pixeldepth = 8*meta.getBitDepth()
     if data_pixeldepth == 16:
         depth = np.uint16
     elif data_pixeldepth == 8:
@@ -65,7 +65,6 @@ def _snap_channel(channel: str, gateway: JavaGateway):
 def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData):
     try:
         temp_int = IntensityData()
-        temp_physical = PhysicalData()
         processor = ReconOrder()
         processor.frames = 5
 
@@ -77,10 +76,11 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData):
 
         processor.IntensityData = temp_int
     except Exception as ex:
-        print("Exception when collecting background: " + str(ex))
+        print("Exception when snapping image: " + str(ex))
         return False
 
     try:
+        temp_physical = PhysicalData()
         processor.compute_stokes()
         processor.compute_physical()
         processor.correct_background(background)
@@ -97,13 +97,30 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData):
 
 
 def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averaging: int = 10):
+    """
+    snaps 10 images of each of state0,1,2,3,4.  Averages the 10 for those states
+
+    :param gateway: py4j gateway to micro-manager
+    :param bg_raw: BackgroundData object
+    :param averaging: number of background frames to snap and average
+    :return: BackgroundData object
+    """
+
+    # we assume that the image for channel=State0 is the same as that for all other states
+    meta = gateway.entry_point.getStore('State0')
+    data_pixelshape = (meta.getxRange(), meta.getyRange())
 
     try:
-        bg_raw.state0 = np.mean([_snap_channel('State0', gateway).flatten() for i in range(0, averaging)], axis=0).reshape((512,512))
-        bg_raw.state1 = np.mean([_snap_channel('State1', gateway).flatten() for i in range(0, averaging)], axis=0).reshape((512,512))
-        bg_raw.state2 = np.mean([_snap_channel('State2', gateway).flatten() for i in range(0, averaging)], axis=0).reshape((512,512))
-        bg_raw.state3 = np.mean([_snap_channel('State3', gateway).flatten() for i in range(0, averaging)], axis=0).reshape((512,512))
-        bg_raw.state4 = np.mean([_snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0).reshape((512,512))
+        bg_raw.state0 = np.mean([_snap_channel('State0', gateway).flatten() for i in range(0, averaging)], axis=0)\
+            .reshape(data_pixelshape)
+        bg_raw.state1 = np.mean([_snap_channel('State1', gateway).flatten() for i in range(0, averaging)], axis=0)\
+            .reshape(data_pixelshape)
+        bg_raw.state2 = np.mean([_snap_channel('State2', gateway).flatten() for i in range(0, averaging)], axis=0)\
+            .reshape(data_pixelshape)
+        bg_raw.state3 = np.mean([_snap_channel('State3', gateway).flatten() for i in range(0, averaging)], axis=0)\
+            .reshape(data_pixelshape)
+        bg_raw.state4 = np.mean([_snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0)\
+            .reshape(data_pixelshape)
         processor = ReconOrder()
         processor.frames = 5
         print("all states snapped")
@@ -139,7 +156,7 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
 
         # write to disk
             # create a folder with a name
-            # this write should iterate through all attributes and create a .npy file for each?
+            # this write should iterate through all BG data stokes? and create a .npy file for each?
 
         # update UI field to reflect new folder
         # in reconOrderUI we will have the text field trigger another method that
