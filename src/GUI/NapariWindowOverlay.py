@@ -24,7 +24,7 @@ class NapariWindowOverlay(QWidget):
     length_change = pyqtSignal(object)
     update_complete = pyqtSignal(str)
 
-    def __init__(self, window, type='Py4J'):
+    def __init__(self, viewer, type='Py4J'):
         super().__init__()
 
         # Data handling methods
@@ -35,8 +35,7 @@ class NapariWindowOverlay(QWidget):
         self.channels_reconOrder = ['State0', 'State1', 'State2', 'State3', 'State4']
 
         # UI initialization methods
-        self.win = window
-        self.viewer = self.win.viewer
+        self.viewer = viewer
 
         #init image data
         self.init_data_1 = 2**16 * np.random.rand(512,512)
@@ -55,15 +54,10 @@ class NapariWindowOverlay(QWidget):
         self.layer1.length_bind_to(self.compute_length)
 
         self.layer2 = self.viewer.add_image(self.init_data_1, {})
-        # self.layer2.cmap = 'grays'
 
         self.layer3 = self.viewer.add_image(self.init_data_1, {})
-        # self.layer3.cmap = 'grays'
 
         self.layer4 = self.viewer.add_image(self.init_data_1, {})
-        # self.layer4.cmap = 'grays'
-
-        self.win.show()
 
         self.layers = [self.layer1, self.layer2, self.layer3, self.layer4]
 
@@ -82,7 +76,6 @@ class NapariWindowOverlay(QWidget):
 
     @pyqtSlot(object)
     def update_layer_image(self, instance: object):
-        self.win.show()
 
         if isinstance(instance, ReconOrder) or isinstance(instance, PhysicalData):
             print("gui received object of type = "+str(type(instance)))
