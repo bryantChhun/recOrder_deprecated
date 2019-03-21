@@ -188,8 +188,6 @@ class ReconOrder(object):
         I_135 = self.state[2]
         I_45 = self.state[3]
 
-        # pdb.set_trace()
-
         # define our instrument matrix based on self.frames
         if self._frames == 4:
             img_raw = np.stack((I_ext, I_45, I_90, I_135))  # order the channel following stokes calculus convention
@@ -208,7 +206,6 @@ class ReconOrder(object):
                                  [1, -np.sin(chi), 0, -np.cos(chi)],
                                  [1, 0, -np.sin(chi), -np.cos(chi)]])
 
-        # pdb.set_trace()
         # calculate stokes
         inst_mat_inv = np.linalg.pinv(inst_mat)
         img_raw_flat = np.reshape(img_raw,(self.n_chann, self.height*self.width))
@@ -216,7 +213,6 @@ class ReconOrder(object):
         img_stokes = np.reshape(img_stokes_flat, (img_stokes_flat.shape[0], self.height, self.width))
         [self.s0, self.s1, self.s2, self.s3] = [img_stokes[i, :, :] for i in range(0, img_stokes.shape[0])]
 
-        # pdb.set_trace()
         # assign normalized vectors for bg correction
         self.A = self.s1 / self.s3
         self.B = -self.s2 / self.s3
