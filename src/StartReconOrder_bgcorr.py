@@ -62,8 +62,8 @@ if __name__ == '__main__':
         signals.make_connection(overlay_window)
 
         # BGprocess first
-        loader_bg.run_reconstruction(threaded=False)
-        loader.run_reconstruction_BG_correction(loader_bg.get_processor(), threaded=True)
+        # loader_bg.run_reconstruction(threaded=False)
+        # loader.run_reconstruction_BG_correction(loader_bg.get_processor(), threaded=True)
 
         ReconOrderUI = QtWidgets.QDialog()
         ui = Ui_ReconOrderUI()
