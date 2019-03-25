@@ -32,7 +32,17 @@ def _snap_channel(channel: str, gateway: JavaGateway):
     mm = gateway.entry_point.getStudio()
 
     mmc.setChannelGroup('Channel')
-    mmc.setConfig('Channel', channel)
+    c=0
+    while mmc.getCurrentConfig('Channel') != channel:
+        time.sleep(0.001)
+        mmc.setConfig('Channel', channel)
+        c += 1
+        if c >= 1000:
+            print('timeout waiting to set channel')
+            print('current config is = '+mmc.getCurrentConfig('Channel'))
+            break
+    print("time to check channel = %04d" % c)
+
     live_manager = mm.getSnapLiveManager()
     live_manager.snap(True)
 
@@ -43,6 +53,7 @@ def _snap_channel(channel: str, gateway: JavaGateway):
         if ct >= 1000:
             print('timeout waiting for file exists')
             break
+    print("time to check fileExists = %04d" % ct)
 
     data_filename = gateway.entry_point.getFile(channel)
     if data_filename is None:
@@ -62,40 +73,6 @@ def _snap_channel(channel: str, gateway: JavaGateway):
     return data
 
 
-def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData):
-    try:
-        temp_int = IntensityData()
-        processor = ReconOrder()
-        processor.frames = 5
-
-        temp_int.Iext = _snap_channel('State0', gateway)
-        temp_int.I0 = _snap_channel('State1', gateway)
-        temp_int.I45 = _snap_channel('State2', gateway)
-        temp_int.I90 = _snap_channel('State3', gateway)
-        temp_int.I135 = _snap_channel('State4', gateway)
-
-        processor.IntensityData = temp_int
-    except Exception as ex:
-        print("Exception when snapping image: " + str(ex))
-        return False
-
-    try:
-        temp_physical = PhysicalData()
-        processor.compute_stokes()
-        processor.compute_physical()
-        processor.correct_background(background)
-        temp_physical.I_trans = processor.I_trans
-        temp_physical.retard = processor.retard
-        temp_physical.polarization = processor.polarization
-        temp_physical.scattering = processor.scattering
-        temp_physical.azimuth = processor.azimuth
-
-        return temp_physical
-    except Exception as ex:
-        print("Exception when processing background: " +str(ex))
-        return False
-
-
 def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averaging: int = 10):
     """
     snaps 10 images of each of state0,1,2,3,4.  Averages the 10 for those states
@@ -107,8 +84,9 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
     """
 
     # we assume that the image for channel=State0 is the same as that for all other states
-    meta = gateway.entry_point.getStore('State0')
-    data_pixelshape = (meta.getxRange(), meta.getyRange())
+    # meta = gateway.entry_point.getStore('State0')
+    # data_pixelshape = (meta.getxRange(), meta.getyRange())
+    data_pixelshape = (2048, 2048)
 
     try:
         bg_raw.state0 = np.mean([_snap_channel('State0', gateway).flatten() for i in range(0, averaging)], axis=0)\
@@ -167,10 +145,42 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
         return False
 
 
+def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData):
+    try:
+        temp_int = IntensityData()
+        processor = ReconOrder()
+        processor.frames = 5
+
+        temp_int.Iext = _snap_channel('State0', gateway)
+        temp_int.I0 = _snap_channel('State1', gateway)
+        temp_int.I45 = _snap_channel('State2', gateway)
+        temp_int.I90 = _snap_channel('State3', gateway)
+        temp_int.I135 = _snap_channel('State4', gateway)
+
+        processor.IntensityData = temp_int
+    except Exception as ex:
+        print("Exception when snapping image: " + str(ex))
+        return False
+
+    try:
+        temp_physical = PhysicalData()
+        processor.compute_stokes()
+        processor.compute_physical()
+        processor.correct_background(background)
+        temp_physical.I_trans = processor.I_trans
+        temp_physical.retard = processor.retard
+        temp_physical.polarization = processor.polarization
+        temp_physical.scattering = processor.scattering
+        temp_physical.azimuth = processor.azimuth
+
+        return temp_physical
+    except Exception as ex:
+        print("Exception when processing background: " +str(ex))
+        return False
+
 def py4j_calibrate_lc(gateway: JavaGateway):
     #create processing module
     #call CalibrateLC processor
-
 
     return None
 
