@@ -71,22 +71,22 @@ class TestImageReconstruction(unittest.TestCase):
 
     def test_mse_Itrans(self):
         self.construct_all()
-        self.assertLessEqual(mse(self.processor.I_trans, cv2.imread(self.target_ITrans, -1)), 100000)
+        self.assertLessEqual(mse(self.processor._physical.I_trans, cv2.imread(self.target_ITrans, -1)), 100000)
 
 
     def test_mse_retard(self):
         self.construct_all()
-        self.assertLessEqual(mse(self.processor.retard, cv2.imread(self.target_retard, -1)), 100000)
+        self.assertLessEqual(mse(self.processor._physical.retard, cv2.imread(self.target_retard, -1)), 100000)
 
 
     def test_mse_orientation(self):
         self.construct_all()
-        self.assertLessEqual(mse(self.processor.azimuth_degree, cv2.imread(self.target_Orientation, -1)), 100000)
+        self.assertLessEqual(mse(self.processor._physical.azimuth_degree, cv2.imread(self.target_Orientation, -1)), 100000)
 
 
     def test_mse_scattering(self):
         self.construct_all()
-        self.assertLessEqual(mse(self.processor.scattering, cv2.imread(self.target_Scattering, -1)), 100000)
+        self.assertLessEqual(mse(self.processor._physical.scattering, cv2.imread(self.target_Scattering, -1)), 100000)
 
 
     def test_mse_ReuseBackground(self):

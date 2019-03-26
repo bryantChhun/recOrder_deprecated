@@ -37,6 +37,12 @@ class IntensityData(object):
         elif index == 4:
             self.I135 = image
 
+    def print_none_vals(self):
+        intensity = ['IExt', 'I0', 'I45', 'I90', 'I135']
+        for image in intensity:
+            if getattr(self, image) is None:
+                print("value not set = "+str(image))
+
     @property
     def IExt(self):
         return self._IExt

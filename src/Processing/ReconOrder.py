@@ -42,8 +42,12 @@ class ReconOrder(object):
 
     def __init__(self):
         super(ReconOrder, self).__init__()
-        self._intensity = IntensityData()
-        self._states = [None] * 5
+
+        self._intensity = None
+        self._stokes = None
+        self._physical = None
+        # self._background = BackgroundData()
+        # self._states = [None] * 5
         self._frames = None
 
         self.height = None
@@ -55,28 +59,28 @@ class ReconOrder(object):
 
         self.flip_pol = None
 
-        # Stokes vectors
-        self.s0 = None
-        self.s1 = None
-        self.s2 = None
-        self.s3 = None
-
-        # normalized stokes
-        self.I_trans = None
-        self.polarization = None
-        self.A = None
-        self.B = None
-        self.dAB = None
-
-        # physical images
-        self.retard = None
-        self.azimuth = None
-        self.scattering = None
-        self.azimuth_degree = None
-
-        self.azimuth_vector = None
+        # # Stokes vectors
+        # self._stokes.s0 = None
+        # self._stokes.s1 = None
+        # self._stokes.s2 = None
+        # self._stokes.s3 = None
+        #
+        # # normalized stokes
+        # self._stokes.A = None
+        # self._stokes.B = None
+        #
+        # # physical images
+        # self._physical.I_trans = None
+        # self._physical.retard = None
+        # self._physical.polarization = None
+        # self._physical.azimuth = None
+        # self._physical.azimuth_vector = None
+        # self._physical.azimuth_degree = None
+        # self._physical.scattering = None
 
         self.local_gauss = None
+
+    # ==== properties ====
 
     @property
     def IntensityData(self):
@@ -84,12 +88,47 @@ class ReconOrder(object):
 
     @IntensityData.setter
     def IntensityData(self, int_obj: IntensityData):
+        """
+        is assigned by creating an IntensityData object
+            Intensity data images are assigned to that object
+            Then this parameter is assigned to that object
+        :param int_obj: Object of type IntensityData
+        :return:
+        """
         self._intensity = int_obj
-        self.state = (0, int_obj.Iext)
-        self.state = (1, int_obj.Iext)
-        self.state = (2, int_obj.Iext)
-        self.state = (3, int_obj.Iext)
-        self.state = (4, int_obj.Iext)
+        # self.state = (0, int_obj.Iext)
+        # self.state = (1, int_obj.I0)
+        # self.state = (2, int_obj.I45)
+        # self.state = (3, int_obj.I90)
+        # self.state = (4, int_obj.I135)
+
+    @property
+    def StokesData(self):
+        return self._stokes
+
+    @StokesData.setter
+    def StokesData(self, stk_obj: StokesData):
+        """
+        is assigned through compute_stokes or through this property setter
+
+        :param stk_obj: Object of type StokesData
+        :return:
+        """
+        self._stokes = stk_obj
+
+    @property
+    def PhysicalData(self):
+        return self._physical
+
+    @PhysicalData.setter
+    def PhysicalData(self, phy_obj: PhysicalData):
+        """
+        is assigned through compute_physical or through this property setter
+
+        :param phy_obj: Object of type PhysicalData
+        :return:
+        """
+        self._physical = phy_obj
 
     @property
     def frames(self) -> int:
@@ -107,24 +146,24 @@ class ReconOrder(object):
         else:
             self._frames = num_frames
 
-    @property
-    def state(self) -> np.array:
-        return self._states
-
-    @state.setter
-    def state(self, statemap: tuple):
-        """
-        Assigns an image to a list of states.  Each image corresponds to one of required polarizations
-        :param statemap: tuple of (state index, np.array)
-        :return: none
-        """
-        if len(statemap) != 2:
-            raise ValueError("invalid state parameter: state setter receives tuple of (index, image)")
-        self._states[statemap[0]] = statemap[1]
-        self._intensity.set_angle_from_index(statemap[0], statemap[1])
-
-        self.height = self._states[statemap[0]].shape[0]
-        self.width = self._states[statemap[0]].shape[1]
+    # @property
+    # def state(self) -> np.array:
+    #     return self._states
+    #
+    # @state.setter
+    # def state(self, statemap: tuple):
+    #     """
+    #     Assigns an image to a list of states.  Each image corresponds to one of required polarizations
+    #     :param statemap: tuple of (state index, np.array)
+    #     :return: none
+    #     """
+    #     if len(statemap) != 2:
+    #         raise ValueError("invalid state parameter: state setter receives tuple of (index, image)")
+    #     self._states[statemap[0]] = statemap[1]
+    #     self._intensity.set_angle_from_index(statemap[0], statemap[1])
+    #
+    #     self.height = self._states[statemap[0]].shape[0]
+    #     self.width = self._states[statemap[0]].shape[1]
 
     @property
     def swing(self):
@@ -142,19 +181,25 @@ class ReconOrder(object):
         self._swing = x
         self._swing_rad = self._swing*2*np.pi
 
-    def correct_background(self, background: object):
+    # ==== compute functions ====
+
+    def correct_background(self, stk_obj: StokesData=None, phy_obj: PhysicalData=None, background: BackgroundData=None):
         """
         Uses computed result from background images to calculate the correction
         :param background: ReconOrder object that is constructed from background images
         :return: None
         """
+        # assign class data if none is passed
+        if stk_obj is None and self.StokesData is not None:
+            stk_obj = self.StokesData
+        if phy_obj is None and self.PhysicalData is not None:
+            phy_obj = self.PhysicalData
 
         if isinstance(background, ReconOrder) or isinstance(background, BackgroundData):
-            self.I_trans = self.I_trans / background.I_trans
-            self.polarization = self.polarization / background.polarization
-            self.A = self.A - background.A
-            self.B = self.B - background.B
-            return True
+            phy_obj.I_trans = phy_obj.I_trans / background.I_trans
+            phy_obj.polarization = phy_obj.polarization / background.polarization
+            stk_obj.A = stk_obj.A - background.A
+            stk_obj.B = stk_obj.B - background.B
         else:
             raise InvalidBackgroundObject("background parameter must be a ReconOrder object or None (for local Gauss)")
 
@@ -174,51 +219,58 @@ class ReconOrder(object):
         else:
             raise InvalidFrameNumberDeclarationError('Frames not set to 4 or 5:  Required for calculation of instrument matrix')
         self.inst_mat_inv = np.linalg.pinv(inst_mat)
-        return None
 
-    def compute_stokes(self):
+    def compute_stokes(self, int_obj: IntensityData=None):
         """
         computes stokes vectors from the polarization intensities and instrument matrix
 
-        :return:
+        :return: populated StokesData
         """
+        if int_obj is None and self.IntensityData is not None:
+            int_obj = self.IntensityData
+        elif int_obj is None:
+            raise ModuleNotFoundError("no Intensity data passed or assigned to this reconstruction")
+
+        output_stokes = StokesData()
         chi = self._swing_rad
-        I_ext = self.state[0]
-        I_90 = self.state[1]
-        I_135 = self.state[2]
-        I_45 = self.state[3]
 
         # define our instrument matrix based on self.frames
         if self._frames == 4:
-            img_raw = np.stack((I_ext, I_45, I_90, I_135))  # order the channel following stokes calculus convention
-            self.n_chann = np.shape(img_raw)[0]
+            img_raw = np.stack((int_obj.IExt, int_obj.I45, int_obj.I90, int_obj.I135))  # order the channel following stokes calculus convention
+            n_chann = np.shape(img_raw)[0]
             inst_mat = np.array([[1, 0, 0, -1],
                                  [1, 0, np.sin(chi), -np.cos(chi)],
                                  [1, -np.sin(chi), 0, -np.cos(chi)],
                                  [1, 0, -np.sin(chi), -np.cos(chi)]])
         elif self._frames == 5:
-            I_0 = self.state[4]
-            img_raw = np.stack((I_ext, I_0, I_45, I_90, I_135))  # order the channel following stokes calculus convention
-            self.n_chann = np.shape(img_raw)[0]
+            # int_obj.I0 = self.state[4]
+            img_raw = np.stack((int_obj.IExt, int_obj.I0, int_obj.I45, int_obj.I90, int_obj.I135))  # order the channel following stokes calculus convention
+            n_chann = np.shape(img_raw)[0]
             inst_mat = np.array([[1, 0, 0, -1],
                                  [1, np.sin(chi), 0, -np.cos(chi)],
                                  [1, 0, np.sin(chi), -np.cos(chi)],
                                  [1, -np.sin(chi), 0, -np.cos(chi)],
                                  [1, 0, -np.sin(chi), -np.cos(chi)]])
+        else:
+            raise ValueError("frames must be 4 or 5 to perform stokes calculation")
+
+        self.height = int_obj.IExt.shape[0]
+        self.width = int_obj.IExt.shape[1]
 
         # calculate stokes
         inst_mat_inv = np.linalg.pinv(inst_mat)
-        img_raw_flat = np.reshape(img_raw,(self.n_chann, self.height*self.width))
+        img_raw_flat = np.reshape(img_raw,(n_chann, self.height*self.width))
         img_stokes_flat = np.dot(inst_mat_inv, img_raw_flat)
         img_stokes = np.reshape(img_stokes_flat, (img_stokes_flat.shape[0], self.height, self.width))
-        [self.s0, self.s1, self.s2, self.s3] = [img_stokes[i, :, :] for i in range(0, img_stokes.shape[0])]
 
-        # assign normalized vectors for bg correction
-        self.A = self.s1 / self.s3
-        self.B = -self.s2 / self.s3
+        [output_stokes.s0, output_stokes.s1, output_stokes.s2, output_stokes.s3] = [img_stokes[i, :, :] for i in range(0, img_stokes.shape[0])]
 
-    def compute_physical(self, flip_pol='rcp', avg_kernel=(1, 1)):
-        '''
+        # if there's no stokes data, do we assign it here?
+
+        return output_stokes
+
+    def compute_physical(self, stk_obj: StokesData=None, flip_pol='rcp', avg_kernel=(1, 1)):
+        """
         computes physical results from the stokes vectors
             transmittance
             retardance
@@ -226,45 +278,58 @@ class ReconOrder(object):
             scattering
             azimuth
             azimuth_vector
-        :param flip_pol:
+        :param stk_obj: object of type StokesData
+        :param flip_pol: whether azimuth is flipped based on rcp/lcp analyzer
         :param avg_kernel: kernel over which to average azimuth
-        :return:
-        '''
+        :return: PhysicalData object
+        """
+        if stk_obj is None and self.StokesData is not None:
+            stk_obj = self.StokesData
+        elif stk_obj is None:
+            raise ModuleNotFoundError("no Stokes data passed or assigned to this reconstruction")
+
+        output_physical = PhysicalData()
 
         # compute s1 and s2 from background corrected A and B
-        s1 = self.A * self.s3
-        s2 = -self.B * self.s3
+        # s1 = self.A * self.s3
+        # s2 = -self.B * self.s3
+        s1 = stk_obj.A * stk_obj.s3
+        s2 = -stk_obj.B * stk_obj.s3
 
-        self.I_trans = self.s0
-        self.retard = np.arctan2(np.sqrt(s1 ** 2 + s2 ** 2), self.s3)
-        self.polarization = np.sqrt(s1 ** 2 + s2 ** 2 + self.s3 ** 2) / self.s0
-        self.scattering = 1 - self.polarization
+        output_physical.I_trans = stk_obj.s0
+        output_physical.retard = np.arctan2(np.sqrt(s1 ** 2 + s2 ** 2), stk_obj.s3)
+        output_physical.polarization = np.sqrt(s1 ** 2 + s2 ** 2 + stk_obj.s3 ** 2) / stk_obj.s0
+        output_physical.scattering = 1 - output_physical.polarization
 
         if flip_pol == 'rcp':
             self.flip_pol = flip_pol
-            self.azimuth = (0.5 * np.arctan2(-s1, s2) % np.pi)  # make azimuth fall in [0,pi]
+            output_physical.azimuth = (0.5 * np.arctan2(-s1, s2) % np.pi)  # make azimuth fall in [0,pi]
         else:
             self.flip_pol = 'lcp'
-            self.azimuth = (0.5 * np.arctan2(s1, s2) % np.pi)  # make azimuth fall in [0,pi]
+            output_physical.azimuth = (0.5 * np.arctan2(s1, s2) % np.pi)  # make azimuth fall in [0,pi]
 
         #make the arrays displayable by scaling to more meaningful values
         # self.retard = self.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
         # self.azimuth_degree = self.azimuth/np.pi*180
         # self.azimuth_vector = convert_to_vector(self.azimuth - (0.5*np.pi))
-        _, _, self.azimuth_vector = compute_average(s1, s2, self.s3, kernel=avg_kernel, length=5, flipPol=flip_pol)
+        _, _, output_physical.azimuth_vector = compute_average(s1, s2, stk_obj.s3, kernel=avg_kernel, length=5, flipPol=flip_pol)
 
-        return True
+        return output_physical
 
-    def rescale_bitdepth(self):
-        self.retard = self.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
-        self.azimuth_degree = self.azimuth/np.pi*180
+    # ==== data scaling ====
 
-        self.I_trans = self.imBitConvert(self.I_trans * 10 ** 3, bit=16, norm=True)  # AU, set norm to False for tiling images
-        self.retard = self.imBitConvert(self.retard * 10 ** 3, bit=16)  # scale to pm
-        self.scattering = self.imBitConvert(self.scattering * 10 ** 4, bit=16)
-        self.azimuth_degree = self.imBitConvert(self.azimuth_degree * 100, bit=16)  # scale to [0, 18000], 100*degree
+    def rescale_bitdepth(self, phy_obj: PhysicalData=None):
+        if phy_obj is None and self.PhysicalData is not None:
+            phy_obj = self.PhysicalData
 
-        return True
+        phy_obj.retard = phy_obj.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
+        phy_obj.azimuth_degree = phy_obj.azimuth/np.pi*180
+
+        phy_obj.I_trans = self.imBitConvert(phy_obj.I_trans * 10 ** 3, bit=16, norm=True)  # AU, set norm to False for tiling images
+        phy_obj.retard = self.imBitConvert(phy_obj.retard * 10 ** 3, bit=16)  # scale to pm
+        phy_obj.scattering = self.imBitConvert(phy_obj.scattering * 10 ** 4, bit=16)
+        phy_obj.azimuth_degree = self.imBitConvert(phy_obj.azimuth_degree * 100, bit=16)  # scale to [0, 18000], 100*degree
+        return phy_obj
 
     def imBitConvert(self, im, bit=16, norm=False, limit=None):
         im = im.astype(np.float32, copy=False)  # convert to float32 without making a copy to save memory

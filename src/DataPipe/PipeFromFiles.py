@@ -10,6 +10,9 @@
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QThreadPool, QRunnable
 
+from src.DataStructures.IntensityData import IntensityData
+from src.DataStructures.PhysicalData import PhysicalData
+from src.DataStructures.StokesData import StokesData
 from src.FileManagement.RetrieveFiles import RetrieveData
 from src.Processing.ReconOrder import ReconOrder
 
@@ -51,6 +54,9 @@ class PipeFromFiles(QObject):
         self.type = type
         self.sample_type = sample_type
         self.retrieve_file = RetrieveData()
+        self.intensity = IntensityData()
+        self.stokes = StokesData()
+        self.physical = PhysicalData()
         self._Recon = None
 
     def set_processor(self, processor):
@@ -67,32 +73,47 @@ class PipeFromFiles(QObject):
     @timer
     def fetch_images(self):
         print('fetching images')
-        self._Recon.state = (0, self.retrieve_file.get_array_from_filename('State0', type=self.type, sample_type=self.sample_type))
-        self._Recon.state = (1, self.retrieve_file.get_array_from_filename('State1', type=self.type, sample_type=self.sample_type))
-        self._Recon.state = (2, self.retrieve_file.get_array_from_filename('State2', type=self.type, sample_type=self.sample_type))
-        self._Recon.state = (3, self.retrieve_file.get_array_from_filename('State3', type=self.type, sample_type=self.sample_type))
+        self.intensity.set_angle_from_index(0,
+                                            self.retrieve_file.get_array_from_filename('State0',
+                                                                                       type=self.type,
+                                                                                       sample_type=self.sample_type))
+        self.intensity.set_angle_from_index(1,
+                                            self.retrieve_file.get_array_from_filename('State1',
+                                                                                       type=self.type,
+                                                                                       sample_type=self.sample_type))
+        self.intensity.set_angle_from_index(2,
+                                            self.retrieve_file.get_array_from_filename('State2',
+                                                                                       type=self.type,
+                                                                                       sample_type=self.sample_type))
+        self.intensity.set_angle_from_index(3,
+                                            self.retrieve_file.get_array_from_filename('State3',
+                                                                                       type=self.type,
+                                                                                       sample_type=self.sample_type))
         if self._Recon.frames == 5:
-            self._Recon.state = (4, self.retrieve_file.get_array_from_filename('State4', type=self.type,
-                                                                                sample_type=self.sample_type))
+            self.intensity.set_angle_from_index(4,
+                                                self.retrieve_file.get_array_from_filename('State4',
+                                                                                           type=self.type,
+                                                                                           sample_type=self.sample_type))
+        self.intensity.print_none_vals()
         return True
 
     @timer
     def compute_stokes(self):
         print("compute stokes")
-        self._Recon.compute_stokes()
+        self.stokes = self._Recon.compute_stokes(self.intensity)
         return True
 
     @timer
     def reconstruct_image(self):
         print("Reconstruct image")
-        self._Recon.compute_physical()
+        self.physical = self._Recon.compute_physical(self.stokes)
         self.recon_complete.emit(self._Recon)
         return True
 
     @timer
     def rescale_bitdepth(self):
         print("rescaling bitdepth for display")
-        self._Recon.rescale_bitdepth()
+        self.physical = self._Recon.rescale_bitdepth(self.physical)
         return True
 
     @timer

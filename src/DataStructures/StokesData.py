@@ -26,16 +26,19 @@ class StokesData(object):
         self._A = None
         self._B = None
 
-    # private properties
+    # private properties?
     @property
     def A(self):
         return self._A
 
     @A.setter
     def A(self, value):
-        if value is not False:
-            print("normalized s1 (A) cannot be set. Calculating s1/s3 now")
-        self._A = self.s1 / self.s3
+        if value is True:
+            self._A = self.s1 / self.s3
+        else:
+            self._A = value
+            # print("normalized s1 (A) cannot be set. Assign s1 or s3 to calculate")
+
 
     @property
     def B(self):
@@ -43,9 +46,12 @@ class StokesData(object):
 
     @B.setter
     def B(self, value):
-        if value is not False:
-            print("normalized s2 (B) cannot be set. Calculating -s2/s3 now")
-        self._B = -self.s2 / self.s3
+        if value is True:
+            self._B = -self.s2 / self.s3
+        else:
+            self._B = value
+            # print("normalized s2 (B) cannot be set. Assign s2 or s3 to calculate")
+
 
     # public properties
     @property
@@ -70,7 +76,7 @@ class StokesData(object):
         """
         self._s1 = deepcopy(data)
         if self._s3 is not None:
-            self.A = False
+            self.A = True
 
     @property
     def s2(self):
@@ -86,7 +92,7 @@ class StokesData(object):
         """
         self._s2 = deepcopy(data)
         if self._s3 is not None:
-            self.B = False
+            self.B = True
 
     @property
     def s3(self):
@@ -102,6 +108,6 @@ class StokesData(object):
         """
         self._s3 = deepcopy(data)
         if self._s1 is not None:
-            self.A = False
+            self.A = True
         if self._s2 is not None:
-            self.B = False
+            self.B = True

@@ -146,6 +146,9 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
 
 
 def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData):
+
+    bgdat = background
+
     try:
         temp_int = IntensityData()
         processor = ReconOrder()
@@ -166,7 +169,7 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData):
         temp_physical = PhysicalData()
         processor.compute_stokes()
         processor.compute_physical()
-        processor.correct_background(background)
+        processor.correct_background(bgdat)
         temp_physical.I_trans = processor.I_trans
         temp_physical.retard = processor.retard
         temp_physical.polarization = processor.polarization

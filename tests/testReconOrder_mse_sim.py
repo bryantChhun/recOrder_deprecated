@@ -41,38 +41,38 @@ class TestImageReconstruction(unittest.TestCase):
 
     def construct_all(self):
         # create file loaders
-        datapipe = PipeFromFiles(type="Test", sample_type="Simulation1")
+        self.datapipe = PipeFromFiles(type="Test", sample_type="Simulation1")
 
         # initialize processors
-        self.processor = ReconOrder()
-        self.processor.frames = 5
+        processor = ReconOrder()
+        processor.frames = 5
 
-        datapipe.set_processor(self.processor)
+        self.datapipe.set_processor(processor)
 
-        datapipe.compute_inst_matrix()
+        self.datapipe.compute_inst_matrix()
 
         # important: do not thread this
         # important: this does not background correct
-        datapipe.run_reconstruction(threaded=False)
+        self.datapipe.run_reconstruction(threaded=False)
 
     def test_mse_Itrans(self):
         self.construct_all()
-        self.assertLessEqual(mse(self.processor.I_trans, np.load(self.target_ITrans)), 100)
+        self.assertLessEqual(mse(self.datapipe.physical.I_trans, np.load(self.target_ITrans)), 100)
 
 
     def test_mse_retard(self):
         self.construct_all()
-        self.assertLessEqual(mse(self.processor.retard, np.load(self.target_retard)), 100)
+        self.assertLessEqual(mse(self.datapipe.physical.retard, np.load(self.target_retard)), 100)
 
 
     def test_mse_orientation(self):
         self.construct_all()
-        self.assertLessEqual(mse(self.processor.azimuth, np.load(self.target_Orientation)), 100)
+        self.assertLessEqual(mse(self.datapipe.physical.azimuth, np.load(self.target_Orientation)), 100)
 
 
     def test_mse_scattering(self):
         self.construct_all()
-        self.assertLessEqual(mse(self.processor.scattering, np.load(self.target_Scattering)), 100)
+        self.assertLessEqual(mse(self.datapipe.physical.scattering, np.load(self.target_Scattering)), 100)
 
 
 if __name__ == '__main__':
