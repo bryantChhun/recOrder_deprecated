@@ -69,7 +69,7 @@ class PhysicalData(object):
 
     @property
     def azimuth_degree(self):
-        return self._azimuth_vector
+        return self._azimuth_degree
 
     @azimuth_degree.setter
     def azimuth_degree(self, data: np.ndarray):

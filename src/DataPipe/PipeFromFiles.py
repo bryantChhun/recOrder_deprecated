@@ -10,6 +10,7 @@
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QThreadPool, QRunnable
 
+from src.DataStructures.BackgroundData import BackgroundData
 from src.DataStructures.IntensityData import IntensityData
 from src.DataStructures.PhysicalData import PhysicalData
 from src.DataStructures.StokesData import StokesData
@@ -57,6 +58,7 @@ class PipeFromFiles(QObject):
         self.intensity = IntensityData()
         self.stokes = StokesData()
         self.physical = PhysicalData()
+        self.background = BackgroundData()
         self._Recon = None
 
     def set_processor(self, processor):
@@ -125,17 +127,24 @@ class PipeFromFiles(QObject):
     @timer
     def correct_background(self, background : object):
         print("correct background")
-        self._Recon.correct_background(background)
+        self._Recon.correct_background(self.stokes, self.physical, background)
         return True
 
     # the lower two methods do not call the private recon attribute.
+    def build_background(self):
+        self.background.assign_intensity(self.intensity)
+        self.background.assign_stokes(self.stokes)
+        self.background.assign_physical(self.physical)
+
     def fetch_stokes_physical(self):
         print('fetch stokes physical')
         self.fetch_images()
+        self.compute_inst_matrix()
         self.compute_stokes()
         self.reconstruct_image()
+        self.build_background()
 
-    def fetch_stokes_physical_bgcorr(self, background: object):
+    def fetch_stokes_physical_bgcorr(self, background: BackgroundData):
         '''
         Performs both standard background correction from BG images AND
             local background correction using GaussianBlur
@@ -167,7 +176,7 @@ class PipeFromFiles(QObject):
             print("\t bg calculation")
             self.fetch_stokes_physical()
 
-    def run_reconstruction_BG_correction(self, background : object, threaded = False):
+    def run_reconstruction_BG_correction(self, background : BackgroundData, threaded = False):
         if threaded:
             self.process = ProcessRunnable(target=self.fetch_stokes_physical_bgcorr, args=(background,))
             self.process.start()
