@@ -2,6 +2,8 @@
 
 record Order: A module for live-processing birefringence data 
 
+note: needs lots of cleanup and removal of deprecated functions
+
 # dependencies
 numpy
 py4j
@@ -38,6 +40,14 @@ the "construct_all" method establishes all elements of the pipeline and executes
 4) call datapipe's "run_reconstruction"
 
 # design
+There are five modules and four datastructures in this repo:
+- FileManagement: to load data from files or sockets (py4j)
+- Datapipe: connects data from FileManagement to GUI and/or Processor
+- GUI: napari visualization and ReconOrder microscopy control
+- Processor: for processing data 
+- Signal Controller: connects and manages signals from some of the above modules
+
+# usage
 The DataPipe modules are the only which contain data.  Processor and GUI simply input/output data.
 There are primarily four data structures:
 - IntensityData
@@ -48,3 +58,5 @@ There are primarily four data structures:
 The DataPipe holds current instances of each of these four, for a given set of loaded data.
 
 For background correction, you need only create two datapipes.  All reconstruction can be done from the same instance that is bound to each datapipe
+
+
