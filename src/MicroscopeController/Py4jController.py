@@ -31,6 +31,8 @@ def _snap_channel(channel: str, gateway: JavaGateway):
     mmc = gateway.entry_point.getCMMCore()
     mm = gateway.entry_point.getStudio()
 
+    # set channel
+    # for some reason, we need a monitor to be sure it gets set....
     mmc.setChannelGroup('Channel')
     c=0
     while mmc.getCurrentConfig('Channel') != channel:
@@ -46,6 +48,7 @@ def _snap_channel(channel: str, gateway: JavaGateway):
     live_manager = mm.getSnapLiveManager()
     live_manager.snap(True)
 
+    # again we need a monitor to be sure file is written
     ct = 0
     while not gateway.entry_point.fileExists(channel):
         time.sleep(0.001)
@@ -56,6 +59,7 @@ def _snap_channel(channel: str, gateway: JavaGateway):
     print("time to check fileExists = %04d" % ct)
 
     data_filename = gateway.entry_point.getFile(channel)
+
     if data_filename is None:
         print("no file with name %s exists" % channel)
 
@@ -73,7 +77,7 @@ def _snap_channel(channel: str, gateway: JavaGateway):
     return data
 
 
-def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averaging: int = 10):
+def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averaging: int = 10) -> BackgroundData:
     """
     snaps 10 images of each of state0,1,2,3,4.  Averages the 10 for those states
 
@@ -88,98 +92,74 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
     # data_pixelshape = (meta.getxRange(), meta.getyRange())
     data_pixelshape = (2048, 2048)
 
-    try:
-        bg_raw.state0 = np.mean([_snap_channel('State0', gateway).flatten() for i in range(0, averaging)], axis=0)\
-            .reshape(data_pixelshape)
-        bg_raw.state1 = np.mean([_snap_channel('State1', gateway).flatten() for i in range(0, averaging)], axis=0)\
-            .reshape(data_pixelshape)
-        bg_raw.state2 = np.mean([_snap_channel('State2', gateway).flatten() for i in range(0, averaging)], axis=0)\
-            .reshape(data_pixelshape)
-        bg_raw.state3 = np.mean([_snap_channel('State3', gateway).flatten() for i in range(0, averaging)], axis=0)\
-            .reshape(data_pixelshape)
-        bg_raw.state4 = np.mean([_snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0)\
-            .reshape(data_pixelshape)
-        processor = ReconOrder()
-        processor.frames = 5
-        print("all states snapped")
+    bg_raw.state0 = np.mean([_snap_channel('State0', gateway).flatten() for i in range(0, averaging)], axis=0)\
+        .reshape(data_pixelshape)
+    bg_raw.state1 = np.mean([_snap_channel('State1', gateway).flatten() for i in range(0, averaging)], axis=0)\
+        .reshape(data_pixelshape)
+    bg_raw.state2 = np.mean([_snap_channel('State2', gateway).flatten() for i in range(0, averaging)], axis=0)\
+        .reshape(data_pixelshape)
+    bg_raw.state3 = np.mean([_snap_channel('State3', gateway).flatten() for i in range(0, averaging)], axis=0)\
+        .reshape(data_pixelshape)
+    bg_raw.state4 = np.mean([_snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0)\
+        .reshape(data_pixelshape)
+    processor = ReconOrder()
+    processor.frames = 5
+    print("all states snapped")
 
-        #assign intensity states
-        processor.state = (0, bg_raw.state0)
-        processor.state = (1, bg_raw.state1)
-        processor.state = (2, bg_raw.state2)
-        processor.state = (3, bg_raw.state3)
-        processor.state = (4, bg_raw.state4)
-        print("all states assigned to properties")
+    #assign intensity states
+    processor.state = (0, bg_raw.state0)
+    processor.state = (1, bg_raw.state1)
+    processor.state = (2, bg_raw.state2)
+    processor.state = (3, bg_raw.state3)
+    processor.state = (4, bg_raw.state4)
+    print("all states assigned to properties")
 
-        # construct and assign stokes to bg_raw
-        processor.compute_stokes()
-        print("stokes computed")
-        bg_raw.s0 = processor.s0
-        bg_raw.s1 = processor.s1
-        bg_raw.s2 = processor.s2
-        bg_raw.s3 = processor.s3
-        print('stokes vectors assigned to background object')
+    # construct and assign stokes to bg_raw
+    processor.compute_stokes()
+    print("stokes computed")
+    bg_raw.s0 = processor.s0
+    bg_raw.s1 = processor.s1
+    bg_raw.s2 = processor.s2
+    bg_raw.s3 = processor.s3
+    print('stokes vectors assigned to background object')
 
-        # construct and assign physical to bg_raw
-        processor.compute_physical()
-        print("physical computed")
-        bg_raw.I_trans = processor.I_trans
-        bg_raw.retard = processor.retard
-        bg_raw.polarization = processor.polarization
-        bg_raw.scattering = processor.scattering
-        bg_raw.azimuth = processor.azimuth
-        print("physical assigned to background object")
+    # construct and assign physical to bg_raw
+    processor.compute_physical()
+    print("physical computed")
+    bg_raw.I_trans = processor.I_trans
+    bg_raw.retard = processor.retard
+    bg_raw.polarization = processor.polarization
+    bg_raw.scattering = processor.scattering
+    bg_raw.azimuth = processor.azimuth
+    print("physical assigned to background object")
 
-        return bg_raw
+    # write to disk
+    # create a folder with a name
+    # this write should iterate through all BG data stokes? and create a .npy file for each?
 
-        # write to disk
-            # create a folder with a name
-            # this write should iterate through all BG data stokes? and create a .npy file for each?
+    # update UI field to reflect new folder
+    # in reconOrderUI we will have the text field trigger another method that
+    #   will read the .npy files and update ReconOrderUI's self.Background object
 
-        # update UI field to reflect new folder
-        # in reconOrderUI we will have the text field trigger another method that
-        #   will read the .npy files and update ReconOrderUI's self.Background object
-
-    except Exception as ex:
-        print("Exception when collecting background: "+str(ex))
-        return False
+    return bg_raw
 
 
-def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData):
+def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData) -> PhysicalData:
 
-    bgdat = background
+    temp_int = IntensityData()
+    processor = ReconOrder()
+    processor.frames = 5
 
-    try:
-        temp_int = IntensityData()
-        processor = ReconOrder()
-        processor.frames = 5
+    temp_int.IExt = _snap_channel('State0', gateway)
+    temp_int.I0 = _snap_channel('State1', gateway)
+    temp_int.I45 = _snap_channel('State2', gateway)
+    temp_int.I90 = _snap_channel('State3', gateway)
+    temp_int.I135 = _snap_channel('State4', gateway)
 
-        temp_int.Iext = _snap_channel('State0', gateway)
-        temp_int.I0 = _snap_channel('State1', gateway)
-        temp_int.I45 = _snap_channel('State2', gateway)
-        temp_int.I90 = _snap_channel('State3', gateway)
-        temp_int.I135 = _snap_channel('State4', gateway)
+    temp_stokes = processor.compute_stokes(temp_int)
+    temp_physical = processor.correct_background(temp_stokes, background)
 
-        processor.IntensityData = temp_int
-    except Exception as ex:
-        print("Exception when snapping image: " + str(ex))
-        return False
-
-    try:
-        temp_physical = PhysicalData()
-        processor.compute_stokes()
-        processor.compute_physical()
-        processor.correct_background(bgdat)
-        temp_physical.I_trans = processor.I_trans
-        temp_physical.retard = processor.retard
-        temp_physical.polarization = processor.polarization
-        temp_physical.scattering = processor.scattering
-        temp_physical.azimuth = processor.azimuth
-
-        return temp_physical
-    except Exception as ex:
-        print("Exception when processing background: " +str(ex))
-        return False
+    return temp_physical
 
 def py4j_calibrate_lc(gateway: JavaGateway):
     #create processing module

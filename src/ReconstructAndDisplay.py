@@ -28,8 +28,6 @@ from napari import ViewerApp
 from napari.util import app_context
 
 if __name__ == '__main__':
-    # starting
-    # application = QApplication(sys.argv)
     with app_context():
 
         ReconOrderUI = QtWidgets.QDialog()
@@ -38,8 +36,6 @@ if __name__ == '__main__':
         ReconOrderUI.show()
 
         #create Viewer, Windows
-        # viewer = Viewer()
-        # win = Window(Viewer(), show=False)
         viewer = ViewerApp()
         overlay_window = NapariWindowOverlay(viewer)
 

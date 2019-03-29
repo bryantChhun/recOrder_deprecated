@@ -27,52 +27,49 @@ from src.SignalController.SignalController import SignalController
 from src.Processing.ReconOrder import ReconOrder
 from py4j.java_gateway import JavaGateway
 
-from napari_gui import Window, Viewer
+from napari import ViewerApp
+from napari.util import app_context
 
 
 def start():
-    #create Napari Viewer, Windows, gateway
-    #create ReconOrderUI
 
+    with app_context():
+        viewer = ViewerApp()
 
+        overlay_window = NapariWindowOverlay(viewer)
+        gateway = JavaGateway()
 
-    viewer = Viewer()
-    win = Window(Viewer(), show=False)
-    overlay_window = NapariWindowOverlay(win)
-    gateway = JavaGateway()
+        #initialize file loaders
+        pipe = PipeFromPy4j()
+        filepipe = PipeFromFiles()
+        monitor = MonitorDatastores(gateway)
 
+        #initialize processors
+        processor = ReconOrder()
+        processor.frames = 5
 
-    #initialize file loaders
-    pipe = PipeFromPy4j()
-    filepipe = PipeFromFiles()
-    monitor = MonitorDatastores(gateway)
+        #initialize SignalController
+        signals = SignalController(processor)
 
-    #initialize processors
-    processor = ReconOrder()
-    processor.frames = 5
+        #Connections: Monitor to/from Pipeline
+        monitor.make_connection(pipe)
+        pipe.make_connection(monitor)
 
-    #initialize SignalController
-    signals = SignalController(processor)
+        #Connections: Pipeline to/from Processor
+        pipe.processor = processor
+        # loader_bg.set_processor(processor_bg)
 
-    #Connections: Monitor to/from Pipeline
-    monitor.make_connection(pipe)
-    pipe.make_connection(monitor)
+        #Connections: Pipeline to/from GUI
+        overlay_window.make_connection(pipe)
+        pipe.make_connection(overlay_window)
 
-    #Connections: Pipeline to/from Processor
-    pipe.processor = processor
-    # loader_bg.set_processor(processor_bg)
+        #Connections: SignalController to/from GUI
+        # for gui-initiated pipeline or processing events
+        # such as averaging, adjusting line widths, etc.
+        overlay_window.make_connection(signals)
+        signals.make_connection(overlay_window)
 
-    #Connections: Pipeline to/from GUI
-    overlay_window.make_connection(pipe)
-    pipe.make_connection(overlay_window)
-
-    #Connections: SignalController to/from GUI
-    # for gui-initiated pipeline or processing events
-    # such as averaging, adjusting line widths, etc.
-    overlay_window.make_connection(signals)
-    signals.make_connection(overlay_window)
-
-    monitor.run()
+        monitor.run()
 
 
 if __name__ == '__main__':

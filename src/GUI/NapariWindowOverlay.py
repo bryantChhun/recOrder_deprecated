@@ -16,6 +16,7 @@ import numpy as np
 from src.FileManagement.RetrieveFiles import RetrieveData
 from src.DataStructures.PhysicalData import PhysicalData
 from src.Processing.ReconOrder import ReconOrder
+from src.Processing import compute_average, convert_to_vector
 
 
 class NapariWindowOverlay(QWidget):
@@ -50,13 +51,10 @@ class NapariWindowOverlay(QWidget):
 
         #init layers with vector data and subscribe to gui notifications
         self.layer1 = self.viewer.add_vectors(self.pos)
-        self.layer1.averaging_bind_to(self.compute_vector)
-        self.layer1.length_bind_to(self.compute_length)
-
+        # self.layer1._default_avg = compute_average
+        # self.layer1.length_bind_to(self.compute_length)
         self.layer2 = self.viewer.add_image(self.init_data_1, {})
-
         self.layer3 = self.viewer.add_image(self.init_data_1, {})
-
         self.layer4 = self.viewer.add_image(self.init_data_1, {})
 
         self.layers = [self.layer1, self.layer2, self.layer3, self.layer4]
@@ -77,19 +75,22 @@ class NapariWindowOverlay(QWidget):
     @pyqtSlot(object)
     def update_layer_image(self, instance: object):
 
-        if isinstance(instance, ReconOrder) or isinstance(instance, PhysicalData):
+        if isinstance(instance, PhysicalData):
             print("gui received object of type = "+str(type(instance)))
             self.layer1.vectors = instance.azimuth_vector
-            # self.layer2.image = inst_reconOrder.scattering
-            # self.layer2.image = inst_reconOrder.phase
-            self.layer2.image = instance.azimuth_degree
+            self.layer2.image = instance.scattering
             self.layer3.image = instance.retard
             self.layer4.image = instance.I_trans
 
+            self.layer1.name = "vectors"
+            self.layer2.name = 'scattering'
+            self.layer3.name = 'retardance'
+            self.layer4.name = 'transmission'
+
             self.update_complete.emit("Received and updated images")
         else:
-            print("gui received vector or averaging update")
-            self.layer1.vectors = instance
+            print("GUI did not receive Physical Data")
+            # self.layer1.vectors = instance
             # self.layer2.image = 65536*np.random.rand(2048,2048)
 
     def make_connection(self, reconstruction: object):
