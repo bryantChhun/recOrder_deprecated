@@ -17,6 +17,13 @@ class StokesData(object):
     Data Structure that contains all stokes vector images
     """
 
+    _s0 = None
+    _s1 = None
+    _s2 = None
+    _s3 = None
+    _A = None
+    _B = None
+
     def __setattr__(self, name, value):
         if hasattr(self, name):
             object.__setattr__(self, name, value)
@@ -26,12 +33,6 @@ class StokesData(object):
 
     def __init__(self):
         super(StokesData, self).__init__()
-        self._s0 = None
-        self._s1 = None
-        self._s2 = None
-        self._s3 = None
-        self._A = None
-        self._B = None
 
     # private properties?
     @property

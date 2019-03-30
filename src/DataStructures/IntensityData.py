@@ -16,6 +16,14 @@ class IntensityData(object):
     """
     Data Structure that contains all raw intensity images
     """
+    _IExt = None
+    _I0 = None
+    _I45 = None
+    _I90 = None
+    _I135 = None
+
+    def __init__(self):
+        super(IntensityData, self).__init__()
 
     def __setattr__(self, name, value):
         if hasattr(self, name):
@@ -23,14 +31,6 @@ class IntensityData(object):
         else:
             raise TypeError('Cannot set name %r on object of type %s' % (
                 name, self.__class__.__name__))
-
-    def __init__(self):
-        super(IntensityData, self).__init__()
-        self._IExt = None
-        self._I0 = None
-        self._I45 = None
-        self._I90 = None
-        self._I135 = None
 
     def set_angle_from_index(self, index: int, image: np.ndarray):
         if index == 0:

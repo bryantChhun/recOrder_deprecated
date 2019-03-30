@@ -17,22 +17,23 @@ class PhysicalData(object):
     Data Structure that contains all computed physical data
     """
 
+    _I_trans = None
+    _retard = None
+    _polarization = None
+    _scattering = None
+    _azimuth = None
+    _azimuth_vector = None
+    _azimuth_degree = None
+
+    def __init__(self):
+        super(PhysicalData, self).__init__()
+
     def __setattr__(self, name, value):
         if hasattr(self, name):
             object.__setattr__(self, name, value)
         else:
             raise TypeError('Cannot set name %r on object of type %s' % (
                 name, self.__class__.__name__))
-
-    def __init__(self):
-        super(PhysicalData, self).__init__()
-        self._I_trans = None
-        self._retard = None
-        self._polarization = None
-        self._scattering = None
-        self._azimuth = None
-        self._azimuth_vector = None
-        self._azimuth_degree = None
 
     @property
     def I_trans(self):
