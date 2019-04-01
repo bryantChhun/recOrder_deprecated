@@ -127,7 +127,7 @@ class PipeFromFiles(QObject):
     @timer
     def correct_background(self, background : object):
         print("correct background")
-        self._Recon.correct_background(self.stokes, self.physical, background)
+        self._Recon.correct_background(self.stokes, background)
         return True
 
     # the lower two methods do not call the private recon attribute.

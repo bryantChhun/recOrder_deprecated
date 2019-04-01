@@ -46,16 +46,10 @@ class TestImageReconstruction(unittest.TestCase):
 
         # initialize processors
         processor = ReconOrder()
-        # self.processor_bg = ReconOrder()
         processor.frames = 5
-        # self.processor_bg.frames = 5
 
         self.datapipe.set_processor(processor)
         self.datapipe_bg.set_processor(processor)
-        # datapipe_bg.set_processor(processor_bg)
-
-        self.datapipe.compute_inst_matrix()
-        self.datapipe_bg.compute_inst_matrix()
 
         # BGprocess first
         self.datapipe_bg.run_reconstruction()
