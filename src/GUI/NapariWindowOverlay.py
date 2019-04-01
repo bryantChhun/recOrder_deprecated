@@ -74,6 +74,7 @@ class NapariWindowOverlay(QWidget):
 
     @pyqtSlot(object)
     def update_layer_image(self, instance: object):
+        print('gui is notified of new data')
 
         if isinstance(instance, PhysicalData):
             print("gui received object of type = "+str(type(instance)))

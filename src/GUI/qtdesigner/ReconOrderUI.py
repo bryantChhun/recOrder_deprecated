@@ -120,16 +120,17 @@ class Ui_ReconOrderUI(QWidget):
         print("snap and correct background called")
         #snap_bg_corr is an object of type PhysicalData
         snap_bg_corr = py4j_snap_and_correct(self._gate, self.Background)
+        print("emitting signal")
         self.window_update_signal.emit(snap_bg_corr)
 
     @pyqtSlot(bool)
     def collect_background(self):
         print("collect background called")
-        bg_obj = py4j_collect_background(self._gate, self.Background)
-        if bg_obj is False or None:
+        self.Background = py4j_collect_background(self._gate, self.Background)
+        if self.Background is False or None:
             return None
         else:
-            self.window_update_signal.emit(bg_obj)
+            self.window_update_signal.emit(self.Background)
 
     @pyqtSlot(bool)
     def file_browser(self):

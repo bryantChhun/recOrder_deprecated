@@ -54,7 +54,7 @@ def _snap_channel(channel: str, gateway: JavaGateway):
     while not gateway.entry_point.fileExists(channel):
         time.sleep(0.001)
         ct += 1
-        if ct >= 1000:
+        if ct >= 10000:
             print('timeout waiting for file exists')
             break
     print("time to check fileExists = %04d" % ct)
@@ -78,7 +78,7 @@ def _snap_channel(channel: str, gateway: JavaGateway):
     return data
 
 
-def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averaging: int = 10) -> BackgroundData:
+def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averaging: int = 5) -> BackgroundData:
     """
     snaps 10 images of each of state0,1,2,3,4.  Averages the 10 for those states
 
