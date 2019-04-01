@@ -12,6 +12,7 @@ from py4j.java_gateway import JavaGateway
 import numpy as np
 import time
 
+from src import StokesData
 from src.DataStructures.BackgroundData import BackgroundData
 from src.DataStructures.IntensityData import IntensityData
 from src.DataStructures.PhysicalData import PhysicalData
@@ -92,45 +93,46 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
     # data_pixelshape = (meta.getxRange(), meta.getyRange())
     data_pixelshape = (2048, 2048)
 
-    bg_raw.state0 = np.mean([_snap_channel('State0', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    bg_raw.IExt = np.mean([_snap_channel('State0', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape)
-    bg_raw.state1 = np.mean([_snap_channel('State1', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    bg_raw.I0 = np.mean([_snap_channel('State1', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape)
-    bg_raw.state2 = np.mean([_snap_channel('State2', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    bg_raw.I45 = np.mean([_snap_channel('State2', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape)
-    bg_raw.state3 = np.mean([_snap_channel('State3', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    bg_raw.I90 = np.mean([_snap_channel('State3', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape)
-    bg_raw.state4 = np.mean([_snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    bg_raw.I135 = np.mean([_snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape)
     processor = ReconOrder()
     processor.frames = 5
     print("all states snapped")
 
     #assign intensity states
-    processor.state = (0, bg_raw.state0)
-    processor.state = (1, bg_raw.state1)
-    processor.state = (2, bg_raw.state2)
-    processor.state = (3, bg_raw.state3)
-    processor.state = (4, bg_raw.state4)
+    int_obj = IntensityData()
+    int_obj.IExt = bg_raw.IExt
+    int_obj.I0 = bg_raw.I0
+    int_obj.I45 = bg_raw.I45
+    int_obj.I90 = bg_raw.I90
+    int_obj.I135 = bg_raw.I135
     print("all states assigned to properties")
 
     # construct and assign stokes to bg_raw
-    processor.compute_stokes()
+    stk_obj = processor.compute_stokes(int_obj)
     print("stokes computed")
-    bg_raw.s0 = processor.s0
-    bg_raw.s1 = processor.s1
-    bg_raw.s2 = processor.s2
-    bg_raw.s3 = processor.s3
+    bg_raw.s0 = stk_obj.s0
+    bg_raw.s1 = stk_obj.s1
+    bg_raw.s2 = stk_obj.s2
+    bg_raw.s3 = stk_obj.s3
     print('stokes vectors assigned to background object')
 
     # construct and assign physical to bg_raw
-    processor.compute_physical()
+    phys_obj = processor.compute_physical(stk_obj)
     print("physical computed")
-    bg_raw.I_trans = processor.I_trans
-    bg_raw.retard = processor.retard
-    bg_raw.polarization = processor.polarization
-    bg_raw.scattering = processor.scattering
-    bg_raw.azimuth = processor.azimuth
+    bg_raw.I_trans = phys_obj.I_trans
+    bg_raw.retard = phys_obj.retard
+    bg_raw.polarization = phys_obj.polarization
+    bg_raw.scattering = phys_obj.scattering
+    bg_raw.azimuth = phys_obj.azimuth
     print("physical assigned to background object")
 
     # write to disk
