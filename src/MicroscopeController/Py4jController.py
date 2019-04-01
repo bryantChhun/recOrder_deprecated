@@ -105,6 +105,7 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
         .reshape(data_pixelshape)
     processor = ReconOrder()
     processor.frames = 5
+    processor.compute_inst_matrix()
     print("all states snapped")
 
     #assign intensity states
@@ -151,6 +152,7 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData) -> P
     temp_int = IntensityData()
     processor = ReconOrder()
     processor.frames = 5
+    processor.compute_inst_matrix()
 
     temp_int.IExt = _snap_channel('State0', gateway)
     temp_int.I0 = _snap_channel('State1', gateway)
