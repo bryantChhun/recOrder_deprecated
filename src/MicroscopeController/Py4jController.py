@@ -10,6 +10,7 @@
 
 from py4j.java_gateway import JavaGateway
 import numpy as np
+from datetime import datetime
 import time
 
 from src import StokesData
@@ -35,26 +36,30 @@ def _snap_channel(channel: str, gateway: JavaGateway):
     # set channel
     # for some reason, we need a monitor to be sure it gets set....
     mmc.setChannelGroup('Channel')
-    c=0
+    start = datetime.now()
+    c = 0
     while mmc.getCurrentConfig('Channel') != channel:
         time.sleep(0.0001)
         mmc.setConfig('Channel', channel)
         c += 1
         if c >= 10000:
             raise AttributeError("timeout waiting to set channel")
-    print("time to check channel = %04d" % c)
+    stop = datetime.now()
+    print("time to check channel = %06d" % (stop-start).microseconds)
 
     live_manager = mm.getSnapLiveManager()
     live_manager.snap(True)
 
     # again we need a monitor to be sure file is written
+    start = datetime.now()
     ct = 0
     while not gateway.entry_point.fileExists(channel):
         time.sleep(0.0001)
         ct += 1
         if ct >= 10000:
             raise FileExistsError("timeout waiting for file exists")
-    print("time to check fileExists = %04d" % ct)
+    stop = datetime.now()
+    print("time to check fileExists = %06d" % (stop-start).microseconds)
 
     data_filename = gateway.entry_point.getFile(channel)
 
