@@ -16,6 +16,7 @@ from src.DataStructures.PhysicalData import PhysicalData
 from src.DataStructures.StokesData import StokesData
 from src.FileManagement.RetrieveFiles import RetrieveData
 from src.Processing.ReconOrder import ReconOrder
+from src.Processing.VectorLayerUtils import compute_average, compute_length
 
 from datetime import datetime
 
@@ -109,7 +110,6 @@ class PipeFromFiles(QObject):
     def reconstruct_image(self):
         print("Reconstruct image")
         self.physical = self._Recon.compute_physical(self.stokes)
-        self.recon_complete.emit(self._Recon)
         return True
 
     @timer
@@ -154,14 +154,22 @@ class PipeFromFiles(QObject):
         self.fetch_stokes_physical()
         self.correct_background(background)
         self.rescale_bitdepth()
+        self.recon_complete.emit(self.physical)
 
-    # to receive callbacks from GUI
-    @pyqtSlot(str)
-    def report_from_window(self, message: str):
-        print(message)
+    @pyqtSlot(list)
+    def update_average(self, from_window: list):
+        kernel = from_window[0]
+        range_x = from_window[1]
+        range_y = from_window[2]
+        self.physical.azimuth_vector = compute_average(stk_img=self.stokes,
+                                                       kernel=kernel,
+                                                       range_x=range_x,
+                                                       range_y=range_y,
+                                                       func=self._Recon)
+        self.recon_complete.emit(self.physical)
 
     def make_connection(self, window):
-        window.update_complete.connect(self.report_from_window)
+        window.average_change.connect(self.update_average)
 
     '''
     Threads for running reconstruction.  Needed to prevent blocking UI.

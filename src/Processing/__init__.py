@@ -9,4 +9,4 @@
 # python_version  :3.6
 
 from .ReconOrder import ReconOrder
-from .AzimuthToVector import compute_average, convert_to_vector
+from .VectorLayerUtils import compute_average, convert_to_vector

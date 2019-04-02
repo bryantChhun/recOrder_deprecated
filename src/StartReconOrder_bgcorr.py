@@ -34,6 +34,7 @@ if __name__ == '__main__':
         #create Viewer, Windows
         viewer = ViewerApp()
         overlay_window = NapariWindowOverlay(viewer)
+
         ReconOrderUI = QtWidgets.QDialog()
         ui = Ui_ReconOrderUI()
         ui.setupUi(ReconOrderUI)
@@ -49,7 +50,7 @@ if __name__ == '__main__':
         processor_bg = ReconOrder()
 
         #initialize SignalController
-        signals = SignalController(processor)
+        # signals = SignalController(processor)
 
         #Connections: Pipeline to/from Processor
         processor.frames = 5
@@ -63,8 +64,8 @@ if __name__ == '__main__':
 
         #Connections: SignalController to/from GUI
         # for gui-initiated pipeline or processing events
-        overlay_window.make_connection(signals)
-        signals.make_connection(overlay_window)
+        # overlay_window.make_connection(signals)
+        # signals.make_connection(overlay_window)
 
         #Connections: recOrder to/from GUI
         overlay_window.make_connection(ui)
@@ -72,8 +73,6 @@ if __name__ == '__main__':
         # BGprocess first
         loader_bg.run_reconstruction(threaded=False)
         loader.run_reconstruction_BG_correction(loader_bg.background, threaded=True)
-
-
 
         #connect so button launches bgprocess
         ui.assign_pipes(loader, loader_bg)

@@ -15,26 +15,7 @@ from ..DataStructures import PhysicalData
 from ..DataStructures import StokesData
 from ..DataStructures import BackgroundData
 
-from src.Processing.AzimuthToVector import convert_to_vector
-
-
-'''
-ReconOrder contains all methods to reconstruct polarization images (transmittance, retardance, orientation, scattering)
-    The number of frames (4 or 5 frame acquisition), and each image for each frame
-    must be explicitly set or errors will be thrown during reconstruction.
-    
-    The order of operations should be as such:
-    1) Instantiate
-    2) Set number of frames (4 or 5)
-    3) Set states, where each "state" is an image.  The order matters:
-        state[0] = I_ext
-        state[1] = I_90
-        state[2] = I_135
-        state[3] = I_45
-        state[4] = I_0
-    4) Call compute Stokes
-    5) Call reconstruct_img
-'''
+from src.Processing.VectorLayerUtils import convert_to_vector
 
 
 class ReconOrder(object):
@@ -102,10 +83,10 @@ class ReconOrder(object):
         """
 
         if isinstance(background, BackgroundData):
-            stk_obj.A = stk_obj.A - background.A
-            stk_obj.B = stk_obj.B - background.B
             stk_obj.s0 = stk_obj.s0 / background.s0
             stk_obj.s3 = stk_obj.s3 / background.s3
+            stk_obj.A = stk_obj.A - background.A
+            stk_obj.B = stk_obj.B - background.B
 
             new_phys = self.compute_physical(stk_obj)
 
@@ -180,12 +161,14 @@ class ReconOrder(object):
 
         output_physical = PhysicalData()
 
+        s0 = stk_obj.s0
         s1 = stk_obj.s1
         s2 = stk_obj.s2
+        s3 = stk_obj.s3
 
-        output_physical.I_trans = stk_obj.s0
-        output_physical.retard = np.arctan2(np.sqrt(s1 ** 2 + s2 ** 2), stk_obj.s3)
-        output_physical.polarization = np.sqrt(s1 ** 2 + s2 ** 2 + stk_obj.s3 ** 2) / stk_obj.s0
+        output_physical.I_trans = s0
+        output_physical.retard = np.arctan2(np.sqrt(s1 ** 2 + s2 ** 2), s3)
+        output_physical.polarization = np.sqrt(s1 ** 2 + s2 ** 2 + s3 ** 2) / s0
         output_physical.scattering = 1 - output_physical.polarization
 
         if flip_pol == 'rcp':
@@ -195,8 +178,7 @@ class ReconOrder(object):
             self.flip_pol = 'lcp'
             output_physical.azimuth = (0.5 * np.arctan2(s1, s2) % np.pi)  # make azimuth fall in [0,pi]
 
-        #make the arrays displayable by scaling to more meaningful values
-        output_physical.retard = output_physical.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
+        output_physical.retard_nm = output_physical.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
         output_physical.azimuth_degree = output_physical.azimuth / (np.pi) * 180
         output_physical.azimuth_vector = convert_to_vector(output_physical.azimuth - (0.5*np.pi),
                                                            output_physical.retard)
@@ -209,9 +191,9 @@ class ReconOrder(object):
 
         phy_obj.retard = phy_obj.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
 
-        phy_obj.I_trans = self.imBitConvert(phy_obj.I_trans * 10 ** 3, bit=16, norm=True)  # AU, set norm to False for tiling images
-        phy_obj.retard = self.imBitConvert(phy_obj.retard * 10 ** 3, bit=16)  # scale to pm
-        phy_obj.scattering = self.imBitConvert(phy_obj.scattering * 10 ** 4, bit=16)
+        phy_obj.I_trans = self.imBitConvert(phy_obj.I_trans * 10 ** 4, bit=16, norm=True)  # AU, set norm to False for tiling images
+        phy_obj.retard = self.imBitConvert(phy_obj.retard * 10 ** 1, bit=16)  # scale to pm
+        phy_obj.scattering = self.imBitConvert(phy_obj.scattering * 10 ** 5.5, bit=16)
         phy_obj.azimuth_degree = self.imBitConvert(phy_obj.azimuth_degree * 100, bit=16)  # scale to [0, 18000], 100*degree
         return phy_obj
 
@@ -228,3 +210,17 @@ class ReconOrder(object):
         else:
             im = im.astype(np.uint16, copy=False)  # convert to 16 bit
         return im
+
+    def stretch_scale(self, phy_obj: PhysicalData):
+        phy_obj.retard = phy_obj.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
+
+        phy_obj.I_trans = self.stretch_convert(phy_obj.I_trans * 10 ** 4)
+        phy_obj.retard = self.stretch_convert(phy_obj.retard * 10 ** 3)
+        phy_obj.scattering = self.stretch_convert(phy_obj.scattering * 10 ** 4)
+        phy_obj.azimuth_degree = self.stretch_convert(phy_obj.azimuth_degree * 100)
+
+        return phy_obj
+
+    def stretch_convert(self, im):
+        return im
+

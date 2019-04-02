@@ -24,13 +24,6 @@ class Singleton(type):
 
 class BackgroundData(IntensityData, StokesData, PhysicalData, metaclass=Singleton):
 
-    def __setattr__(self, name, value):
-        if hasattr(self, name):
-            object.__setattr__(self, name, value)
-        else:
-            raise TypeError('Cannot set name %r on object of type %s' % (
-                name, self.__class__.__name__))
-
     def __init__(self):
         super(BackgroundData, self).__init__()
 
