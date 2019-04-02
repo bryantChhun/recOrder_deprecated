@@ -37,13 +37,11 @@ def _snap_channel(channel: str, gateway: JavaGateway):
     mmc.setChannelGroup('Channel')
     c=0
     while mmc.getCurrentConfig('Channel') != channel:
-        time.sleep(0.001)
+        time.sleep(0.0001)
         mmc.setConfig('Channel', channel)
         c += 1
-        if c >= 1000:
-            print('timeout waiting to set channel')
-            print('current config is = '+mmc.getCurrentConfig('Channel'))
-            break
+        if c >= 10000:
+            raise AttributeError("timeout waiting to set channel")
     print("time to check channel = %04d" % c)
 
     live_manager = mm.getSnapLiveManager()
@@ -52,11 +50,10 @@ def _snap_channel(channel: str, gateway: JavaGateway):
     # again we need a monitor to be sure file is written
     ct = 0
     while not gateway.entry_point.fileExists(channel):
-        time.sleep(0.001)
+        time.sleep(0.0001)
         ct += 1
         if ct >= 10000:
-            print('timeout waiting for file exists')
-            break
+            raise FileExistsError("timeout waiting for file exists")
     print("time to check fileExists = %04d" % ct)
 
     data_filename = gateway.entry_point.getFile(channel)
@@ -154,11 +151,15 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData) -> P
     processor.frames = 5
     processor.compute_inst_matrix()
 
-    temp_int.IExt = _snap_channel('State0', gateway)
-    temp_int.I0 = _snap_channel('State1', gateway)
-    temp_int.I45 = _snap_channel('State2', gateway)
-    temp_int.I90 = _snap_channel('State3', gateway)
-    temp_int.I135 = _snap_channel('State4', gateway)
+    try:
+        temp_int.IExt = _snap_channel('State0', gateway)
+        temp_int.I0 = _snap_channel('State1', gateway)
+        temp_int.I45 = _snap_channel('State2', gateway)
+        temp_int.I90 = _snap_channel('State3', gateway)
+        temp_int.I135 = _snap_channel('State4', gateway)
+    except Exception as ex:
+        print(str(ex))
+        return
 
     temp_stokes = processor.compute_stokes(temp_int)
     temp_physical = processor.correct_background(temp_stokes, background)

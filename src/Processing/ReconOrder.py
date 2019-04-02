@@ -178,7 +178,6 @@ class ReconOrder(object):
             self.flip_pol = 'lcp'
             output_physical.azimuth = (0.5 * np.arctan2(s1, s2) % np.pi)  # make azimuth fall in [0,pi]
 
-        output_physical.retard_nm = output_physical.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
         output_physical.azimuth_degree = output_physical.azimuth / (np.pi) * 180
         output_physical.azimuth_vector = convert_to_vector(output_physical.azimuth - (0.5*np.pi),
                                                            output_physical.retard)

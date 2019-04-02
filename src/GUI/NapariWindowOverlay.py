@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QRunnable, QThreadPool
 import numpy as np
 
+from src.DataStructures import BackgroundData
 from src.FileManagement.RetrieveFiles import RetrieveData
 from src.DataStructures.PhysicalData import PhysicalData
 
@@ -98,7 +99,8 @@ class NapariWindowOverlay(QWidget):
     def update_layer_image(self, instance: object):
         print('gui is notified of new data')
 
-        if isinstance(instance, PhysicalData):
+        if isinstance(instance, PhysicalData) and not isinstance(instance, BackgroundData):
+            print('gui received PhysicalData')
             self.layer1.vectors = instance.azimuth_vector
             self.layer2.image = instance.scattering
             self.layer3.image = instance.retard
