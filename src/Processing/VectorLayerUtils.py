@@ -44,42 +44,41 @@ def convert_to_vector(azimuth: np.array,
     #create empty vector of necessary shape
     # every pixel has 2 coordinates,
     pos = np.zeros((xdim, ydim, 2), dtype=np.float32)
-    pos[:, :, 0] = (stride_x//2) * length * retardance * np.cos(azimuth)
-    pos[:, :, 1] = (stride_y//2) * length * retardance * np.sin(azimuth)
+    pos[:, :, 0] = (stride_x//2 + 1) * length * retardance * np.cos(azimuth)
+    pos[:, :, 1] = (stride_y//2 + 1) * length * retardance * np.sin(azimuth)
 
     return pos
 
 
 def compute_average(stk_img : StokesData,
-                    kernel : int = 1,
-                    length: Union[int, float] = 1,
-                    flipPol=False) -> np.array:
-
+                    kernel, range_x, range_y,
+                    func
+                    ) -> np.array:
     x, y = kernel, kernel
     x_offset = int((x-1)/2)
     y_offset = int((y-1)/2)
-
-    # if (x, y) == (1, 1):
-    #     self.vectors = self._original_data
-    #     return
-    #     # return "calling original data"
-
     kernel = np.ones(shape=(x, y)) / (x * y)
 
-    s1_avg = signal.convolve2d(stk_img.s1[:, :, 0], kernel, mode='same', boundary='wrap')
-    s2_avg = signal.convolve2d(stk_img.s2[:, :, 1], kernel, mode='same', boundary='wrap')
-    s3_avg = signal.convolve2d(stk_img.s3[:, :, 1], kernel, mode='same', boundary='wrap')
+    # orig_data is vector data of image-like (N,M,2) shape
 
-    if flipPol == 'rcp':
-        azimuth_avg = (0.5 * np.arctan2(-s1_avg, s2_avg) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
-    else:
-        azimuth_avg = (0.5 * np.arctan2(s1_avg, s2_avg) + 0.5 * np.pi)  # make azimuth fall in [0,pi]
-    retard_avg = np.arctan2(np.sqrt(s1_avg ** 2 + s2_avg ** 2), s3_avg) / (2 * np.pi)
+    # calculate average based on stokes
+    avg_stokes = StokesData()
+    avg_stokes.s0 = stk_img.s0
+    avg_stokes.s1 = signal.convolve2d(stk_img.s1, kernel, mode='same', boundary='wrap')
+    avg_stokes.s2 = signal.convolve2d(stk_img.s2, kernel, mode='same', boundary='wrap')
+    avg_stokes.s3 = signal.convolve2d(stk_img.s3, kernel, mode='same', boundary='wrap')
 
-    # self.vectors = output_mat[x_offset:range_x - x_offset:x, y_offset:range_y - y_offset:y]
-    # self.length = self._length
+    # calculate the new physical based on average stokes
+    avg_phys = func.compute_physical(avg_stokes)
+    new_vect = np.zeros(shape=(range_x, range_y, 2))
+    new_vect[:, :, 0] = avg_phys.azimuth_vector[:, :, 0]
+    new_vect[:, :, 1] = avg_phys.azimuth_vector[:, :, 1]
 
-    vectors = convert_to_vector(azimuth_avg - (0.5 * np.pi), retardance=retard_avg, stride_x=x, stride_y=y, length=length)
+    # slice the averaged data based on kernel
+    out_vect = new_vect[x_offset:-x_offset:x, y_offset:-y_offset:y]
 
-    return azimuth_avg, retard_avg, vectors
+    return out_vect
 
+
+def compute_length():
+    return None

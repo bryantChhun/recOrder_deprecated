@@ -10,20 +10,30 @@
 
 
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QRunnable, QThreadPool
 import numpy as np
 
 from src.FileManagement.RetrieveFiles import RetrieveData
 from src.DataStructures.PhysicalData import PhysicalData
-from src.Processing.ReconOrder import ReconOrder
-from src.Processing import compute_average, convert_to_vector
+
+
+class ProcessRunnable(QRunnable):
+    def __init__(self, target, args):
+        QRunnable.__init__(self)
+        self.t = target
+        self.args = args
+
+    def run(self):
+        self.t(*self.args)
+
+    def start(self):
+        QThreadPool.globalInstance().start(self)
 
 
 class NapariWindowOverlay(QWidget):
 
-    average_change = pyqtSignal(object)
-    length_change = pyqtSignal(object)
-    update_complete = pyqtSignal(str)
+    average_change = pyqtSignal(list)
+    length_change = pyqtSignal(float)
 
     def __init__(self, viewer, type='Py4J'):
         super().__init__()
@@ -42,7 +52,7 @@ class NapariWindowOverlay(QWidget):
         self.init_data_1 = 2**16 * np.random.rand(512,512)
 
         #init vector data
-        N = 1028
+        N = 2048
         self.pos = np.zeros((N, N, 2), dtype=np.float32)
         dim = np.linspace(0, N - 1, N)
         xv, yv = np.meshgrid(dim, dim)
@@ -51,19 +61,31 @@ class NapariWindowOverlay(QWidget):
 
         #init layers with vector data and subscribe to gui notifications
         self.layer1 = self.viewer.add_vectors(self.pos)
-        # self.layer1._default_avg = compute_average
-        # self.layer1.length_bind_to(self.compute_length)
+        self.layer1._default_avg = self.run_faster
+        # self.layer1._default_len = self.update_length
+
         self.layer2 = self.viewer.add_image(self.init_data_1, {})
         self.layer3 = self.viewer.add_image(self.init_data_1, {})
         self.layer4 = self.viewer.add_image(self.init_data_1, {})
 
-        self.layers = [self.layer1, self.layer2, self.layer3, self.layer4]
+        # self.layers = [self.layer1, self.layer2, self.layer3, self.layer4]
 
-    def compute_vector(self, update: str):
-        self.average_change.emit(update)
-
-    def compute_length(self, update: [int, float]):
-        self.length_change.emit(update)
+    def update_average(self):
+        """
+        called by the UI
+        emits a signal received by PipeFromFiles, which initiates calculation
+        PipeFromFiles emits signal to this class's "update_layer_image"
+        :return:
+        """
+        if self.layer1._averaging == 1:
+            return self.layer1._current_data
+        else:
+            self.average_change.emit([self.layer1._averaging,
+                                      self.layer1._original_data.shape[0],
+                                      self.layer1._original_data.shape[1]])
+    def run_faster(self):
+        process = ProcessRunnable(target=self.update_average, args=())
+        process.start()
 
     def set_gateway(self, gateway):
         self.gate = gateway
@@ -76,7 +98,6 @@ class NapariWindowOverlay(QWidget):
     def update_layer_image(self, instance: object):
 
         if isinstance(instance, PhysicalData):
-            print("gui received object of type = "+str(type(instance)))
             self.layer1.vectors = instance.azimuth_vector
             self.layer2.image = instance.scattering
             self.layer3.image = instance.retard
@@ -87,11 +108,8 @@ class NapariWindowOverlay(QWidget):
             self.layer3.name = 'retardance'
             self.layer4.name = 'transmission'
 
-            self.update_complete.emit("Received and updated images")
         else:
             print("GUI did not receive Physical Data")
-            # self.layer1.vectors = instance
-            # self.layer2.image = 65536*np.random.rand(2048,2048)
 
     def make_connection(self, reconstruction: object):
         from src.DataPipe.PipeFromFiles import PipeFromFiles
@@ -101,11 +119,14 @@ class NapariWindowOverlay(QWidget):
         if isinstance(reconstruction, PipeFromFiles):
             print("connecting pipe to gui")
             reconstruction.recon_complete.connect(self.update_layer_image)
+
         elif isinstance(reconstruction, SignalController):
             print("connecting signal controller to gui")
             reconstruction.vector_computed.connect(self.update_layer_image)
+
         elif isinstance(reconstruction, Ui_ReconOrderUI):
             print("connecting LC calibration to GUI")
             reconstruction.window_update_signal.connect(self.update_layer_image)
+
         else:
             print("no matching implementation found for: "+str(type(reconstruction)))

@@ -33,16 +33,25 @@ class IntensityData(object):
                 name, self.__class__.__name__))
 
     def set_angle_from_index(self, index: int, image: np.ndarray):
+        """
+        The order is based on the initial conditions in the paper.
+            Paper init cond: assume a horizontally polarized init state
+            Physical condition: assume a vertically polarized init state
+            So all the I(deg) values are actually rotated 90 degrees
+        :param index: state index
+        :param image: data
+        :return:
+        """
         if index == 0:
             self.IExt = image
         elif index == 1:
-            self.I0 = image
-        elif index == 2:
-            self.I45 = image
-        elif index == 3:
             self.I90 = image
-        elif index == 4:
+        elif index == 2:
             self.I135 = image
+        elif index == 3:
+            self.I45 = image
+        elif index == 4:
+            self.I0 = image
 
     def print_none_vals(self):
         intensity = ['IExt', 'I0', 'I45', 'I90', 'I135']

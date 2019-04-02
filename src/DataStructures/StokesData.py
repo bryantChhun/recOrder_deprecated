@@ -15,6 +15,7 @@ from copy import deepcopy
 class StokesData(object):
     """
     Data Structure that contains all stokes vector images
+    no other attributes can be assigned to this class
     """
 
     _s0 = None

@@ -19,6 +19,7 @@ class PhysicalData(object):
 
     _I_trans = None
     _retard = None
+    _retard_nm = None
     _polarization = None
     _scattering = None
     _azimuth = None
@@ -50,6 +51,14 @@ class PhysicalData(object):
     @retard.setter
     def retard(self, data: np.ndarray):
         self._retard = deepcopy(data)
+
+    @property
+    def retard_nm(self):
+        return self._retard_nm
+
+    @retard_nm.setter
+    def retard_nm(self, data : np.ndarray):
+        self._retard_nm = data
 
     @property
     def polarization(self):
