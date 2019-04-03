@@ -152,7 +152,7 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
     return bg_raw
 
 
-def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData) -> Union(PhysicalData, None):
+def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData) -> Union[PhysicalData, None]:
 
     temp_int = IntensityData()
     processor = ReconOrder()
@@ -172,8 +172,9 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData) -> U
 
     temp_stokes = processor.compute_stokes(temp_int)
     temp_physical = processor.correct_background(temp_stokes, background)
+    scaled_physical = processor.rescale_bitdepth(temp_physical)
 
-    return temp_physical
+    return scaled_physical
 
 def py4j_calibrate_lc(gateway: JavaGateway):
     #create processing module
