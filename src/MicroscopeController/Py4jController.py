@@ -7,6 +7,7 @@
 # usage           :
 # notes           :
 # python_version  :3.6
+from typing import Union
 
 from py4j.java_gateway import JavaGateway
 import numpy as np
@@ -105,9 +106,11 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
         .reshape(data_pixelshape)
     bg_raw.I135 = np.mean([_snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape)
+
     processor = ReconOrder()
     processor.frames = 5
     processor.compute_inst_matrix()
+    processor.swing = 0.2
     print("all states snapped")
 
     #assign intensity states
@@ -149,12 +152,13 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
     return bg_raw
 
 
-def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData) -> PhysicalData:
+def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData) -> Union(PhysicalData, None):
 
     temp_int = IntensityData()
     processor = ReconOrder()
     processor.frames = 5
     processor.compute_inst_matrix()
+    processor.swing = 0.2
 
     try:
         temp_int.IExt = _snap_channel('State0', gateway)
@@ -164,7 +168,7 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData) -> P
         temp_int.I135 = _snap_channel('State4', gateway)
     except Exception as ex:
         print(str(ex))
-        return
+        return None
 
     temp_stokes = processor.compute_stokes(temp_int)
     temp_physical = processor.correct_background(temp_stokes, background)
