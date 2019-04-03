@@ -213,13 +213,15 @@ class ReconOrder(object):
     def stretch_scale(self, phy_obj: PhysicalData):
         phy_obj.retard = phy_obj.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
 
-        phy_obj.I_trans = self.stretch_convert(phy_obj.I_trans * 10 ** 4)
-        phy_obj.retard = self.stretch_convert(phy_obj.retard * 10 ** 3)
-        phy_obj.scattering = self.stretch_convert(phy_obj.scattering * 10 ** 4)
-        phy_obj.azimuth_degree = self.stretch_convert(phy_obj.azimuth_degree * 100)
+        phy_obj.I_trans = self.stretch_convert(phy_obj.I_trans)
+        phy_obj.retard = self.stretch_convert(phy_obj.retard)
+        phy_obj.scattering = self.stretch_convert(phy_obj.scattering)
+        phy_obj.azimuth_degree = self.stretch_convert(phy_obj.azimuth_degree)
 
         return phy_obj
 
     def stretch_convert(self, im):
+        im = im.astype(np.float32, copy=False)
+        im = (im - np.min(im)) / (np.max(im) - np.min(im))
         return im
 

@@ -172,7 +172,7 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData) -> U
 
     temp_stokes = processor.compute_stokes(temp_int)
     temp_physical = processor.correct_background(temp_stokes, background)
-    scaled_physical = processor.rescale_bitdepth(temp_physical)
+    scaled_physical = processor.stretch_scale(temp_physical)
 
     return scaled_physical
 
