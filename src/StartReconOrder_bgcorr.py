@@ -18,7 +18,8 @@ from PyQt5 import QtWidgets
 
 from src.GUI.NapariWindowOverlay import NapariWindowOverlay
 from src.DataPipe.PipeFromFiles import PipeFromFiles
-from src.GUI.qtdesigner.ReconOrderUI import Ui_ReconOrderUI
+# from src.GUI.qtdesigner.ReconOrderUI import Ui_ReconOrderUI
+from src.GUI.RecorderWindowControl import RecorderWindowControl
 from src.SignalController.SignalController import SignalController
 from src.Processing.ReconOrder import ReconOrder
 from py4j.java_gateway import JavaGateway
@@ -35,11 +36,10 @@ if __name__ == '__main__':
         viewer = ViewerApp()
         overlay_window = NapariWindowOverlay(viewer)
 
-        ReconOrderUI = QtWidgets.QDialog()
-        ui = Ui_ReconOrderUI()
-        ui.setupUi(ReconOrderUI)
-        ui.gateway = gateway
-        ReconOrderUI.show()
+        recorder_window = QtWidgets.QDialog()
+        uic = RecorderWindowControl(recorder_window)
+        uic.gateway = gateway
+        recorder_window.show()
 
         #initialize file loaders
         loader = PipeFromFiles(type="Test", sample_type="Sample1")
@@ -68,11 +68,11 @@ if __name__ == '__main__':
         # signals.make_connection(overlay_window)
 
         #Connections: recOrder to/from GUI
-        overlay_window.make_connection(ui)
+        overlay_window.make_connection(uic)
 
         # BGprocess first
         loader_bg.run_reconstruction(threaded=False)
         loader.run_reconstruction_BG_correction(loader_bg.background, threaded=True)
 
         #connect so button launches bgprocess
-        ui.assign_pipes(loader, loader_bg)
+        uic.assign_pipes(loader, loader_bg)
