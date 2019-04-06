@@ -62,7 +62,7 @@ class TestImageReconstruction(unittest.TestCase):
 
     def test_mse_retard(self):
         self.construct_all()
-        self.assertLessEqual(mse(self.datapipe.physical.retard, np.load(self.target_retard)), 20000)
+        self.assertLessEqual(mse(self.datapipe.physical.retard, np.load(self.target_retard)), 100)
 
 
     def test_mse_orientation(self):

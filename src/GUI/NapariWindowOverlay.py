@@ -102,6 +102,7 @@ class NapariWindowOverlay(QWidget):
         if isinstance(instance, PhysicalData) and not isinstance(instance, BackgroundData):
             print('gui received PhysicalData')
             self.layer1.vectors = instance.azimuth_vector
+            self.layer1._raw_dat = instance.azimuth_vector
             self.layer2.image = instance.scattering
             self.layer3.image = instance.retard
             self.layer4.image = instance.I_trans
