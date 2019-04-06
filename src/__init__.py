@@ -12,3 +12,6 @@ from .DataStructures import BackgroundData
 from .DataStructures import IntensityData
 from .DataStructures import StokesData
 from .DataStructures import PhysicalData
+
+from .DataPipe import PipeFromFiles, PipeFromPy4j
+from .GUI import NapariWindowOverlay, RecorderWindowControl

@@ -16,22 +16,19 @@ from src.Processing.VectorLayerUtils import compute_average, convert_to_vector
 from typing import Union
 import numpy as np
 
+#TODO: control signals from napari for averaging
+#TODO: connect signals for
 
+"""
+Signal Controller creates all the bindings between emitters/connectors in various classes
+It will also mediate any calculations necessary for emitter-induced events like averaging
+"""
 class SignalController(QObject):
 
     vector_computed = pyqtSignal(object)
 
     def __init__(self, processor):
         super().__init__()
-
-        # self.kernel_dict = {'1x1': (1, 1),
-        #                     '3x3': (3, 3),
-        #                     '5x5': (5, 5),
-        #                     '7x7': (7, 7),
-        #                     '9x9': (9, 9),
-        #                     '11x11': (11, 11)}
-        # self.current_avg_kernel = (1,1)
-        # self.current_length = 10
 
         if isinstance(processor, ReconOrder):
             self._recon = processor

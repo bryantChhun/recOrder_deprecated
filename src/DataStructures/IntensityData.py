@@ -26,6 +26,12 @@ class IntensityData(object):
         super(IntensityData, self).__init__()
 
     def __setattr__(self, name, value):
+        """
+        do not allow assignment of attributes other than those defined above
+        :param name: attribute
+        :param value: value
+        :return:
+        """
         if hasattr(self, name):
             object.__setattr__(self, name, value)
         else:

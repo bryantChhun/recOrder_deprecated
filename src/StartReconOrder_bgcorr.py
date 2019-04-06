@@ -47,16 +47,16 @@ if __name__ == '__main__':
 
         #initialize processors
         processor = ReconOrder()
-        processor_bg = ReconOrder()
+        # processor_bg = ReconOrder()
 
         #initialize SignalController
         # signals = SignalController(processor)
 
         #Connections: Pipeline to/from Processor
         processor.frames = 5
-        processor_bg.frames = 5
+        # processor_bg.frames = 5
         loader.set_processor(processor)
-        loader_bg.set_processor(processor_bg)
+        loader_bg.set_processor(processor)
 
         #Connections: Pipeline to/from GUI
         overlay_window.make_connection(loader)
