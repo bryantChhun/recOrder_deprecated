@@ -30,7 +30,7 @@ class ProcessRunnable(QRunnable):
 
 class PipeFromPy4j(QObject):
     """
-    Major difference from PipeFromPy4J versus the PipeToReconOrder (for testing) is that
+    Major difference from PipeFromPy4J versus the PipeFromFiles (for testing) is that
         PipeFromPy4J will spin off a thread upon pyqtSignal from data monitor
         Otherwise PipeFromPy4J does nothing and waits for signal
     Pipe emits signals to both window (ReconOrder object) and to Monitor (poll for new image data)

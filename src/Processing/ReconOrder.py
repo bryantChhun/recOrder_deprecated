@@ -179,7 +179,7 @@ class ReconOrder(object):
             output_physical.azimuth = (0.5 * np.arctan2(s1, s2) % np.pi)  # make azimuth fall in [0,pi]
 
         output_physical.azimuth_degree = output_physical.azimuth / (np.pi) * 180
-        output_physical.azimuth_vector = convert_to_vector(output_physical.azimuth - (0.5*np.pi),
+        output_physical.azimuth_vector = convert_to_vector(output_physical.azimuth,
                                                            output_physical.retard)
 
         return output_physical
@@ -191,7 +191,7 @@ class ReconOrder(object):
         phy_obj.retard = phy_obj.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
 
         phy_obj.I_trans = self.imBitConvert(phy_obj.I_trans * 10 ** 4, bit=16, norm=True)  # AU, set norm to False for tiling images
-        phy_obj.retard = self.imBitConvert(phy_obj.retard * 10 ** 1, bit=16)  # scale to pm
+        phy_obj.retard = self.imBitConvert(phy_obj.retard * 10 ** 10, bit=16)  # scale to pm
         phy_obj.scattering = self.imBitConvert(phy_obj.scattering * 10 ** 5.5, bit=16)
         phy_obj.azimuth_degree = self.imBitConvert(phy_obj.azimuth_degree * 100, bit=16)  # scale to [0, 18000], 100*degree
         return phy_obj

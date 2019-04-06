@@ -18,8 +18,6 @@ from src.DataStructures import StokesData
 
 def convert_to_vector(azimuth: np.array,
                       retardance: np.array,
-                      stride_x: int = 1,
-                      stride_y: int = 1,
                       length: Union[int, float] = 1) -> np.array:
     """
     This function converts an "azimuth" (radian) array into a vector array
@@ -44,8 +42,8 @@ def convert_to_vector(azimuth: np.array,
     #create empty vector of necessary shape
     # every pixel has 2 coordinates,
     pos = np.zeros((xdim, ydim, 2), dtype=np.float32)
-    pos[:, :, 0] = (stride_x//2 + 1) * length * retardance * np.cos(azimuth)
-    pos[:, :, 1] = (stride_y//2 + 1) * length * retardance * np.sin(azimuth)
+    pos[:, :, 0] = length * retardance * np.cos(azimuth)
+    pos[:, :, 1] = length * retardance * np.sin(azimuth)
 
     return pos
 

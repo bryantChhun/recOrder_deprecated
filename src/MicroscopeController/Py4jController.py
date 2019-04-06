@@ -157,7 +157,6 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData) -> U
     temp_int = IntensityData()
     processor = ReconOrder()
     processor.frames = 5
-    processor.compute_inst_matrix()
     processor.swing = 0.2
 
     try:
@@ -170,9 +169,11 @@ def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData) -> U
         print(str(ex))
         return None
 
+    processor.compute_inst_matrix()
     temp_stokes = processor.compute_stokes(temp_int)
     temp_physical = processor.correct_background(temp_stokes, background)
-    scaled_physical = processor.stretch_scale(temp_physical)
+    # scaled_physical = processor.stretch_scale(temp_physical)
+    scaled_physical = processor.rescale_bitdepth(temp_physical)
 
     return scaled_physical
 

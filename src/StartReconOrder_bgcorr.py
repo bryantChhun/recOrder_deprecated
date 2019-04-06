@@ -18,7 +18,6 @@ from PyQt5 import QtWidgets
 
 from src.GUI.NapariWindowOverlay import NapariWindowOverlay
 from src.DataPipe.PipeFromFiles import PipeFromFiles
-# from src.GUI.qtdesigner.ReconOrderUI import Ui_ReconOrderUI
 from src.GUI.RecorderWindowControl import RecorderWindowControl
 from src.SignalController.SignalController import SignalController
 from src.Processing.ReconOrder import ReconOrder

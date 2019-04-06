@@ -21,7 +21,8 @@ from src.Processing.VectorLayerUtils import compute_average, compute_length
 from datetime import datetime
 
 """
-PipeToReconOrder is a communication interface between data retrieval methods (under "FileManagement") 
+PipeFromFiles is a communication interface between data retrieval method "RetrieveFiles" (under "FileManagement") 
+  and any of the other modules under GUI, Processor
 """
 
 
