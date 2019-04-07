@@ -5,11 +5,11 @@ record Order: A module for live-processing birefringence data
 note: needs lots of cleanup and removal of deprecated functions
 
 # dependencies
-numpy
-py4j
-opencv
-pyqt5
-napari
+* numpy
+* py4j
+* opencv
+* pyqt5
+* napari
 
 Note: current napari distribution is 0.0.6.  This will NOT contain necessary elements to for recOrder.
 
