@@ -61,15 +61,19 @@ class NapariWindowOverlay(QWidget):
         self.pos[:, :, 1] = yv
 
         #init layers with vector data and subscribe to gui notifications
-        self.layer1 = self.viewer.add_vectors(self.pos)
-        self.layer1._default_avg = self.run_faster
-        # self.layer1._default_len = self.update_length
-
         self.layer2 = self.viewer.add_image(self.init_data_1, {})
         self.layer3 = self.viewer.add_image(self.init_data_1, {})
         self.layer4 = self.viewer.add_image(self.init_data_1, {})
+        self.layer1 = self.viewer.add_vectors(self.pos)
+        # self.layer1._default_avg = self.run_faster
 
         # self.layers = [self.layer1, self.layer2, self.layer3, self.layer4]
+
+        self.layer2._qt_properties.setExpanded(True)
+
+    def run_faster(self):
+        process = ProcessRunnable(target=self.update_average, args=())
+        process.start()
 
     def update_average(self):
         """
@@ -84,9 +88,6 @@ class NapariWindowOverlay(QWidget):
             self.average_change.emit([self.layer1._averaging,
                                       self.layer1._original_data.shape[0],
                                       self.layer1._original_data.shape[1]])
-    def run_faster(self):
-        process = ProcessRunnable(target=self.update_average, args=())
-        process.start()
 
     def set_gateway(self, gateway):
         self.gate = gateway
@@ -101,16 +102,19 @@ class NapariWindowOverlay(QWidget):
 
         if isinstance(instance, PhysicalData) and not isinstance(instance, BackgroundData):
             print('gui received PhysicalData')
-            self.layer1.vectors = instance.azimuth_vector
-            self.layer1._raw_dat = instance.azimuth_vector
-            self.layer2.image = instance.scattering
+
+            self.layer2.image = instance.polarization
             self.layer3.image = instance.retard
             self.layer4.image = instance.I_trans
+            self.viewer.layers.pop(3)
+            self.viewer.add_vectors(instance.azimuth_vector)
+            # self.layer1.vectors = instance.azimuth_vector
+            # self.layer1._raw_dat = instance.azimuth_vector
 
-            self.layer1.name = "vectors"
-            self.layer2.name = 'scattering'
+            self.layer2.name = 'polarization'
             self.layer3.name = 'retardance'
             self.layer4.name = 'transmission'
+            self.layer1.name = "vectors"
 
         else:
             print("GUI did not receive Physical Data")

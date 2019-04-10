@@ -84,11 +84,11 @@ class ReconOrder(object):
 
         if isinstance(background, BackgroundData):
             stk_obj.s0 = stk_obj.s0 / background.s0
-            stk_obj.s3 = stk_obj.s3 / background.s3
+            # stk_obj.s3 = stk_obj.s3 / background.s3
             stk_obj.A = stk_obj.A - background.A
             stk_obj.B = stk_obj.B - background.B
 
-            new_phys = self.compute_physical(stk_obj)
+            new_phys = self.compute_physical(stk_obj, from_background=True)
 
             new_phys.polarization = new_phys.polarization / background.polarization
 
@@ -126,10 +126,10 @@ class ReconOrder(object):
         # define our instrument matrix based on self.frames
         if self._frames == 4:
             img_raw = np.stack((int_obj.IExt, int_obj.I45, int_obj.I90, int_obj.I135))  # order the channel following stokes calculus convention
-            n_chann = np.shape(img_raw)[0]
+            # n_chann = np.shape(img_raw)[0]
         elif self._frames == 5:
             img_raw = np.stack((int_obj.IExt, int_obj.I0, int_obj.I45, int_obj.I90, int_obj.I135))  # order the channel following stokes calculus convention
-            n_chann = np.shape(img_raw)[0]
+            # n_chann = np.shape(img_raw)[0]
         else:
             raise ValueError("frames must be 4 or 5 to perform stokes calculation")
 
@@ -137,7 +137,7 @@ class ReconOrder(object):
         self.width = int_obj.IExt.shape[1]
 
         # calculate stokes
-        img_raw_flat = np.reshape(img_raw,(n_chann, self.height*self.width))
+        img_raw_flat = np.reshape(img_raw, (self._frames, self.height*self.width))
         img_stokes_flat = np.dot(self.inst_mat_inv, img_raw_flat)
         img_stokes = np.reshape(img_stokes_flat, (img_stokes_flat.shape[0], self.height, self.width))
 
@@ -145,7 +145,7 @@ class ReconOrder(object):
 
         return output_stokes
 
-    def compute_physical(self, stk_obj: StokesData, flip_pol='rcp') -> PhysicalData:
+    def compute_physical(self, stk_obj: StokesData, flip_pol='rcp', from_background = False) -> PhysicalData:
         """
         computes physical results from the stokes vectors
             transmittance
@@ -166,10 +166,17 @@ class ReconOrder(object):
         s2 = stk_obj.s2
         s3 = stk_obj.s3
 
+        if from_background:
+            s1 = stk_obj.A * stk_obj.s3
+            s2 = stk_obj.B * stk_obj.s3
+
         output_physical.I_trans = s0
         output_physical.retard = np.arctan2(np.sqrt(s1 ** 2 + s2 ** 2), s3)
         output_physical.polarization = np.sqrt(s1 ** 2 + s2 ** 2 + s3 ** 2) / s0
         output_physical.scattering = 1 - output_physical.polarization
+        print(np.max(output_physical.I_trans))
+        print(np.max(output_physical.retard))
+        print(np.max(output_physical.polarization))
 
         if flip_pol == 'rcp':
             self.flip_pol = flip_pol
@@ -191,8 +198,9 @@ class ReconOrder(object):
         phy_obj.retard = phy_obj.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
 
         phy_obj.I_trans = self.imBitConvert(phy_obj.I_trans * 10 ** 4, bit=16, norm=True)  # AU, set norm to False for tiling images
-        phy_obj.retard = self.imBitConvert(phy_obj.retard * 10 ** 10, bit=16)  # scale to pm
+        phy_obj.retard = self.imBitConvert(phy_obj.retard * 10 ** 3, bit=16)  # scale to pm
         phy_obj.scattering = self.imBitConvert(phy_obj.scattering * 10 ** 5.5, bit=16)
+        phy_obj.polarization = self.imBitConvert(phy_obj.polarization * 50000, bit=16)
         phy_obj.azimuth_degree = self.imBitConvert(phy_obj.azimuth_degree * 100, bit=16)  # scale to [0, 18000], 100*degree
         return phy_obj
 

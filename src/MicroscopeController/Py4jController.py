@@ -14,14 +14,13 @@ import numpy as np
 from datetime import datetime
 import time
 
-from src import StokesData
+from src.Processing.VectorLayerUtils import compute_average
 from src.DataStructures.BackgroundData import BackgroundData
 from src.DataStructures.IntensityData import IntensityData
 from src.DataStructures.PhysicalData import PhysicalData
 from src.Processing.ReconOrder import ReconOrder
 
 from copy import deepcopy
-
 
 def _snap_channel(channel: str, gateway: JavaGateway):
     """
@@ -98,13 +97,13 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
 
     bg_raw.IExt = np.mean([_snap_channel('State0', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape)
-    bg_raw.I0 = np.mean([_snap_channel('State1', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    bg_raw.I90 = np.mean([_snap_channel('State1', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape)
-    bg_raw.I45 = np.mean([_snap_channel('State2', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    bg_raw.I135 = np.mean([_snap_channel('State2', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape)
-    bg_raw.I90 = np.mean([_snap_channel('State3', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    bg_raw.I45 = np.mean([_snap_channel('State3', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape)
-    bg_raw.I135 = np.mean([_snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    bg_raw.I0 = np.mean([_snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape)
 
     processor = ReconOrder()
@@ -152,28 +151,37 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
     return bg_raw
 
 
-def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData) -> Union[PhysicalData, None]:
+def py4j_snap_and_correct(gateway: JavaGateway, background: BackgroundData = None) -> Union[PhysicalData, None]:
 
     temp_int = IntensityData()
     processor = ReconOrder()
     processor.frames = 5
-    processor.swing = 0.2
+    processor.swing = 0.1
 
     try:
         temp_int.IExt = _snap_channel('State0', gateway)
-        temp_int.I0 = _snap_channel('State1', gateway)
-        temp_int.I45 = _snap_channel('State2', gateway)
-        temp_int.I90 = _snap_channel('State3', gateway)
-        temp_int.I135 = _snap_channel('State4', gateway)
+        temp_int.I90 = _snap_channel('State1', gateway)
+        temp_int.I135 = _snap_channel('State2', gateway)
+        temp_int.I45 = _snap_channel('State3', gateway)
+        temp_int.I0 = _snap_channel('State4', gateway)
     except Exception as ex:
         print(str(ex))
         return None
 
     processor.compute_inst_matrix()
     temp_stokes = processor.compute_stokes(temp_int)
-    temp_physical = processor.correct_background(temp_stokes, background)
+    # averaged_vector = compute_average(temp_stokes,
+    #                                   kernel=7,
+    #                                   range_x=temp_stokes.s0.shape[0],
+    #                                   range_y=temp_stokes.s0.shape[1],
+    #                                   func=processor)
+    if background:
+        temp_physical = processor.correct_background(temp_stokes, background)
+    else:
+        temp_physical = processor.compute_physical(temp_stokes)
     # scaled_physical = processor.stretch_scale(temp_physical)
     scaled_physical = processor.rescale_bitdepth(temp_physical)
+    # scaled_physical.azimuth_vector = averaged_vector
 
     return scaled_physical
 
