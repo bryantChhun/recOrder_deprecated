@@ -113,16 +113,16 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
     print("all states snapped")
 
     #assign intensity states
-    int_obj = IntensityData()
-    int_obj.IExt = bg_raw.IExt
-    int_obj.I0 = bg_raw.I0
-    int_obj.I45 = bg_raw.I45
-    int_obj.I90 = bg_raw.I90
-    int_obj.I135 = bg_raw.I135
-    print("all states assigned to properties")
+    # int_obj = IntensityData()
+    # int_obj.IExt = bg_raw.IExt
+    # int_obj.I0 = bg_raw.I0
+    # int_obj.I45 = bg_raw.I45
+    # int_obj.I90 = bg_raw.I90
+    # int_obj.I135 = bg_raw.I135
+    # print("all states assigned to properties")
 
     # construct and assign stokes to bg_raw
-    stk_obj = processor.compute_stokes(int_obj)
+    stk_obj = processor.compute_stokes(bg_raw)
     print("stokes computed")
     bg_raw.s0 = stk_obj.s0
     bg_raw.s1 = stk_obj.s1
