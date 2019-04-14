@@ -108,7 +108,7 @@ class PipeFromFiles(QObject):
         return True
 
     @timer
-    def reconstruct_image(self):
+    def compute_physical(self):
         print("Reconstruct image")
         self.physical = self._Recon.compute_physical(self.stokes)
         return True
@@ -142,7 +142,7 @@ class PipeFromFiles(QObject):
         self.fetch_images()
         self.compute_inst_matrix()
         self.compute_stokes()
-        self.reconstruct_image()
+        self.compute_physical()
         self.build_background()
 
     def fetch_stokes_physical_bgcorr(self, background: BackgroundData):
@@ -152,7 +152,11 @@ class PipeFromFiles(QObject):
         :param background: ReconOrder object that contains stokes calculations for BG images
         :return: True if successful
         '''
-        self.fetch_stokes_physical()
+        # self.fetch_stokes_physical()
+        self.fetch_images()
+        self.compute_inst_matrix()
+        self.compute_stokes()
+        self.compute_physical()
         self.correct_background(background)
         self.rescale_bitdepth()
         self.recon_complete.emit(self.physical)

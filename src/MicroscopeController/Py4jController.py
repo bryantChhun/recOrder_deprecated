@@ -76,7 +76,12 @@ def _snap_channel(channel: str, gateway: JavaGateway):
         depth = np.uint8
     else:
         depth = np.uint16
+
     data = deepcopy(np.memmap(filename=data_filename, dtype=depth, offset=0, shape=data_pixelshape))
+
+    if data is None:
+        print("data is none")
+
     return data
 
 
@@ -109,7 +114,7 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
     processor = ReconOrder()
     processor.frames = 5
     processor.compute_inst_matrix()
-    processor.swing = 0.2
+    processor.swing = 0.1
     print("all states snapped")
 
     #assign intensity states
@@ -123,22 +128,24 @@ def py4j_collect_background(gateway: JavaGateway, bg_raw: BackgroundData, averag
 
     # construct and assign stokes to bg_raw
     stk_obj = processor.compute_stokes(bg_raw)
-    print("stokes computed")
-    bg_raw.s0 = stk_obj.s0
-    bg_raw.s1 = stk_obj.s1
-    bg_raw.s2 = stk_obj.s2
-    bg_raw.s3 = stk_obj.s3
-    print('stokes vectors assigned to background object')
+    bg_raw.assign_stokes(stk_obj)
+    # print("stokes computed")
+    # bg_raw.s0 = stk_obj.s0
+    # bg_raw.s1 = stk_obj.s1
+    # bg_raw.s2 = stk_obj.s2
+    # bg_raw.s3 = stk_obj.s3
+    # print('stokes vectors assigned to background object')
 
     # construct and assign physical to bg_raw
     phys_obj = processor.compute_physical(stk_obj)
-    print("physical computed")
-    bg_raw.I_trans = phys_obj.I_trans
-    bg_raw.retard = phys_obj.retard
-    bg_raw.polarization = phys_obj.polarization
-    bg_raw.scattering = phys_obj.scattering
-    bg_raw.azimuth = phys_obj.azimuth
-    print("physical assigned to background object")
+    bg_raw.assign_physical(phys_obj)
+    # print("physical computed")
+    # bg_raw.I_trans = phys_obj.I_trans
+    # bg_raw.retard = phys_obj.retard
+    # bg_raw.polarization = phys_obj.polarization
+    # bg_raw.scattering = phys_obj.scattering
+    # bg_raw.azimuth = phys_obj.azimuth
+    # print("physical assigned to background object")
 
     # write to disk
     # create a folder with a name

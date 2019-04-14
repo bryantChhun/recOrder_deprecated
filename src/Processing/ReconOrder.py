@@ -83,13 +83,14 @@ class ReconOrder(object):
         """
 
         if isinstance(background, BackgroundData):
-            stk_obj.s0 = stk_obj.s0 / background.s0
+            # stk_obj.s0 = stk_obj.s0 / background.s0
             # stk_obj.s3 = stk_obj.s3 / background.s3
             stk_obj.A = stk_obj.A - background.A
             stk_obj.B = stk_obj.B - background.B
 
-            new_phys = self.compute_physical(stk_obj, from_background=True)
+            new_phys = self.compute_physical(stk_obj, bg_corr_stokes=True)
 
+            new_phys.I_trans = new_phys.I_trans / background.s0
             new_phys.polarization = new_phys.polarization / background.polarization
 
             return new_phys
@@ -145,7 +146,7 @@ class ReconOrder(object):
 
         return output_stokes
 
-    def compute_physical(self, stk_obj: StokesData, flip_pol='rcp', from_background = False) -> PhysicalData:
+    def compute_physical(self, stk_obj: StokesData, flip_pol='rcp', bg_corr_stokes = False) -> PhysicalData:
         """
         computes physical results from the stokes vectors
             transmittance
@@ -166,17 +167,19 @@ class ReconOrder(object):
         s2 = stk_obj.s2
         s3 = stk_obj.s3
 
-        if from_background:
+        output_physical.I_trans = s0
+        output_physical.polarization = np.sqrt(s1 ** 2 + s2 ** 2 + s3 ** 2) / s0
+        output_physical.scattering = 1 - output_physical.polarization
+
+        if bg_corr_stokes:
             s1 = stk_obj.A * stk_obj.s3
             s2 = stk_obj.B * stk_obj.s3
 
-        output_physical.I_trans = s0
         output_physical.retard = np.arctan2(np.sqrt(s1 ** 2 + s2 ** 2), s3)
-        output_physical.polarization = np.sqrt(s1 ** 2 + s2 ** 2 + s3 ** 2) / s0
-        output_physical.scattering = 1 - output_physical.polarization
-        print(np.max(output_physical.I_trans))
-        print(np.max(output_physical.retard))
-        print(np.max(output_physical.polarization))
+
+        # print(np.max(output_physical.I_trans))
+        # print(np.max(output_physical.retard))
+        # print(np.max(output_physical.polarization))
 
         if flip_pol == 'rcp':
             self.flip_pol = flip_pol
@@ -198,10 +201,11 @@ class ReconOrder(object):
         phy_obj.retard = phy_obj.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
 
         phy_obj.I_trans = self.imBitConvert(phy_obj.I_trans * 10 ** 4, bit=16, norm=True)  # AU, set norm to False for tiling images
-        phy_obj.retard = self.imBitConvert(phy_obj.retard * 10 ** 3, bit=16)  # scale to pm
+        phy_obj.retard = self.imBitConvert(phy_obj.retard * 10 ** 2, bit=16)  # scale to pm
         phy_obj.scattering = self.imBitConvert(phy_obj.scattering * 10 ** 5.5, bit=16)
-        phy_obj.polarization = self.imBitConvert(phy_obj.polarization * 50000, bit=16)
-        phy_obj.azimuth_degree = self.imBitConvert(phy_obj.azimuth_degree * 100, bit=16)  # scale to [0, 18000], 100*degree
+        phy_obj.polarization = phy_obj.polarization * 50000
+        # phy_obj.polarization = self.imBitConvert(phy_obj.polarization * 50000, bit=16)
+        # phy_obj.azimuth_degree = self.imBitConvert(phy_obj.azimuth_degree * 100, bit=16)  # scale to [0, 18000], 100*degree
         return phy_obj
 
     def imBitConvert(self, im, bit=16, norm=False, limit=None):
