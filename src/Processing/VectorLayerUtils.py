@@ -41,7 +41,11 @@ def convert_to_vector(azimuth: np.array,
 
     #create empty vector of necessary shape
     # every pixel has 2 coordinates,
-    pos = np.zeros((xdim, ydim, 2), dtype=np.float32)
+    pos = np.zeros((xdim, ydim, 2), dtype=np.float64)
+
+    retardance /= (2*np.pi)
+
+    # assign x and y coordinates based on retardance as amplitude, azimuth for direction
     pos[:, :, 0] = length * retardance * np.cos(azimuth)
     pos[:, :, 1] = length * retardance * np.sin(azimuth)
 

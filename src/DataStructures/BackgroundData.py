@@ -23,6 +23,7 @@ class Singleton(type):
 
 
 class BackgroundData(IntensityData, StokesData, PhysicalData, metaclass=Singleton):
+# class BackgroundData(IntensityData, StokesData, PhysicalData):
 
     def __init__(self):
         super(BackgroundData, self).__init__()
