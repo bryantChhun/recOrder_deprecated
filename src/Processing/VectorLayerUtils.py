@@ -48,10 +48,25 @@ def convert_to_vector(azimuth: np.array,
     return pos
 
 
-def compute_average(stk_img : StokesData,
+def compute_average(stk_img: StokesData,
                     kernel, range_x, range_y,
                     func
                     ) -> np.array:
+    """
+    Calculates the averaged orientation vectors based on stokes data (not physical data)
+
+    Parameters
+    ----------
+    stk_img : Stokes object received from
+    kernel :
+    range_x :
+    range_y :
+    func :
+
+    Returns
+    -------
+
+    """
     x, y = kernel, kernel
     x_offset = int((x-1)/2)
     y_offset = int((y-1)/2)
@@ -76,7 +91,3 @@ def compute_average(stk_img : StokesData,
     out_vect = new_vect[x_offset:-x_offset:x, y_offset:-y_offset:y]
 
     return out_vect
-
-
-def compute_length():
-    return None

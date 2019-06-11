@@ -127,8 +127,8 @@ class PipeFromPy4j(QObject):
     # ========================= connect signals =========================
 
     def make_connection(self, event):
-        from src.GUI.NapariWindowOverlay import NapariWindowOverlay
-        if isinstance(event, NapariWindowOverlay):
+        from src.GUI.NapariWindow import NapariWindow
+        if isinstance(event, NapariWindow):
             print("connecting window's signal to pipe's slot")
             event.update_complete.connect(self._report_from_window)
         elif isinstance(event, MonitorDatastores):

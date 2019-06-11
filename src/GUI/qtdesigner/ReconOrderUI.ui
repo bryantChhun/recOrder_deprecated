@@ -32,7 +32,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="main_tab">
     <attribute name="title">
@@ -104,6 +104,19 @@
        <width>451</width>
        <height>21</height>
       </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="start_monitor">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>190</y>
+       <width>211</width>
+       <height>101</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Monitor and reconstruct</string>
      </property>
     </widget>
    </widget>

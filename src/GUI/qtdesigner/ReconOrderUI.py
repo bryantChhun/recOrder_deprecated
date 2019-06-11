@@ -40,6 +40,9 @@ class Ui_ReconOrderUI(object):
         self.qline_bg_corr_path = QtWidgets.QLineEdit(self.main_tab)
         self.qline_bg_corr_path.setGeometry(QtCore.QRect(10, 140, 451, 21))
         self.qline_bg_corr_path.setObjectName("qline_bg_corr_path")
+        self.start_monitor = QtWidgets.QPushButton(self.main_tab)
+        self.start_monitor.setGeometry(QtCore.QRect(130, 190, 211, 101))
+        self.start_monitor.setObjectName("start_monitor")
         self.tabWidget.addTab(self.main_tab, "")
         self.calibrate_lc_tab = QtWidgets.QWidget()
         self.calibrate_lc_tab.setObjectName("calibrate_lc_tab")
@@ -128,7 +131,7 @@ class Ui_ReconOrderUI(object):
         self.log_area = QtWidgets.QTextBrowser(self.scrollAreaWidgetContents)
         self.log_area.setGeometry(QtCore.QRect(0, 0, 481, 371))
         font = QtGui.QFont()
-        font.setPointSize(8)
+        font.setPointSize(10)
         self.log_area.setFont(font)
         self.log_area.setAcceptDrops(False)
         self.log_area.setObjectName("log_area")
@@ -146,6 +149,7 @@ class Ui_ReconOrderUI(object):
         self.qbutton_collect_background.setText(_translate("ReconOrderUI", "Collect Background"))
         self.qbutton_file_browser.setText(_translate("ReconOrderUI", "Browse"))
         self._qlabel_bg_corr_label.setText(_translate("ReconOrderUI", "Background correction file"))
+        self.start_monitor.setText(_translate("ReconOrderUI", "Monitor and reconstruct"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.main_tab), _translate("ReconOrderUI", "Snap and BG"))
         self.qbutton_calibrate_lc.setText(_translate("ReconOrderUI", "Calibrate LC"))
         self.qline_swing.setText(_translate("ReconOrderUI", "0.03"))
@@ -161,4 +165,14 @@ class Ui_ReconOrderUI(object):
         self.label_7.setText(_translate("ReconOrderUI", "LCB"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.calibrate_lc_tab), _translate("ReconOrderUI", "Calibrate LC"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.logs), _translate("ReconOrderUI", "logs"))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    ReconOrderUI = QtWidgets.QDialog()
+    ui = Ui_ReconOrderUI()
+    ui.setupUi(ReconOrderUI)
+    ReconOrderUI.show()
+    sys.exit(app.exec_())
 

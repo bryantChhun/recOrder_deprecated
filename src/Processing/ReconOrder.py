@@ -9,6 +9,7 @@
 # python_version  :3.6
 
 import numpy as np
+from PyQt5.QtCore import pyqtSlot, pyqtSignal
 
 from ..DataStructures import IntensityData
 from ..DataStructures import PhysicalData
@@ -16,6 +17,7 @@ from ..DataStructures import StokesData
 from ..DataStructures import BackgroundData
 
 from src.Processing.VectorLayerUtils import convert_to_vector
+from typing import Union
 
 
 class ReconOrder(object):
@@ -191,7 +193,7 @@ class ReconOrder(object):
         phy_obj.retard = phy_obj.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
 
         phy_obj.I_trans = self.imBitConvert(phy_obj.I_trans * 10 ** 4, bit=16, norm=True)  # AU, set norm to False for tiling images
-        phy_obj.retard = self.imBitConvert(phy_obj.retard * 10 ** 10, bit=16)  # scale to pm
+        phy_obj.retard = self.imBitConvert(phy_obj.retard * 10 ** 3, bit=16)  # scale to pm
         phy_obj.scattering = self.imBitConvert(phy_obj.scattering * 10 ** 5.5, bit=16)
         phy_obj.azimuth_degree = self.imBitConvert(phy_obj.azimuth_degree * 100, bit=16)  # scale to [0, 18000], 100*degree
         return phy_obj
@@ -225,3 +227,40 @@ class ReconOrder(object):
         im = (im - np.min(im)) / (np.max(im) - np.min(im))
         return im
 
+    """
+    Below are signals and slot wrappers for functions above
+    could easily make a decorator or directly decorate the slot to above
+        for now, we do this so that future integration with ReconstructOrder is easier
+    """
+
+    # emit_stokes = pyqtSignal(object)
+    # emit_physical = pyqtSignal(object)
+    emit_compute = pyqtSignal(object)
+
+    # @pyqtSlot(object)
+    # def sig_compute_stokes(self, int_obj: IntensityData):
+    #     out = self.compute_stokes(int_obj)
+    #     self.emit_stokes.emit(out)
+    #
+    # @pyqtSlot(Union[str, object])
+    # def sig_compute_physical(self, stk_obj: StokesData, flip_pol='rcp'):
+    #     out = self.compute_physical(stk_obj, flip_pol)
+    #     self.emit_physical.emit(out)
+    #
+    # def sig_correct_background(self, stk_obj: StokesData, background: BackgroundData):
+    #     out = self.correct_background(stk_obj, background)
+    #     self.emit_physical.emit(out)
+
+    @pyqtSlot(object)
+    def compute(self, int_obj: IntensityData):
+        self.compute_inst_matrix()
+        stk = self.compute_stokes(int_obj)
+        phys = self.compute_physical(stk)
+        self.emit_compute.emit(phys)
+
+    @pyqtSlot(object)
+    def compute_and_correct(self, stokes: StokesData, background: BackgroundData):
+        self.compute_inst_matrix()
+        phys = self.correct_background(stokes, background)
+        phys = self.rescale_bitdepth(phys)
+        self.emit_compute.emit(phys)

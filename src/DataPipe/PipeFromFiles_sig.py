@@ -1,12 +1,3 @@
-#!/usr/bin/env python
-# title           : PipeFromFiles.py
-# description     :
-# author          :bryant.chhun
-# date            :12/4/18
-# version         :0.0
-# usage           :
-# notes           :
-# python_version  :3.6
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QThreadPool, QRunnable
 
@@ -16,7 +7,6 @@ from src.DataStructures.PhysicalData import PhysicalData
 from src.DataStructures.StokesData import StokesData
 from src.FileManagement.RetrieveFiles import RetrieveData
 from src.Processing.ReconOrder import ReconOrder
-# from src.Processing.VectorLayerUtils import compute_average, compute_length
 
 from datetime import datetime
 
@@ -84,28 +74,6 @@ class PipeFromFiles(QObject):
         if self._Recon.frames == 5:
             self.intensity.I0 = self.retrieve_file.get_array_from_filename('State4', type=self.type, sample_type=self.sample_type)
 
-        #
-        # self.intensity.set_angle_from_index(0,
-        #                                     self.retrieve_file.get_array_from_filename('State0',
-        #                                                                                type=self.type,
-        #                                                                                sample_type=self.sample_type))
-        # self.intensity.set_angle_from_index(1,
-        #                                     self.retrieve_file.get_array_from_filename('State1',
-        #                                                                                type=self.type,
-        #                                                                                sample_type=self.sample_type))
-        # self.intensity.set_angle_from_index(2,
-        #                                     self.retrieve_file.get_array_from_filename('State2',
-        #                                                                                type=self.type,
-        #                                                                                sample_type=self.sample_type))
-        # self.intensity.set_angle_from_index(3,
-        #                                     self.retrieve_file.get_array_from_filename('State3',
-        #                                                                                type=self.type,
-        #                                                                                sample_type=self.sample_type))
-        # if self._Recon.frames == 5:
-        #     self.intensity.set_angle_from_index(4,
-        #                                         self.retrieve_file.get_array_from_filename('State4',
-        #                                                                                    type=self.type,
-        #                                                                                    sample_type=self.sample_type))
         return True
 
     @timer
@@ -165,21 +133,6 @@ class PipeFromFiles(QObject):
         self.correct_background(background)
         self.rescale_bitdepth()
         self.recon_complete.emit(self.physical)
-
-    # @pyqtSlot(list)
-    # def update_average(self, from_window: list):
-    #     kernel = from_window[0]
-    #     range_x = from_window[1]
-    #     range_y = from_window[2]
-    #     self.physical.azimuth_vector = compute_average(stk_img=self.stokes,
-    #                                                    kernel=kernel,
-    #                                                    range_x=range_x,
-    #                                                    range_y=range_y,
-    #                                                    func=self._Recon)
-    #     self.recon_complete.emit(self.physical)
-    #
-    # def make_connection(self, window):
-    #     window.average_change.connect(self.update_average)
 
     '''
     Threads for running reconstruction.  Needed to prevent blocking UI.

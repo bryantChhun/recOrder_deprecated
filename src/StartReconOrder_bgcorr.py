@@ -16,12 +16,13 @@ This code describes simple execution of Reconstruction and Visualization code.
 
 from PyQt5 import QtWidgets
 
-from src.GUI.NapariWindowOverlay import NapariWindowOverlay
+from src.GUI.NapariWindow import NapariWindow
 from src.DataPipe.PipeFromFiles import PipeFromFiles
 from src.GUI.RecorderWindowControl import RecorderWindowControl
 from src.SignalController.SignalController import SignalController
 from src.Processing.ReconOrder import ReconOrder
 from py4j.java_gateway import JavaGateway
+from src.MicroscopeController.Py4jController import py4j_monitor_LC
 
 from napari import ViewerApp
 from napari.util import app_context
@@ -33,11 +34,10 @@ if __name__ == '__main__':
 
         #create Viewer, Windows
         viewer = ViewerApp()
-        overlay_window = NapariWindowOverlay(viewer)
+        viewer_window = NapariWindow(viewer)
 
         recorder_window = QtWidgets.QDialog()
-        uic = RecorderWindowControl(recorder_window)
-        uic.gateway = gateway
+        recorder = RecorderWindowControl(recorder_window, gateway=gateway)
         recorder_window.show()
 
         #initialize file loaders
@@ -46,20 +46,21 @@ if __name__ == '__main__':
 
         #initialize processors
         processor = ReconOrder()
-        # processor_bg = ReconOrder()
 
         #initialize SignalController
-        # signals = SignalController(processor)
+        signals = SignalController()
 
         #Connections: Pipeline to/from Processor
         processor.frames = 5
-        # processor_bg.frames = 5
         loader.set_processor(processor)
         loader_bg.set_processor(processor)
 
         #Connections: Pipeline to/from GUI
-        overlay_window.make_connection(loader)
-        loader.make_connection(overlay_window)
+        signals.register(viewer_window)
+        signals.register(recorder)
+        signals.register(loader)
+        signals.register(py4j_monitor_LC)
+        signals.connect_signals()
 
         #Connections: SignalController to/from GUI
         # for gui-initiated pipeline or processing events
@@ -67,11 +68,11 @@ if __name__ == '__main__':
         # signals.make_connection(overlay_window)
 
         #Connections: recOrder to/from GUI
-        overlay_window.make_connection(uic)
+        # viewer_window.make_connection(recorder)
 
         # BGprocess first
         loader_bg.run_reconstruction(threaded=False)
         loader.run_reconstruction_BG_correction(loader_bg.background, threaded=True)
 
         #connect so button launches bgprocess
-        uic.assign_pipes(loader, loader_bg)
+        recorder.assign_pipes(loader, loader_bg)

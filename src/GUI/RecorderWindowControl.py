@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import QFileDialog, QWidget
 from src import BackgroundData
 from src.DataPipe.PipeFromFiles import PipeFromFiles
 from src.DataPipe.PipeFromPy4j import PipeFromPy4j
-from src.MicroscopeController.Py4jController import py4j_collect_background, py4j_snap_and_correct
+from src.MicroscopeController.Py4jController import py4j_collect_background, py4j_snap_and_correct, py4j_monitor_LC
 from . import Ui_ReconOrderUI
 
 
@@ -25,19 +25,20 @@ class RecorderWindowControl(Ui_ReconOrderUI, QWidget):
 
     window_update_signal = pyqtSignal(object)
 
-    def __init__(self, win: QtWidgets):
+    def __init__(self, win: QtWidgets, gateway=None):
         super(RecorderWindowControl, self).__init__()
         self.setupUi(win)
 
         self.qbutton_snap_and_correct.clicked[bool].connect(self.snap_and_correct)
         self.qbutton_collect_background.clicked[bool].connect(self.collect_background)
         self.qbutton_file_browser.clicked[bool].connect(self.file_browser)
+        self.start_monitor.clicked[bool].connect(self.launch_monitor)
         # self.qbutton_calibrate_lc.clicked[bool].connect(self.calibrate_lc)
         # self.qline_bg_corr_path.editingFinished.connect(self.bg_corr_path_changed)
         # self.qline_swing.editingFinished.connect(self.swing_changed)
         # self.qline_wavelength.editingFinished.connect(self.wavelength_changed)
 
-        self._gate = None
+        self.gateway = gateway
         self.Background = BackgroundData()
 
     @property
@@ -45,8 +46,8 @@ class RecorderWindowControl(Ui_ReconOrderUI, QWidget):
         return self._gate
 
     @gateway.setter
-    def gateway(self, gateway_):
-        self._gate = gateway_
+    def gateway(self, gateway):
+        self._gate = gateway
 
     def assign_pipes(self, pipe, pipe_bg):
         if not isinstance(pipe, PipeFromFiles) and not isinstance(pipe_bg, PipeFromFiles) \
@@ -85,6 +86,15 @@ class RecorderWindowControl(Ui_ReconOrderUI, QWidget):
                 self.window_update_signal.emit(self.Background)
         except Exception as ex:
             print("exception during collect background \n\t"+str(ex))
+
+    @pyqtSlot(bool)
+    def launch_monitor(self):
+        try:
+            print("launching monitor")
+            mlc = py4j_monitor_LC(self._gate, self.Background)
+            mlc.launch_monitor()
+        except Exception as ex:
+            print("Exception during launch monitor \n\t"+str(ex))
 
     @pyqtSlot(bool)
     def file_browser(self):

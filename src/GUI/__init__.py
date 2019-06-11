@@ -9,5 +9,5 @@
 # python_version  :3.6
 
 from .qtdesigner import Ui_ReconOrderUI
-from .NapariWindowOverlay import NapariWindowOverlay
+from .NapariWindow import NapariWindow
 from .RecorderWindowControl import RecorderWindowControl

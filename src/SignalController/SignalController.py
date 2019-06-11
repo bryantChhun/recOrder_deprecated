@@ -10,67 +10,107 @@
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 
+from src.MicroscopeController.Py4jController import py4j_monitor_LC
 from src.Processing.ReconOrder import ReconOrder
-from src.Processing.VectorLayerUtils import compute_average, convert_to_vector
-
-from typing import Union
-import numpy as np
-
-#TODO: control signals from napari for averaging
-#TODO: connect signals for
+from src.GUI.NapariWindow import NapariWindow
+from src.DataPipe.PipeFromFiles import PipeFromFiles
+from src.GUI.RecorderWindowControl import RecorderWindowControl
+from src.DataStructures.StokesData import StokesData
 
 """
 Signal Controller creates all the bindings between emitters/connectors in various classes
 It will also mediate any calculations necessary for emitter-induced events like averaging
 """
+
+
 class SignalController(QObject):
+
+    """
+    Signals to add
+    
+    # refactor:
+    pipe from files - set processor
+
+    
+    """
 
     vector_computed = pyqtSignal(object)
 
-    def __init__(self, processor):
+    # registered_elements is a dict of (key, value) = (class, list(object))
+    _registered_elements = []
+
+    def __init__(self):
         super().__init__()
+        self.register(self)
 
-        if isinstance(processor, ReconOrder):
-            self._recon = processor
-        else:
-            raise NotImplementedError("Processor Not Implemented: construct only with ReconOrder")
+    def register(self, element: object):
+        self._registered_elements.append(element)
 
-    # @pyqtSlot(object)
-    # def receive_from_window(self, update: Union[str, int, float]):
-    #     if type(update) == str:
-    #         self.current_avg_kernel = self.kernel_dict[update]
-    #         avg_vectors = self.recompute_average(kernel=self.current_avg_kernel, length=self.current_length)
-    #         self.vector_computed.emit(avg_vectors)
-    #
-    #     elif type(update) == int or float:
-    #         self.current_length = update
-    #         newlength_vectors = self.recompute_length(length=self.current_length)
-    #         self.vector_computed.emit(newlength_vectors)
+    def connect_signals(self):
+        """
+        Loop through all registered classes
+        for each class, call the corresponding function
 
-    def recompute_average(self, kernel: tuple, length=5):
-        s1 = self._recon.s1
-        s2 = self._recon.s2
-        s3 = self._recon.s3
-        azimuth_avg, retard_avg, vector_avg = compute_average(s1,
-                                                              s2,
-                                                              s3,
-                                                              kernel=kernel,
-                                                              length=length,
-                                                              flipPol=self._recon.flip_pol)
-        self._recon.azimuth = azimuth_avg
-        self._recon.retard = retard_avg
-        return vector_avg
+        Returns
+        -------
 
-    def recompute_length(self, length: Union[int, float]):
-        newlength_vector = convert_to_vector(azimuth=self._recon.azimuth - (0.5 * np.pi),
-                                             retardance=self._recon.retard,
-                                             stride_x=self.current_avg_kernel[0],
-                                             stride_y=self.current_avg_kernel[1],
-                                             length=length)
-        return newlength_vector
+        """
+        for element in self._registered_elements:
+            if isinstance(element, NapariWindow):
+                self._gui_slots(element)
+            if isinstance(element, PipeFromFiles):
+                self._pipe_slots(element)
 
-    # def make_connection(self, gui):
-    #     gui.average_change.connect(self.receive_from_window)
-    #     gui.length_change.connect(self.receive_from_window)
+    def _gui_slots(self, gui_element):
+        """
+        connects slots from a supplied NapariWindow instance
+            with signals in all other registered classes
+
+        Parameters
+        ----------
+        gui_element : function:
+            NapariWindow instance whose slot is connected to emitter
+
+        Returns
+        -------
+
+        """
+        for element in self._registered_elements:
+            if isinstance(element, PipeFromFiles):
+                print("connecting pipe to gui")
+                element.recon_complete.connect(gui_element.update_layer_image)
+
+            # elif isinstance(element, SignalController):
+            #     print("connecting signal controller to gui")
+            #     element.vector_computed.connect(gui_element.update_layer_image)
+
+            elif isinstance(element, RecorderWindowControl):
+                print("connecting LC calibration to GUI")
+                element.window_update_signal.connect(gui_element.update_layer_image)
+
+            elif isinstance(element, py4j_monitor_LC):
+                element.recon_complete.connect(gui_element.update_layer_image)
+
+            else:
+                print("no matching implementation found for: " + str(type(element)))
+
+    def _pipe_slots(self, pipe_element):
+        """
+        connects slots from supplied PipeFromFiles instance
+            with signals in all other registered classes
+
+        Parameters
+        ----------
+        pipe_element : function:
+            NapariWindow instance whose slot is connected to emitter
+
+        Returns
+        -------
+
+        """
+        for element in self._registered_elements:
+            if isinstance(element, NapariWindow):
+                # element.average_change.connect(pipe_element.update_average)
+                pass
 
 

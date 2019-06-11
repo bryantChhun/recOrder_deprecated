@@ -9,6 +9,7 @@
 # python_version  :3.6
 from typing import Union
 
+from PyQt5.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool
 from py4j.java_gateway import JavaGateway
 import numpy as np
 from datetime import datetime
@@ -182,4 +183,131 @@ def py4j_calibrate_lc(gateway: JavaGateway):
     #call CalibrateLC processor
 
     return None
+
+
+class ProcessRunnable(QRunnable):
+    def __init__(self, target, args):
+        QRunnable.__init__(self)
+        self.t = target
+        self.args = args
+
+    def run(self):
+        self.t(*self.args)
+
+    def start(self):
+        QThreadPool.globalInstance().start(self)
+
+
+class py4j_monitor_LC(QObject):
+
+    """
+    Method1)
+    - monitor m = ep.getLastMeta()
+    - track: [m1, m2, m3, m4, m5] = same (p, t, z)
+    - on condition : c = State0, State1, State2, State3, State4
+    -   run reconstruction similar to "snap and correct"
+    - repeat
+    Method 2)
+    - use listeners
+    - on listener event, launch same code above
+    
+    
+    """
+
+    recon_complete = pyqtSignal(object)
+
+    def __init__(self, gateway: JavaGateway, background: BackgroundData):
+        super().__init__()
+
+        self.background = background
+        self.ep = gateway.entry_point
+        self.polstates = set()
+
+        self.temp_int = IntensityData()
+        self.processor = ReconOrder()
+        self.processor.frames = 5
+        self.processor.swing = 0.2
+        print('monitor successfully initialized')
+
+    def monitor(self):
+        print('starting monitor process while loop')
+        count = 0
+        while True:
+            time.sleep(0.001)
+
+            last_meta = self.ep.getLastMeta()
+
+            if last_meta is None:
+                count += 1
+                if count % 100 == 0:
+                    print('waiting')
+                elif count >= 10000:
+                    print("timeout waiting for more data")
+                    break
+                else:
+                    pass
+            elif last_meta.getChannel() == 0 and (0 not in self.polstates):
+                self.polstates.add(0)
+                self.temp_int.IExt = np.memmap(last_meta.getFilepath(),
+                                        dtype="uint16",
+                                        mode='r+',
+                                        offset=0,
+                                        shape=(last_meta.getxRange(), last_meta.getyRange())
+                                        )
+            elif last_meta.getChannel() == 1 and (1 not in self.polstates):
+                self.polstates.add(1)
+                self.temp_int.I0 = np.memmap(last_meta.getFilepath(),
+                                        dtype="uint16",
+                                        mode='r+',
+                                        offset=0,
+                                        shape=(last_meta.getxRange(), last_meta.getyRange())
+                                        )
+            elif last_meta.getChannel() == 2 and (2 not in self.polstates):
+                self.polstates.add(2)
+                self.temp_int.I45 = np.memmap(last_meta.getFilepath(),
+                                        dtype="uint16",
+                                        mode='r+',
+                                        offset=0,
+                                        shape=(last_meta.getxRange(), last_meta.getyRange())
+                                        )
+            elif last_meta.getChannel() == 3 and (3 not in self.polstates):
+                self.polstates.add(3)
+                self.temp_int.I90 = np.memmap(last_meta.getFilepath(),
+                                        dtype="uint16",
+                                        mode='r+',
+                                        offset=0,
+                                        shape=(last_meta.getxRange(), last_meta.getyRange())
+                                        )
+            # elif last_meta.getChannel() == 4 and (4 not in self.polstates):
+            #     self.polstates.add(4)
+            #     self.temp_int.I135 = np.memmap(last_meta.getFilepath(),
+            #                             dtype="uint16",
+            #                             mode='r+',
+            #                             offset=0,
+            #                             shape=(last_meta.getxRange(), last_meta.getyRange())
+            #                             )
+            elif len(self.polstates) >= 4:
+                print("\t ===set of five acquired, reconstructing and resetting ====")
+                self.processor.compute_inst_matrix()
+                temp_stokes = self.processor.compute_stokes(self.temp_int)
+                temp_physical = self.processor.correct_background(temp_stokes, self.background)
+                # scaled_physical = self.processor.stretch_scale(temp_physical)
+                scaled_physical = self.processor.rescale_bitdepth(temp_physical)
+                self.polstates = set()
+                self.recon_complete.emit(scaled_physical)
+            else:
+                count += 1
+                if count % 100 == 0:
+                    print('waiting')
+                elif count >= 10000:
+                    print("timeout waiting for more data")
+                    break
+                else:
+                    pass
+
+    def launch_monitor(self):
+        print("starting monitor process")
+        self.monitor()
+        # p = ProcessRunnable(target=self.monitor, args=())
+        # p.start()
 

@@ -11,7 +11,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication
 
-from src.GUI.NapariWindowOverlay import NapariWindowOverlay
+from src.GUI.NapariWindow import NapariWindow
 from src.DataPipe.PipeFromFiles import PipeFromFiles
 from src.Processing.ReconOrder import ReconOrder
 
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     # starting
     application = QApplication(sys.argv)
 
-    win = NapariWindowOverlay()
+    win = NapariWindow()
 
     #create file loaders
     loader = PipeFromFiles(type="Test", sample_type="Sample1")
