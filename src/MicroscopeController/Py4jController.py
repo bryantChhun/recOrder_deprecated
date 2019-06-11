@@ -293,15 +293,15 @@ class py4j_monitor_LC(QObject):
                                         offset=0,
                                         shape=(last_meta.getxRange(), last_meta.getyRange())
                                         )
-            # elif last_meta.getChannel() == 4 and (4 not in self.polstates):
-            #     self.polstates.add(4)
-            #     self.temp_int.I135 = np.memmap(last_meta.getFilepath(),
-            #                             dtype="uint16",
-            #                             mode='r+',
-            #                             offset=0,
-            #                             shape=(last_meta.getxRange(), last_meta.getyRange())
-            #                             )
-            elif len(self.polstates) >= 4:
+            elif last_meta.getChannel() == 4 and (4 not in self.polstates):
+                self.polstates.add(4)
+                self.temp_int.I135 = np.memmap(last_meta.getFilepath(),
+                                        dtype="uint16",
+                                        mode='r+',
+                                        offset=0,
+                                        shape=(last_meta.getxRange(), last_meta.getyRange())
+                                        )
+            elif len(self.polstates) >= 5:
                 print("\t ===set of five acquired, reconstructing and resetting ====")
                 self.processor.compute_inst_matrix()
                 temp_stokes = self.processor.compute_stokes(self.temp_int)
