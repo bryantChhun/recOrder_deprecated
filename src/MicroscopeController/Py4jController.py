@@ -31,6 +31,7 @@ def _snap_channel(channel: str, gateway: JavaGateway):
     :param gateway: py4j gateway
     :return: np.ndarray-like data
     """
+    ep = gateway.entry_point
     mmc = gateway.entry_point.getCMMCore()
     mm = gateway.entry_point.getStudio()
 
@@ -54,21 +55,21 @@ def _snap_channel(channel: str, gateway: JavaGateway):
     # again we need a monitor to be sure file is written
     start = datetime.now()
     ct = 0
-    while not gateway.entry_point.fileExists(channel):
+    meta = ep.getLastMetaByChannelName(channel)
+    # while not gateway.entry_point.fileExists(channel):
+    while not meta:
         time.sleep(0.0001)
         ct += 1
+        meta = ep.getLastMetaByChannelName(channel)
         if ct >= 10000:
             raise FileExistsError("timeout waiting for file exists")
     stop = datetime.now()
     print("time to check fileExists = %06d" % (stop-start).microseconds)
 
-    data_filename = gateway.entry_point.getFile(channel)
-
+    # retrieve metadata
+    data_filename = meta.getFilepath()
     if data_filename is None:
         print("no file with name %s exists" % channel)
-
-    # retrieve metadata
-    meta = gateway.entry_point.getStore(channel)
     data_pixelshape = (meta.getxRange(), meta.getyRange())
     data_pixeldepth = 8*meta.getBitDepth()
     if data_pixeldepth == 16:
