@@ -11,13 +11,12 @@
 import numpy as np
 from PyQt5.QtCore import pyqtSlot, pyqtSignal
 
-from ..DataStructures import IntensityData
-from ..DataStructures import PhysicalData
-from ..DataStructures import StokesData
-from ..DataStructures import BackgroundData
+from recOrder.DataStructures import IntensityData
+from recOrder.DataStructures import PhysicalData
+from recOrder.DataStructures import StokesData
+from recOrder.DataStructures import BackgroundData
 
-from src.Processing.VectorLayerUtils import convert_to_vector
-from typing import Union
+from recOrder.analyze.Processing.VectorLayerUtils import convert_to_vector
 
 
 class ReconOrder(object):

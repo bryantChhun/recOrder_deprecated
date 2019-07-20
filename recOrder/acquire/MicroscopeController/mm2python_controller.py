@@ -15,11 +15,10 @@ import numpy as np
 from datetime import datetime
 import time
 
-from src.Processing.VectorLayerUtils import compute_average
-from src.DataStructures.BackgroundData import BackgroundData
-from src.DataStructures.IntensityData import IntensityData
-from src.DataStructures.PhysicalData import PhysicalData
-from src.Processing.ReconOrder import ReconOrder
+from recOrder.DataStructures.BackgroundData import BackgroundData
+from recOrder.DataStructures.IntensityData import IntensityData
+from recOrder.DataStructures.PhysicalData import PhysicalData
+from recOrder.analyze.Processing.ReconOrder import ReconOrder
 
 from copy import deepcopy
 

@@ -22,7 +22,7 @@ from recOrder.visualize.GUI.RecorderWindowControl import RecorderWindowControl
 from recOrder.program.SignalController.SignalController import SignalController
 from recOrder.analyze.Processing.ReconOrder import ReconOrder
 from py4j.java_gateway import JavaGateway
-from recOrder.acquire.MicroscopeController.Py4jController import py4j_monitor_LC
+from recOrder.acquire.MicroscopeController.mm2python_controller import py4j_monitor_LC
 
 from napari import ViewerApp
 from napari.util import app_context

@@ -10,7 +10,7 @@
 
 import unittest
 
-from recOrder.acquire.FileManagement import MonitorDatastores
+from recOrder.acquire.FileManagement import mm2python_monitor
 
 
 class TestImageReconstruction(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestImageReconstruction(unittest.TestCase):
 
     def setup(self):
         gateway = JavaGateway()
-        self.monitor = MonitorDatastores(gateway)
+        self.monitor = mm2python_monitor(gateway)
 
     def test_slots(self):
         return None

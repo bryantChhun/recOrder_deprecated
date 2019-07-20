@@ -8,14 +8,12 @@
 # notes           :
 # python_version  :3.6xf
 
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QObject, pyqtSignal
 
-from src.MicroscopeController.Py4jController import py4j_monitor_LC
-from src.Processing.ReconOrder import ReconOrder
-from src.GUI.NapariWindow import NapariWindow
-from src.DataPipe.PipeFromFiles import PipeFromFiles
-from src.GUI.RecorderWindowControl import RecorderWindowControl
-from src.DataStructures.StokesData import StokesData
+from recOrder.acquire.MicroscopeController.mm2python_controller import py4j_monitor_LC
+from recOrder.visualize.GUI.NapariWindow import NapariWindow
+from recOrder.program.DataPipe.PipeFromFiles import PipeFromFiles
+from recOrder.visualize.GUI.RecorderWindowControl import RecorderWindowControl
 
 """
 Signal Controller creates all the bindings between emitters/connectors in various classes

@@ -11,10 +11,10 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, QWidget
 
-from src import BackgroundData
-from src.DataPipe.PipeFromFiles import PipeFromFiles
-from src.DataPipe.PipeFromPy4j import PipeFromPy4j
-from src.MicroscopeController.Py4jController import py4j_collect_background, py4j_snap_and_correct, py4j_monitor_LC
+from recOrder import BackgroundData
+from recOrder.program.DataPipe.PipeFromFiles import PipeFromFiles
+from recOrder.program.DataPipe.PipeFromPy4j import PipeFromPy4j
+from recOrder.acquire.MicroscopeController.mm2python_controller import py4j_collect_background, py4j_snap_and_correct, py4j_monitor_LC
 from . import Ui_ReconOrderUI
 
 

@@ -13,9 +13,9 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QRunnable, QThreadPool
 import numpy as np
 
-from src.DataStructures import BackgroundData
-from src.FileManagement.RetrieveFiles import RetrieveData
-from src.DataStructures.PhysicalData import PhysicalData
+from recOrder.DataStructures import BackgroundData
+from recOrder.acquire.FileManagement.RetrieveFiles import RetrieveData
+from recOrder.DataStructures.PhysicalData import PhysicalData
 
 
 class ProcessRunnable(QRunnable):
