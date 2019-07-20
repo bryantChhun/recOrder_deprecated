@@ -12,8 +12,8 @@ import unittest
 
 import cv2
 
-from src.DataPipe.PipeToReconOrder_ray import PipeToReconOrder_ray
-from src.Processing.ReconOrder_ray import ReconOrder_ray
+from recOrder.program.DataPipe import PipeToReconOrder_ray
+from recOrder.analyze.Processing import ReconOrder_ray
 from tests.testUtils.testMetrics import mse
 
 import ray

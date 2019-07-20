@@ -10,9 +10,7 @@
 
 import unittest
 
-from src.FileManagement.MonitorDatastores import MonitorDatastores
-
-from tests.testUtils import *
+from recOrder.acquire.FileManagement import MonitorDatastores
 
 
 class TestImageReconstruction(unittest.TestCase):

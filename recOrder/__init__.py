@@ -13,5 +13,5 @@ from .DataStructures import IntensityData
 from .DataStructures import StokesData
 from .DataStructures import PhysicalData
 
-from .DataPipe import PipeFromFiles, PipeFromPy4j
-from .GUI import NapariWindow, RecorderWindowControl
+from recOrder.program.DataPipe import PipeFromFiles
+from recOrder.visualize.GUI import NapariWindow, RecorderWindowControl
