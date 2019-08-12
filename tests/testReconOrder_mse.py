@@ -12,8 +12,8 @@ import unittest
 
 import cv2
 
-from src.DataPipe.PipeFromFiles import PipeFromFiles
-from src.Processing.ReconOrder import ReconOrder
+from recOrder.program.DataPipe.PipeFromFiles import PipeFromFiles
+from recOrder.analyze.Processing.ReconOrder import ReconOrder
 from tests.testUtils.testMetrics import mse
 
 
