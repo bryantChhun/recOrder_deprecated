@@ -8,10 +8,10 @@
 # notes           :
 # python_version  :3.6
 
-from .DataStructures import BackgroundData
-from .DataStructures import IntensityData
-from .DataStructures import StokesData
-from .DataStructures import PhysicalData
+from .datastructures import BackgroundData
+from .datastructures import IntensityData
+from .datastructures import StokesData
+from .datastructures import PhysicalData
 
 from recOrder.program.DataPipe import PipeFromFiles
 from recOrder.visualize.GUI import NapariWindow, RecorderWindowControl

@@ -48,11 +48,8 @@ class BackgroundData(IntensityData, StokesData, PhysicalData):
                 name, self.__class__.__name__))
 
     def assign_intensity(self, int_obj: IntensityData):
-        self.IExt = int_obj.IExt
-        self.I0 = int_obj.I0
-        self.I45 = int_obj.I45
-        self.I90 = int_obj.I90
-        self.I135 = int_obj.I135
+        for i in range(int_obj.num_channels):
+            self.add_image(int_obj.get_image(i))
 
     def assign_stokes(self, stk_obj: StokesData):
         self.s0 = stk_obj.s0

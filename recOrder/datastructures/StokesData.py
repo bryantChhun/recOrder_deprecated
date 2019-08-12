@@ -1,5 +1,5 @@
 import numpy as np
-from ReconstructOrder.datastructures.IntensityData import IntensityData
+from recOrder.datastructures.IntensityData import IntensityData
 
 
 class StokesData(object):
@@ -8,10 +8,6 @@ class StokesData(object):
     only attributes with getters/setters can be assigned to this class
     """
 
-    __s0 = None
-    __s1 = None
-    __s2 = None
-    __s3 = None
     __s1_norm = None
     __s2_norm = None
     __data = None
@@ -45,10 +41,6 @@ class StokesData(object):
             self.__data = [None, None, None, None]
             self.compute_stokes(inv_inst_matrix, intensity_data)
         else:
-            self.__s0 = None
-            self.__s1 = None
-            self.__s2 = None
-            self.__s3 = None
             self.__s1_norm = None
             self.__s2_norm = None
             self.__data = [None, None, None, None]
@@ -61,7 +53,7 @@ class StokesData(object):
         :return:
         """
         img_shape = np.shape(intensity_data.data)
-        img_raw_flat = np.reshape(intensity_data.data, (intensity_data.frames, -1))
+        img_raw_flat = np.reshape(intensity_data.data, (intensity_data.num_channels, -1))
         img_stokes_flat = np.dot(inv_inst_matrix, img_raw_flat)
         img_stokes = np.reshape(img_stokes_flat, (4,) + img_shape[1:])
         [self.s0, self.s1, self.s2, self.s3] = [img_stokes[i, ...] for i in range(4)]
@@ -105,38 +97,34 @@ class StokesData(object):
     # Stokes matrices
     @property
     def s0(self):
-        return self.__s0
+        return self.__data[0]
 
     @s0.setter
     def s0(self, image: np.ndarray):
-        self.__s0 = image
         self.__data[0] = image
 
     @property
     def s1(self):
-        return self.__s1
+        return self.__data[1]
 
     @s1.setter
     def s1(self, image: np.ndarray):
-        self.__s1 = image
         self.__data[1] = image
 
     @property
     def s2(self):
-        return self.__s2
+        return self.__data[2]
 
     @s2.setter
     def s2(self, image: np.ndarray):
-        self.__s2 = image
         self.__data[2] = image
 
     @property
     def s3(self):
-        return self.__s3
+        return self.__data[3]
 
     @s3.setter
     def s3(self, image: np.ndarray):
-        self.__s3 = image
         self.__data[3] = image
 
 
