@@ -30,10 +30,14 @@ class CalibrationAnalysis(AnalyzeBase):
         self.mmc = self.entry_point.getCMMCore()
 
         # other vars
-        self.lcExt = None
         self.swing = None
         self.wavelength = None
         self.lc_bound = None
+        self.I_black = None
+
+        self.lca_ext = None
+        self.lcb_ext = None
+        self.i_ext = None
         self.l_elliptical = None
 
     def opt_lc(self, x, device_property, method, reference):
@@ -72,10 +76,10 @@ class CalibrationAnalysis(AnalyzeBase):
             number of LCA-LCB cycles
         :return:
         """
-        if lca_bound_ < 0.01 or lca_bound_ > 1.6:
-            raise ValueError("lc_bound must be within the allowed LC range [0.01, 1.6]")
-        if lcb_bound_ < 0.01 or lcb_bound_ > 1.6:
-            raise ValueError("lc_bound must be within the allowed LC range [0.01, 1.6]")
+        # if lca_bound_ < 0.01 or lca_bound_ > 1.6:
+        #     raise ValueError("lc_bound must be within the allowed LC range [0.01, 1.6]")
+        # if lcb_bound_ < 0.01 or lcb_bound_ > 1.6:
+        #     raise ValueError("lc_bound must be within the allowed LC range [0.01, 1.6]")
 
         for i in range(num_iter):
             print("lca lcb iteration # " + str(i))
@@ -220,8 +224,8 @@ class CalibrationAnalysis(AnalyzeBase):
             mean of image
         """
 
-        set_lc(self.mmc, self.lcExt[0] + self.swing, self.PROPERTIES['LCA'])
-        set_lc(self.mmc, self.lcExt[1], self.PROPERTIES['LCB'])
+        set_lc(self.mmc, self.lca_ext + self.swing, self.PROPERTIES['LCA'])
+        set_lc(self.mmc, self.lcb_ext, self.PROPERTIES['LCB'])
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State1'])
 
@@ -241,8 +245,8 @@ class CalibrationAnalysis(AnalyzeBase):
         -------
 
         """
-        set_lc(self.mmc, self.lcExt[0], self.PROPERTIES['LCA'])
-        set_lc(self.mmc, self.lcExt[1] + self.swing, self.PROPERTIES['LCB'])
+        set_lc(self.mmc, self.lca_ext, self.PROPERTIES['LCA'])
+        set_lc(self.mmc, self.lcb_ext + self.swing, self.PROPERTIES['LCB'])
 
         self.iter_opt(lca_bound, lcb_bound, self.l_elliptical, 1)
 
@@ -263,8 +267,8 @@ class CalibrationAnalysis(AnalyzeBase):
         -------
 
         """
-        set_lc(self.mmc, self.lcExt[0], self.PROPERTIES['LCA'])
-        set_lc(self.mmc, self.lcExt[1] - self.swing, self.PROPERTIES['LCB'])
+        set_lc(self.mmc, self.lca_ext, self.PROPERTIES['LCA'])
+        set_lc(self.mmc, self.lcb_ext - self.swing, self.PROPERTIES['LCB'])
 
         self.iter_opt(lca_bound, lcb_bound, self.l_elliptical, 1)
 
@@ -285,8 +289,8 @@ class CalibrationAnalysis(AnalyzeBase):
         -------
 
         """
-        set_lc(self.mmc, self.lcExt[0] - self.swing, self.PROPERTIES['LCA'])
-        set_lc(self.mmc, self.lcExt[1], self.PROPERTIES['LCB'])
+        set_lc(self.mmc, self.lca_ext - self.swing, self.PROPERTIES['LCA'])
+        set_lc(self.mmc, self.lcb_ext, self.PROPERTIES['LCB'])
 
         self.iter_opt(lca_bound, lcb_bound, self.l_elliptical, 1)
 
@@ -305,11 +309,11 @@ class CalibrationAnalysis(AnalyzeBase):
         self.swing = param[0]
         self.wavelength = param[1]
         self.lc_bound = param[2]
+        self.I_black = param[3]
 
-        lc = self.opt_Iext(self.lc_bound)
-        [lca_ext, lcb_ext, i_ext] = [lc[0], lc[1], lc[2]]
-
-        self.lcExt = (lca_ext, lcb_ext)
+        [self.lca_ext, self.lcb_ext, self.i_ext] = self.opt_Iext(self.lc_bound)
+        # [lca_ext, lcb_ext, self.i_ext] = [lc[0], lc[1], lc[2]]
+        # self.lcExt = (lca_ext, lcb_ext)
 
         # record I0 'elliptical' state
         print("recording lelliptical")

@@ -54,7 +54,7 @@ class CalibrationWindow(VisualizeBase, Ui_ReconOrderUI):
 
     @VisualizeBase.emitter(channel=20)
     def calibrate(self, *args):
-        return [self.swing, self.wavelength, self.lc_bound]
+        return [self.swing, self.wavelength, self.lc_bound, self.I_black]
 
     @VisualizeBase.receiver(channel=10)
     def le_state0(self, lc):
