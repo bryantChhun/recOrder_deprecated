@@ -9,7 +9,7 @@ This code describes simple execution of Reconstruction and Visualization code.
 
 from recOrder.acquire.RetrieveFiles import RetrieveFiles
 from recOrder.analyze.ReconstructOrder import ReconOrder
-from recOrder.visualize.NapariWindow import NapariWindow
+from recOrder.visualize.ReconstructOrderWindow import ReconstructOrderWindow
 from recOrder.program.BuildProgram import Program
 import napari
 
@@ -25,7 +25,7 @@ if __name__ == '__main__':
                                physical_emitter_channel=4, physical_receiver_channel=1)
 
         # visualize
-        viewer_window = NapariWindow()
+        viewer_window = ReconstructOrderWindow()
 
         program = Program(acquire=acq,
                           analyze=processor,

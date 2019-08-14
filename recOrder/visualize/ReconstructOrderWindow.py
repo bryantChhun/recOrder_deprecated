@@ -7,7 +7,7 @@ import numpy as np
 import napari
 
 
-class NapariWindow(VisualizeBase):
+class ReconstructOrderWindow(VisualizeBase):
 
     def __init__(self):
         super().__init__()
@@ -34,15 +34,19 @@ class NapariWindow(VisualizeBase):
             print('gui received PhysicalData')
             # self.layer1.vectors = np.swapaxes(instance.azimuth_vector, 0, 1)
             # self.layer1._raw_dat = instance.azimuth_vector
-            self.layer1.data = instance.depolarization
-            self.layer2.data = instance.retard
-            self.layer3.data = instance.I_trans
+            self.layer1._node.set_data(instance.depolarization)
+            self.layer1._node.update()
+            self.layer2._node.set_data(instance.retard)
+            self.layer2._node.update()
+            self.layer3._node.set_data(instance.I_trans)
+            self.layer3._node.update()
 
             # self.layer1.name = "vectors"
             self.layer1.name = 'depolarization'
             self.layer2.name = 'retardance'
             self.layer3.name = 'transmission'
 
+        # replace snap image layer with new data.
         elif type(instance) == np.ndarray or type(instance) == np.memmap:
             print("gui received direct array")
             if self.viewer.layers[-1].name != 'snap':
