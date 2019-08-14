@@ -123,3 +123,7 @@ class CalibrationWindow(VisualizeBase, Ui_ReconOrderUI):
         self.le_state4_lca.setText(str(lc[0]))
         self.le_state4_lcb.setText(str(lc[1]))
 
+    @VisualizeBase.receiver(channel=15)
+    def le_extinction(self, value):
+        pass
+
