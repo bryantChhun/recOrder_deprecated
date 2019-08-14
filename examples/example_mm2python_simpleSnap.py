@@ -8,7 +8,7 @@ This code describes simple execution of Reconstruction and Visualization code.
 
 # framework imports
 from recOrder.visualize.SimpleNapariWindow import SimpleNapariWindow
-from recOrder.visualize.CalibrationWindow import CalibrationWindow
+from recOrder.visualize.RecorderWindow import RecorderWindow
 from recOrder.program.BuildProgram import Program
 
 # additional imports
@@ -30,7 +30,7 @@ if __name__ == '__main__':
         viewer_window = SimpleNapariWindow(window_channel=4)
 
         recorder = QtWidgets.QDialog()
-        recorder_window = CalibrationWindow(recorder, gateway=gateway)
+        recorder_window = RecorderWindow(recorder, gateway=gateway)
 
         program = Program(visualize=viewer_window)
         program.add_module(recorder_window)

@@ -4,7 +4,7 @@
 from recOrder.acquire.MonitorPy4J import MonitorPy4j
 from recOrder.analyze.CalibrationAnalysis import CalibrationAnalysis
 from recOrder.visualize.SimpleNapariWindow import SimpleNapariWindow
-from recOrder.visualize.CalibrationWindow import CalibrationWindow
+from recOrder.visualize.RecorderWindow import RecorderWindow
 from recOrder.program.BuildProgram import Program
 
 # additional imports
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         # these visualization windows are fine
         viewer_window = SimpleNapariWindow(window_channel=1)
         recorder = QtWidgets.QDialog()
-        recorder_window = CalibrationWindow(recorder, gateway=gateway)
+        recorder_window = RecorderWindow(recorder, gateway=gateway)
 
         program = Program(acquire=monitor,
                           analyze=calib,

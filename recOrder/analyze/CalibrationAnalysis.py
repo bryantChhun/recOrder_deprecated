@@ -74,7 +74,7 @@ class CalibrationAnalysis(AnalyzeBase):
         if method == 'mean':
             return np.abs(np.mean(data) - reference)
 
-    def iter_opt(self, lca_bound_, lcb_bound_, reference, num_iter):
+    def optimize_brent(self, lca_bound_, lcb_bound_, reference, num_iter):
         """
         call scipy.optimize on the opt_lc function with arguments
         each iteration loop optimizes on LCA and LCB once
@@ -140,7 +140,7 @@ class CalibrationAnalysis(AnalyzeBase):
             print("\tdifference intensity = \t" + str(fval1))
         return fval1
 
-    def search_iExt(self, a_min, a_max, b_min, b_max, lc_bound):
+    def optimize_grid_search(self, a_min, a_max, b_min, b_max, lc_bound):
         """
         do a standard grid search to optimize LCA and LCB
         :param a_min:
@@ -194,7 +194,7 @@ class CalibrationAnalysis(AnalyzeBase):
         # fine search using brent's
         set_lc(self.mmc, best_lca, self.PROPERTIES['LCA'])
         set_lc(self.mmc, best_lcb, self.PROPERTIES['LCB'])
-        min_int = self.iter_opt(lc_bound, lc_bound, 0, 1)
+        min_int = self.optimize_brent(lc_bound, lc_bound, 0, 1)
 
         best_lca = get_lc(self.mmc, self.PROPERTIES['LCA'])
         best_lcb = get_lc(self.mmc, self.PROPERTIES['LCB'])
@@ -209,7 +209,7 @@ class CalibrationAnalysis(AnalyzeBase):
     # ========== Optimization wrappers =============
     # ==============================================
 
-    @AnalyzeBase.emitter(channel=10)
+    @AnalyzeBase.emitter(channel=21)
     def opt_Iext(self, lc_bound_):
         """
         find lca and lcb values that minimize intensity
@@ -222,14 +222,14 @@ class CalibrationAnalysis(AnalyzeBase):
         set_lc(self.mmc, 0.5, self.PROPERTIES['LCB'])
 
         # i_ext = iter_opt(lc_bound_, lc_bound_, 0, 1)
-        i_ext_ = self.search_iExt(0.01, 1.5, 0.01, 1.5, lc_bound_)
+        i_ext_ = self.optimize_grid_search(0.01, 1.5, 0.01, 1.5, lc_bound_)
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State0'])
         lca_ext_ = get_lc(self.mmc, self.PROPERTIES['LCA'])
         lcb_ext_ = get_lc(self.mmc, self.PROPERTIES['LCB'])
         return [lca_ext_, lcb_ext_, i_ext_]
 
-    @AnalyzeBase.emitter(channel=11)
+    @AnalyzeBase.emitter(channel=22)
     def opt_I1(self):
         """
         no optimization performed for this.  Simply apply swing and read intensity
@@ -246,7 +246,7 @@ class CalibrationAnalysis(AnalyzeBase):
         image = snap_and_retrieve(self.entry_point)
         return [np.mean(image), get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])]
 
-    @AnalyzeBase.emitter(channel=12)
+    @AnalyzeBase.emitter(channel=23)
     def opt_I2(self, lca_bound, lcb_bound):
         """
         optimized relative to Ielliptical
@@ -262,13 +262,13 @@ class CalibrationAnalysis(AnalyzeBase):
         set_lc(self.mmc, self.lca_ext, self.PROPERTIES['LCA'])
         set_lc(self.mmc, self.lcb_ext + self.swing, self.PROPERTIES['LCB'])
 
-        self.iter_opt(lca_bound, lcb_bound, self.l_elliptical, 1)
+        intensity = self.optimize_brent(lca_bound, lcb_bound, self.l_elliptical, 1)
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State2'])
 
-        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])]
+        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB']), intensity]
 
-    @AnalyzeBase.emitter(channel=13)
+    @AnalyzeBase.emitter(channel=24)
     def opt_I3(self, lca_bound, lcb_bound):
         """
 
@@ -284,13 +284,13 @@ class CalibrationAnalysis(AnalyzeBase):
         set_lc(self.mmc, self.lca_ext, self.PROPERTIES['LCA'])
         set_lc(self.mmc, self.lcb_ext - self.swing, self.PROPERTIES['LCB'])
 
-        self.iter_opt(lca_bound, lcb_bound, self.l_elliptical, 1)
+        intensity = self.optimize_brent(lca_bound, lcb_bound, self.l_elliptical, 1)
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State3'])
 
-        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])]
+        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB']), intensity]
 
-    @AnalyzeBase.emitter(channel=14)
+    @AnalyzeBase.emitter(channel=25)
     def opt_I4(self, lca_bound, lcb_bound):
         """
 
@@ -306,13 +306,13 @@ class CalibrationAnalysis(AnalyzeBase):
         set_lc(self.mmc, self.lca_ext - self.swing, self.PROPERTIES['LCA'])
         set_lc(self.mmc, self.lcb_ext, self.PROPERTIES['LCB'])
 
-        self.iter_opt(lca_bound, lcb_bound, self.l_elliptical, 1)
+        intensity = self.optimize_brent(lca_bound, lcb_bound, self.l_elliptical, 1)
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State4'])
 
-        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])]
+        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB']), intensity]
 
-    @AnalyzeBase.emitter(channel=15)
+    @AnalyzeBase.emitter(channel=26)
     def calculate_extinction(self):
         return (1 / np.sin(2 * np.pi * self.swing) ** 2) * \
                (self.l_elliptical - self.I_black) / (self.i_ext - self.I_black)
@@ -331,8 +331,6 @@ class CalibrationAnalysis(AnalyzeBase):
         self.I_black = param[3]
 
         [self.lca_ext, self.lcb_ext, self.i_ext] = self.opt_Iext(self.lc_bound)
-        # [lca_ext, lcb_ext, self.i_ext] = [lc[0], lc[1], lc[2]]
-        # self.lcExt = (lca_ext, lcb_ext)
 
         # record I0 'elliptical' state
         print("recording lelliptical")

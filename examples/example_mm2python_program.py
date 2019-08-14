@@ -10,7 +10,7 @@ This code describes simple execution of Reconstruction and Visualization code.
 from recOrder.acquire.MonitorPy4J import MonitorPy4j
 from recOrder.acquire.ImplementPy4J import ImplementPy4J
 from recOrder.visualize.SimpleNapariWindow import SimpleNapariWindow
-from recOrder.visualize.CalibrationWindow import CalibrationWindow
+from recOrder.visualize.RecorderWindow import RecorderWindow
 from recOrder.program.BuildProgram import Program
 
 # additional imports
@@ -35,7 +35,7 @@ if __name__ == '__main__':
         viewer_window = SimpleNapariWindow()
 
         recorder = QtWidgets.QDialog()
-        recorder_window = CalibrationWindow(recorder, gateway=gateway)
+        recorder_window = RecorderWindow(recorder, gateway=gateway)
 
         program = Program(acquire=acq,
                           visualize=viewer_window)

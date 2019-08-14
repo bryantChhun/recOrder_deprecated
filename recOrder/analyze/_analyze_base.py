@@ -22,6 +22,7 @@ class AnalyzeBase(QObject):
     def get_QChannel(self, index):
         return self.analysis_signals[index]
 
+    # ============= decorator emitter / receivers ====================
     @classmethod
     def emitter(cls, channel=0):
 
@@ -65,6 +66,13 @@ class AnalyzeBase(QObject):
 
         return bidirectional_wrap
 
+    # =============== callable emitter / receivers ==================
+
+    @classmethod
+    def emit_on_channel(cls, channel, value):
+        cls.analysis_signals[channel].QChannel.emit(value)
+
+    # =============== runnables upon build.run ======================
     @classmethod
     def runnable(cls):
 

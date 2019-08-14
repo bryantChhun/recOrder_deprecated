@@ -109,14 +109,45 @@
     <widget class="QPushButton" name="start_monitor">
      <property name="geometry">
       <rect>
-       <x>130</x>
-       <y>190</y>
-       <width>211</width>
+       <x>10</x>
+       <y>180</y>
+       <width>191</width>
        <height>101</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(33, 255, 6);
+color: rgb(0, 0, 0);</string>
+     </property>
      <property name="text">
       <string>Monitor and reconstruct</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="qbutton_stop_monitor">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>310</y>
+       <width>191</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(252, 1, 7);
+border-color: rgb(252, 1, 7);
+color: rgb(0, 0, 0);</string>
+     </property>
+     <property name="text">
+      <string>Stop Monitor</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+     <property name="default">
+      <bool>false</bool>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
      </property>
     </widget>
    </widget>
@@ -192,7 +223,7 @@
       <string>Wavelength</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="label_state0">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -205,7 +236,7 @@
       <string>State 0</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="label_state1">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -218,7 +249,7 @@
       <string>State 1</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_3">
+    <widget class="QLabel" name="label_state2">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -231,7 +262,7 @@
       <string>State 2</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_4">
+    <widget class="QLabel" name="label_state3">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -244,7 +275,7 @@
       <string>State 3</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_5">
+    <widget class="QLabel" name="label_state4">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -266,6 +297,9 @@
        <height>21</height>
       </rect>
      </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
     </widget>
     <widget class="QLineEdit" name="le_state0_lcb">
      <property name="geometry">
@@ -275,6 +309,9 @@
        <width>61</width>
        <height>21</height>
       </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
      </property>
     </widget>
     <widget class="QLineEdit" name="le_state1_lca">
@@ -286,6 +323,9 @@
        <height>21</height>
       </rect>
      </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
     </widget>
     <widget class="QLineEdit" name="le_state1_lcb">
      <property name="geometry">
@@ -295,6 +335,9 @@
        <width>61</width>
        <height>21</height>
       </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
      </property>
     </widget>
     <widget class="QLineEdit" name="le_state2_lca">
@@ -306,6 +349,9 @@
        <height>21</height>
       </rect>
      </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
     </widget>
     <widget class="QLineEdit" name="le_state2_lcb">
      <property name="geometry">
@@ -315,6 +361,9 @@
        <width>61</width>
        <height>21</height>
       </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
      </property>
     </widget>
     <widget class="QLineEdit" name="le_state3_lca">
@@ -326,6 +375,9 @@
        <height>21</height>
       </rect>
      </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
     </widget>
     <widget class="QLineEdit" name="le_state3_lcb">
      <property name="geometry">
@@ -335,6 +387,9 @@
        <width>61</width>
        <height>21</height>
       </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
      </property>
     </widget>
     <widget class="QLineEdit" name="le_state4_lca">
@@ -346,6 +401,9 @@
        <height>21</height>
       </rect>
      </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
     </widget>
     <widget class="QLineEdit" name="le_state4_lcb">
      <property name="geometry">
@@ -356,8 +414,11 @@
        <height>21</height>
       </rect>
      </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
     </widget>
-    <widget class="QLabel" name="label_6">
+    <widget class="QLabel" name="label_LCA">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -370,7 +431,7 @@
       <string>LCA</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_7">
+    <widget class="QLabel" name="label_LCB">
      <property name="geometry">
       <rect>
        <x>160</x>
@@ -381,6 +442,110 @@
      </property>
      <property name="text">
       <string>LCB</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_extinction">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>100</y>
+       <width>81</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Extinction</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="le_extinction">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>120</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="le_state0_intensity">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>190</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="le_state1_intensity">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>220</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="le_state2_intensity">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>250</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="le_state3_intensity">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>280</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="le_state4_intensity">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>310</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_intensity">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>170</y>
+       <width>60</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Intensity</string>
      </property>
     </widget>
    </widget>

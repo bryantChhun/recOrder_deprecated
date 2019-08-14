@@ -23,8 +23,8 @@ class ReconOrder(AnalyzeBase):
     inst_mat_inv = None
 
     def __init__(self,
-                 stokes_recevier_channel, stokes_emitter_channel,
-                 physical_receiver_channel, physical_emitter_channel):
+                 stokes_receiver_channel=11, stokes_emitter_channel=12,
+                 physical_receiver_channel=12, physical_emitter_channel=13):
         super().__init__()
 
         self._frames = 5
@@ -41,10 +41,12 @@ class ReconOrder(AnalyzeBase):
         self.local_gauss = None
 
         # decorations
-        self.compute_stokes = AnalyzeBase.bidirectional(emitter_channel=stokes_emitter_channel,
-                                                        receiver_channel=stokes_recevier_channel)(self.compute_stokes)
-        self.compute_physical = AnalyzeBase.bidirectional(emitter_channel=physical_emitter_channel,
-                                                          receiver_channel=physical_receiver_channel)(self.compute_physical)
+        self.compute_stokes = \
+            AnalyzeBase.bidirectional(emitter_channel=stokes_emitter_channel,
+                                      receiver_channel=stokes_receiver_channel)(self.compute_stokes)
+        self.compute_physical = \
+            AnalyzeBase.bidirectional(emitter_channel=physical_emitter_channel,
+                                      receiver_channel=physical_receiver_channel)(self.compute_physical)
 
         self.compute_inst_matrix()
 
@@ -124,7 +126,6 @@ class ReconOrder(AnalyzeBase):
 
         self.inst_mat_inv = np.linalg.pinv(inst_mat)
 
-    @AnalyzeBase.bidirectional(emitter_channel=1, receiver_channel=0)
     def compute_stokes(self, int_obj: IntensityData) -> StokesData:
         """
         computes stokes vectors from the polarization intensities and instrument matrix
@@ -135,10 +136,17 @@ class ReconOrder(AnalyzeBase):
 
         # define our instrument matrix based on self.frames
         if self._frames == 4:
-            img_raw = np.stack((int_obj.get_image('IExt'), int_obj.get_image('I45'), int_obj.get_image('I90'), int_obj.get_image('I135')))  # order the channel following stokes calculus convention
+            img_raw = np.stack((int_obj.get_image('IExt'),
+                                int_obj.get_image('I45'),
+                                int_obj.get_image('I90'),
+                                int_obj.get_image('I135')))  # order the channel following stokes calculus convention
             n_chann = np.shape(img_raw)[0]
         elif self._frames == 5:
-            img_raw = np.stack((int_obj.get_image('IExt'), int_obj.get_image('I0'), int_obj.get_image('I45'), int_obj.get_image('I90'), int_obj.get_image('I135')))  # order the channel following stokes calculus convention
+            img_raw = np.stack((int_obj.get_image('IExt'),
+                                int_obj.get_image('I0'),
+                                int_obj.get_image('I45'),
+                                int_obj.get_image('I90'),
+                                int_obj.get_image('I135')))  # order the channel following stokes calculus convention
             n_chann = np.shape(img_raw)[0]
         else:
             raise ValueError("frames must be 4 or 5 to perform stokes calculation")
@@ -151,11 +159,13 @@ class ReconOrder(AnalyzeBase):
         img_stokes_flat = np.dot(self.inst_mat_inv, img_raw_flat)
         img_stokes = np.reshape(img_stokes_flat, (img_stokes_flat.shape[0], self.height, self.width))
 
-        [output_stokes.s0, output_stokes.s1, output_stokes.s2, output_stokes.s3] = [img_stokes[i, :, :] for i in range(0, img_stokes.shape[0])]
+        [output_stokes.s0,
+         output_stokes.s1,
+         output_stokes.s2,
+         output_stokes.s3] = [img_stokes[i, :, :] for i in range(0, img_stokes.shape[0])]
 
         return output_stokes
 
-    # @AnalyzeBase.bidirectional(emitter_channel=4, receiver_channel=1)
     def compute_physical(self, stk_obj: StokesData, flip_pol='rcp') -> PhysicalData:
         """
         computes physical results from the stokes vectors
@@ -203,10 +213,12 @@ class ReconOrder(AnalyzeBase):
 
         phy_obj.retard = phy_obj.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
 
-        phy_obj.I_trans = self.imBitConvert(phy_obj.I_trans * 10 ** 4, bit=16, norm=True)  # AU, set norm to False for tiling images
+        # AU, set norm to False for tiling images
+        phy_obj.I_trans = self.imBitConvert(phy_obj.I_trans * 10 ** 4, bit=16, norm=True)
         phy_obj.retard = self.imBitConvert(phy_obj.retard * 10 ** 4, bit=16)  # scale to pm
         phy_obj.depolarization = self.imBitConvert(phy_obj.depolarization * 10 ** 5.5, bit=16)
-        phy_obj.azimuth_degree = self.imBitConvert(phy_obj.azimuth_degree * 100, bit=16)  # scale to [0, 18000], 100*degree
+        # scale to [0, 18000], 100*degree
+        phy_obj.azimuth_degree = self.imBitConvert(phy_obj.azimuth_degree * 100, bit=16)
         return phy_obj
 
     def imBitConvert(self, im, bit=16, norm=False, limit=None):

@@ -59,6 +59,12 @@ class VisualizeBase(QObject):
 
         return bidirectional_wrap
 
+
+    @classmethod
+    def emit_on_channel(cls, channel, value):
+        cls.visualize_signals[channel].QChannel.emit(value)
+
+
     @classmethod
     def runnable(cls):
 
