@@ -58,3 +58,14 @@ class VisualizeBase(QObject):
             return bidirectional_wrap_func
 
         return bidirectional_wrap
+
+    @classmethod
+    def runnable(cls):
+
+        def runnable_wrap(func):
+            def runnable_wrap_func(self, *args, **kwargs):
+                func(self, *args, **kwargs)
+                return func
+            return runnable_wrap_func
+
+        return runnable_wrap

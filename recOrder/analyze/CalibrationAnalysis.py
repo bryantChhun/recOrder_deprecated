@@ -5,10 +5,24 @@ from recOrder.microscope.mm2python_simple import set_lc, get_lc, define_lc_state
 
 import numpy as np
 from scipy import optimize
+from PyQt5.QtCore import QRunnable, QThreadPool
 
 """
 functions to run LC optimization
 """
+
+
+class ProcessRunnable(QRunnable):
+    def __init__(self, target, args):
+        super().__init__()
+        self.t = target
+        self.args = args
+
+    def run(self):
+        self.t(*self.args)
+
+    def start(self):
+        QThreadPool.globalInstance().start(self)
 
 
 class CalibrationAnalysis(AnalyzeBase):
@@ -298,12 +312,17 @@ class CalibrationAnalysis(AnalyzeBase):
 
         return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])]
 
+    @AnalyzeBase.emitter(channel=15)
     def calculate_extinction(self):
         return (1 / np.sin(2 * np.pi * self.swing) ** 2) * \
                (self.l_elliptical - self.I_black) / (self.i_ext - self.I_black)
 
     @AnalyzeBase.receiver(channel=20)
     def full_calibration(self, param):
+        p = ProcessRunnable(target=self._full_calib_runnable, args=param)
+        p.start()
+
+    def _full_calib_runnable(self, param):
         # optimize to find extinction, increase bound to broaden range
         print("optimizing and setting iExt")
         self.swing = param[0]
