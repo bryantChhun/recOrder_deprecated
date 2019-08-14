@@ -29,9 +29,9 @@ class CalibrationWindow(VisualizeBase, Ui_ReconOrderUI):
 
         # some params
         self.lc_bound = 0.02
-        self.swing = self.qline_swing.text()
+        self.swing = float(self.qline_swing.text())
         self.I_black = 100
-        self.wavelength = self.qline_swing.text()
+        self.wavelength = int(self.qline_wavelength.text())
 
         # data
         self.Background = BackgroundData()
@@ -63,27 +63,28 @@ class CalibrationWindow(VisualizeBase, Ui_ReconOrderUI):
         except Exception as ex:
             print("exception during snap\n\t"+str(ex))
 
-    # @pyqtSlot(bool)
-    # def snap_and_correct(self):
-    #     self.log_area.append("calling snap and correct")
-    #     try:
-    #         snap_bg_corr = py4j_snap_and_correct(self._gate, self.Background)
-    #         if snap_bg_corr:
-    #             self.window_update_signal.emit(snap_bg_corr)
-    #     except Exception as ex:
-    #         self.log_area.append("exception during snap and correct \n\t"+str(ex))
-    #         print("exception during snap and correct \n\t"+str(ex))
+    @pyqtSlot(bool)
+    def snap_and_correct(self):
+        self.log_area.append("calling snap and correct")
+        try:
+            pass
+            # snap_bg_corr = py4j_snap_and_correct(self._gate, self.Background)
+            # if snap_bg_corr:
+            #     self.window_update_signal.emit(snap_bg_corr)
+        except Exception as ex:
+            self.log_area.append("exception during snap and correct \n\t"+str(ex))
+            print("exception during snap and correct \n\t"+str(ex))
 
-    # @pyqtSlot(bool)
-    # def collect_background(self):
-    #     try:
-    #         self.Background = py4j_collect_background(self._gate, self.Background)
-    #         if self.Background is False or None:
-    #             return None
-    #         else:
-    #             self.window_update_signal.emit(self.Background)
-    #     except Exception as ex:
-    #         print("exception during collect background \n\t"+str(ex))
+    @pyqtSlot(bool)
+    def collect_background(self):
+        try:
+            # self.Background = py4j_collect_background(self._gate, self.Background)
+            if self.Background is False or None:
+                return None
+            else:
+                self.window_update_signal.emit(self.Background)
+        except Exception as ex:
+            print("exception during collect background \n\t"+str(ex))
 
     @VisualizeBase.emitter(channel=0)
     @pyqtSlot(bool)
@@ -105,8 +106,8 @@ class CalibrationWindow(VisualizeBase, Ui_ReconOrderUI):
 
     @VisualizeBase.receiver(channel=11)
     def le_state1(self, lc):
-        self.le_state1_lca.setText(str(lc[0]))
-        self.le_state1_lcb.setText(str(lc[1]))
+        self.le_state1_lca.setText(str(lc[1]))
+        self.le_state1_lcb.setText(str(lc[2]))
 
     @VisualizeBase.receiver(channel=12)
     def le_state2(self, lc):

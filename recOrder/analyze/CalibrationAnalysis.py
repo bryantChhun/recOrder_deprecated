@@ -319,7 +319,7 @@ class CalibrationAnalysis(AnalyzeBase):
 
     @AnalyzeBase.receiver(channel=20)
     def full_calibration(self, param):
-        p = ProcessRunnable(target=self._full_calib_runnable, args=param)
+        p = ProcessRunnable(target=self._full_calib_runnable, args=(param,))
         p.start()
 
     def _full_calib_runnable(self, param):
