@@ -14,7 +14,7 @@ class QChannel(QObject):
 
 class AnalyzeBase(QObject):
 
-    analysis_signals = [QChannel() for _ in range(20)]
+    analysis_signals = [QChannel() for _ in range(30)]
 
     def __init__(self):
         super(AnalyzeBase, self).__init__()
@@ -29,7 +29,7 @@ class AnalyzeBase(QObject):
             def emitter_wrap_func(self, *args, **kwargs):
                 out = func(self, *args, **kwargs)
                 cls.analysis_signals[channel].QChannel.emit(out)
-                return func
+                return out
             emitter_wrap_func.emitter_channel = channel
             return emitter_wrap_func
 
