@@ -37,6 +37,7 @@ if __name__ == '__main__':
         recorder_window = CalibrationWindow(recorder, gateway=gateway)
 
         program = Program(acquire=monitor,
+                          analyze=calib,
                           visualize=viewer_window)
         program.add_module(recorder_window)
 

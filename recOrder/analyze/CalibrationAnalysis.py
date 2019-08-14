@@ -49,7 +49,7 @@ class CalibrationAnalysis(AnalyzeBase):
             prior output against which to optimize
         :return: float
         """
-        set_lc(x, self.waves, device_property)
+        set_lc(self.mmc, x, device_property)
 
         # snap and return metric
         data = snap_and_retrieve(self.entry_point)
@@ -209,7 +209,7 @@ class CalibrationAnalysis(AnalyzeBase):
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State0'])
         lca_ext_ = get_lc(self.mmc, self.PROPERTIES['LCA'])
         lcb_ext_ = get_lc(self.mmc, self.PROPERTIES['LCB'])
-        return lca_ext_, lcb_ext_, i_ext_
+        return [lca_ext_, lcb_ext_, i_ext_]
 
     @AnalyzeBase.emitter(channel=11)
     def opt_I1(self):
@@ -226,7 +226,7 @@ class CalibrationAnalysis(AnalyzeBase):
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State1'])
 
         image = snap_and_retrieve(self.entry_point)
-        return np.mean(image), get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])
+        return [np.mean(image), get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])]
 
     @AnalyzeBase.emitter(channel=12)
     def opt_I2(self, lca_bound, lcb_bound):
@@ -248,7 +248,7 @@ class CalibrationAnalysis(AnalyzeBase):
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State2'])
 
-        return get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])
+        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])]
 
     @AnalyzeBase.emitter(channel=13)
     def opt_I3(self, lca_bound, lcb_bound):
@@ -270,7 +270,7 @@ class CalibrationAnalysis(AnalyzeBase):
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State3'])
 
-        return get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])
+        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])]
 
     @AnalyzeBase.emitter(channel=14)
     def opt_I4(self, lca_bound, lcb_bound):
@@ -292,21 +292,22 @@ class CalibrationAnalysis(AnalyzeBase):
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State4'])
 
-        return get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])
+        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])]
 
     def calculate_extinction(self):
         return (1 / np.sin(2 * np.pi * self.swing) ** 2) * \
                (self.l_elliptical - self.I_black) / (self.i_ext - self.I_black)
 
     @AnalyzeBase.receiver(channel=20)
-    def full_calibration(self, swing, wavelength, lc_bound):
+    def full_calibration(self, param):
         # optimize to find extinction, increase bound to broaden range
         print("optimizing and setting iExt")
-        self.swing = swing
-        self.wavelength = wavelength
-        self.lc_bound = lc_bound
+        self.swing = param[0]
+        self.wavelength = param[1]
+        self.lc_bound = param[2]
 
-        lca_ext, lcb_ext, i_ext = self.opt_Iext(lc_bound)
+        lc = self.opt_Iext(self.lc_bound)
+        [lca_ext, lcb_ext, i_ext] = [lc[0], lc[1], lc[2]]
 
         self.lcExt = (lca_ext, lcb_ext)
 

@@ -53,31 +53,31 @@ class CalibrationWindow(VisualizeBase, Ui_ReconOrderUI):
         pass
 
     @VisualizeBase.emitter(channel=20)
-    def calibrate(self):
-        return self.swing, self.wavelength, self.lc_bound
+    def calibrate(self, *args):
+        return [self.swing, self.wavelength, self.lc_bound]
 
     @VisualizeBase.receiver(channel=10)
-    def le_state0(self, lca, lcb, i_ext):
-        self.le_state0_lca.setText(str(lca))
-        self.le_state0_lcb.setText(str(lcb))
+    def le_state0(self, lc):
+        self.le_state0_lca.setText(str(lc[0]))
+        self.le_state0_lcb.setText(str(lc[1]))
 
     @VisualizeBase.receiver(channel=11)
-    def le_state1(self, lca, lcb):
-        self.le_state1_lca.setText(str(lca))
-        self.le_state1_lcb.setText(str(lcb))
+    def le_state1(self, lc):
+        self.le_state1_lca.setText(str(lc[0]))
+        self.le_state1_lcb.setText(str(lc[1]))
 
     @VisualizeBase.receiver(channel=12)
-    def le_state2(self, lca, lcb):
-        self.le_state2_lca.setText(str(lca))
-        self.le_state2_lcb.setText(str(lcb))
+    def le_state2(self, lc):
+        self.le_state2_lca.setText(str(lc[0]))
+        self.le_state2_lcb.setText(str(lc[1]))
 
     @VisualizeBase.receiver(channel=13)
-    def le_state3(self, lca, lcb):
-        self.le_state3_lca.setText(str(lca))
-        self.le_state3_lcb.setText(str(lcb))
+    def le_state3(self, lc):
+        self.le_state3_lca.setText(str(lc[0]))
+        self.le_state3_lcb.setText(str(lc[1]))
 
     @VisualizeBase.receiver(channel=14)
-    def le_state4(self, lca, lcb):
-        self.le_state4_lca.setText(str(lca))
-        self.le_state4_lcb.setText(str(lcb))
+    def le_state4(self, lc):
+        self.le_state4_lca.setText(str(lc[0]))
+        self.le_state4_lcb.setText(str(lc[1]))
 

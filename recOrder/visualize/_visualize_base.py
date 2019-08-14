@@ -9,7 +9,7 @@ class QChannel(QObject):
 
 class VisualizeBase(QObject):
 
-    visualize_signals = [QChannel() for _ in range(20)]
+    visualize_signals = [QChannel() for _ in range(30)]
 
     def __init__(self):
         super(VisualizeBase, self).__init__()
@@ -25,7 +25,7 @@ class VisualizeBase(QObject):
             def emitter_wrap_func(self, *args, **kwargs):
                 out = func(self, *args, **kwargs)
                 self.visualize_signals[channel].QChannel.emit(out)
-                return func
+                return out
             emitter_wrap_func.emitter_channel = channel
             return emitter_wrap_func
 
