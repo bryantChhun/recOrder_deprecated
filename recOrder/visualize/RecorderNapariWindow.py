@@ -62,7 +62,6 @@ class RecorderNapariWindow(VisualizeBase):
             # self.viewer.layers.remove(2)
             # self.viewer.layers.remove(3)
             # self.viewer.layers.remove(4)
-
         else:
             print("gui didn't receive any data")
 

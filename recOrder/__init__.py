@@ -14,4 +14,3 @@ from .datastructures import StokesData
 from .datastructures import PhysicalData
 
 from recOrder.program.DataPipe import PipeFromFiles
-from recOrder.visualize.GUI import NapariWindow, RecorderWindowControl

@@ -57,7 +57,7 @@ class ReconOrder(AnalyzeBase):
         return self._frames
 
     @frames.setter
-    def frames(self, num_frames=4):
+    def frames(self, num_frames):
         """
         set how many polarization intensity images are used for this reconstruction
         :param num_frames: integer 4 or 5

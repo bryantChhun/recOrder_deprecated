@@ -21,7 +21,7 @@ class ProcessRunnable(QRunnable):
         QThreadPool.globalInstance().start(self)
 
 
-class ReconstructOrderMonitor(AcquisitionBase):
+class ReconOrderMonitor(AcquisitionBase):
 
     def __init__(self, mm_channel_names: list, int_channel_names: list, gateway):
         super(AcquisitionBase, self).__init__()
@@ -37,15 +37,15 @@ class ReconstructOrderMonitor(AcquisitionBase):
 
         self.pol_states = set()
         self.display_ready = True
-        self.stop_monitor = False
+        self.monitor_flag = False
 
     @AcquisitionBase.receiver(channel=11)
-    def display_ready(self, value):
+    def display_response(self, value):
         self.display_ready = value
 
     @AcquisitionBase.receiver(channel=19)
     def stop_monitor(self):
-        self.stop_monitor = True
+        self.monitor_flag = True
 
     @AcquisitionBase.receiver(channel=10)
     def start_monitor(self):
@@ -65,9 +65,9 @@ class ReconstructOrderMonitor(AcquisitionBase):
             if not self.gateway:
                 print("no gateway defined")
                 break
-            elif self.stop_monitor:
+            elif self.monitor_flag:
                 print("stopping data monitor")
-                self.stop_monitor = False
+                self.monitor_flag = False
                 break
 
             elif not self.display_ready:

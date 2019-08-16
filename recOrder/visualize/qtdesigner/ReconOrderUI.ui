@@ -96,7 +96,7 @@
       <string>Background correction file</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="qline_bg_corr_path">
+    <widget class="QLineEdit" name="le_bg_corr_path">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -171,7 +171,7 @@ color: rgb(0, 0, 0);</string>
       <bool>false</bool>
      </property>
     </widget>
-    <widget class="QLineEdit" name="qline_swing">
+    <widget class="QLineEdit" name="le_swing">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -184,7 +184,7 @@ color: rgb(0, 0, 0);</string>
       <string>0.03</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="qline_wavelength">
+    <widget class="QLineEdit" name="le_wavelength">
      <property name="geometry">
       <rect>
        <x>340</x>
