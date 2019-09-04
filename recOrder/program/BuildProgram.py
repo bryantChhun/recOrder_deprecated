@@ -1,9 +1,9 @@
 # bchhun, {2019-07-25}
 
 from PyQt5.QtCore import QRunnable, QThreadPool
-from recOrder.acquire import AcquisitionBase
-from recOrder.analyze import AnalyzeBase
-from recOrder.visualize import VisualizeBase
+from recOrder.acquisition import AcquisitionBase
+from recOrder.analysis import AnalyzeBase
+from recOrder.visualization import VisualizeBase
 
 
 class ProcessRunnable(QRunnable):
@@ -62,7 +62,7 @@ class Program:
             [self._assign_signal_slot(acq, proc) for proc in self.proc]
             [self._assign_signal_slot(acq, vis) for vis in self.vis]
 
-        # process to itself and to visualize
+        # process to itself and to visualization
         for proc in self.proc:
             [self._assign_signal_slot(proc, acq) for acq in self.acq]
             [self._assign_signal_slot(proc, proc2) for proc2 in self.proc]

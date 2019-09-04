@@ -7,10 +7,10 @@ This code describes simple execution of Reconstruction and Visualization code.
 """
 
 # framework imports
-from recOrder.acquire.MonitorPy4J import MonitorPy4j
-from recOrder.acquire.ImplementPy4J import ImplementPy4J
-from recOrder.visualize.SimpleNapariWindow import SimpleNapariWindow
-from recOrder.visualize.RecorderWindow import RecorderWindow
+from recOrder.acquisition.MonitorPy4J import MonitorPy4j
+from recOrder.acquisition.ImplementPy4J import ImplementPy4J
+from recOrder.visualization.SimpleNapariWindow import SimpleNapariWindow
+from recOrder.visualization.RecorderWindow import RecorderWindow
 from recOrder.program.BuildProgram import Program
 
 # additional imports
@@ -24,14 +24,14 @@ if __name__ == '__main__':
 
         gateway = JavaGateway()
 
-        # acquire
+        # acquisition
         acq = MonitorPy4j()
         # acq = ImplementPy4J()
 
-        # analyze
+        # analysis
 
 
-        # visualize
+        # visualization
         viewer_window = SimpleNapariWindow()
 
         recorder = QtWidgets.QDialog()

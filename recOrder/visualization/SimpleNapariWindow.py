@@ -1,9 +1,12 @@
 # bchhun, {2019-07-29}
 
-from ..visualize import VisualizeBase
+from ..visualization import VisualizeBase
 import numpy as np
 import napari
 
+"""
+A simple napari window that displays a single image layer
+"""
 
 class SimpleNapariWindow(VisualizeBase):
 

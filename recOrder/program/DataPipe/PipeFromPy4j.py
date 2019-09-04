@@ -11,8 +11,8 @@
 # from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QThreadPool, QRunnable
 # import numpy as np
 #
-# from recOrder.acquire.FileManagement import mm2python_monitor
-# from recOrder.analyze.Processing.ReconOrder import ReconOrder
+# from recOrder.acquisition.FileManagement import mm2python_monitor
+# from recOrder.analysis.Processing.ReconOrder import ReconOrder
 #
 #
 # class ProcessRunnable(QRunnable):
@@ -127,7 +127,7 @@
 #     # ========================= connect signals =========================
 #
 #     def make_connection(self, event):
-#         from recOrder.visualize.GUI.NapariWindow import NapariWindow
+#         from recOrder.visualization.GUI.NapariWindow import NapariWindow
 #         if isinstance(event, NapariWindow):
 #             print("connecting window's signal to pipe's slot")
 #             event.update_complete.connect(self._report_from_window)

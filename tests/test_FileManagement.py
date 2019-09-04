@@ -10,7 +10,7 @@
 
 import unittest
 
-from recOrder.acquire.FileManagement import mm2python_monitor
+from recOrder.acquisition.FileManagement import mm2python_monitor
 
 
 class TestImageReconstruction(unittest.TestCase):

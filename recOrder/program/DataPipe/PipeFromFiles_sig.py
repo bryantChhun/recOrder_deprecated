@@ -5,8 +5,8 @@
 # from recOrder.datastructures.IntensityData import IntensityData
 # from recOrder.datastructures.PhysicalData import PhysicalData
 # from recOrder.datastructures.StokesData import StokesData
-# from recOrder.acquire.FileManagement.RetrieveFiles import RetrieveData
-# from recOrder.analyze.Processing.ReconOrder import ReconOrder
+# from recOrder.acquisition.FileManagement.RetrieveFiles import RetrieveData
+# from recOrder.analysis.Processing.ReconOrder import ReconOrder
 #
 # from datetime import datetime
 #

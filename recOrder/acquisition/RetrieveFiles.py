@@ -4,7 +4,7 @@ import cv2
 import os
 
 from tests.testUtils.testMetrics import testDataPath
-from recOrder.acquire._acquisition_base import AcquisitionBase
+from recOrder.acquisition._acquisition_base import AcquisitionBase
 from recOrder.datastructures.IntensityData import IntensityData
 
 

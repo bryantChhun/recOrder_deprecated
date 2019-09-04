@@ -7,8 +7,8 @@ This code describes simple execution of Reconstruction and Visualization code.
 """
 
 # framework imports
-from recOrder.visualize.SimpleNapariWindow import SimpleNapariWindow
-from recOrder.visualize.RecorderWindow import RecorderWindow
+from recOrder.visualization.SimpleNapariWindow import SimpleNapariWindow
+from recOrder.visualization.RecorderWindow import RecorderWindow
 from recOrder.program.BuildProgram import Program
 
 # additional imports
@@ -22,11 +22,11 @@ if __name__ == '__main__':
 
         gateway = JavaGateway()
 
-        # acquire
+        # acquisition
 
-        # analyze
+        # analysis
 
-        # visualize
+        # visualization
         viewer_window = SimpleNapariWindow(window_channel=4)
 
         recorder = QtWidgets.QDialog()

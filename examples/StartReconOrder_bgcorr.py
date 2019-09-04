@@ -16,11 +16,11 @@ This code describes simple execution of Reconstruction and Visualization code.
 
 from PyQt5 import QtWidgets
 
-from recOrder.visualize.GUI.NapariWindow import NapariWindow
+from recOrder.visualization.GUI.NapariWindow import NapariWindow
 from recOrder.program.DataPipe.PipeFromFiles import PipeFromFiles
-from recOrder.visualize.GUI.RecorderWindowControl import RecorderWindowControl
+from recOrder.visualization.GUI.RecorderWindowControl import RecorderWindowControl
 from recOrder.program.SignalController.SignalController import SignalController
-from recOrder.analyze.Processing.ReconOrder import ReconOrder
+from recOrder.analysis.Processing.ReconOrder import ReconOrder
 from py4j.java_gateway import JavaGateway
 from recOrder.MicroscopeController.mm2python_controller import py4j_monitor_LC
 

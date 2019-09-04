@@ -1,7 +1,7 @@
 # bchhun, {2019-08-12}
 
-from recOrder.visualize import VisualizeBase
-from recOrder.acquire import AcquisitionBase
+from recOrder.visualization import VisualizeBase
+from recOrder.acquisition import AcquisitionBase
 from recOrder.program import Program
 
 

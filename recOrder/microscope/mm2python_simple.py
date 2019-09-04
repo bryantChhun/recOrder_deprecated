@@ -9,7 +9,7 @@ import json
 from recOrder.datastructures import IntensityData
 from recOrder.datastructures import StokesData
 from recOrder.datastructures import PhysicalData
-from recOrder.analyze.ReconstructOrder import ReconOrder
+from recOrder.analysis.ReconstructOrder import ReconOrder
 
 
 # ============================================================
@@ -224,6 +224,7 @@ def py4j_snap_and_correct(gateway, bg):
 
     corrected = proc.correct_background(stk_obj, bg)
     return corrected
+
 
 def py4j_collect_background(gateway, bg_raw, swing, wavelength, black_level, save_path=None, averaging: int = 5, ):
 

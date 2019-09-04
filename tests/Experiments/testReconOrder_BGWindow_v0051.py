@@ -11,9 +11,9 @@
 import sys
 from PyQt5.QtWidgets import QApplication
 
-from recOrder.visualize.GUI.NapariWindow import NapariWindow
+from recOrder.visualization.GUI.NapariWindow import NapariWindow
 from recOrder.program.DataPipe.PipeFromFiles import PipeFromFiles
-from recOrder.analyze.Processing.ReconOrder import ReconOrder
+from recOrder.analysis.Processing.ReconOrder import ReconOrder
 
 if __name__ == '__main__':
     # starting

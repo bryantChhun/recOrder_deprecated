@@ -7,14 +7,14 @@ from recOrder.datastructures import PhysicalData
 from recOrder.datastructures import StokesData
 from recOrder.datastructures import BackgroundData
 
-from recOrder.analyze.Processing.VectorLayerUtils import convert_to_vector
-from recOrder.analyze._analyze_base import AnalyzeBase
+from recOrder.analysis.Processing.VectorLayerUtils import convert_to_vector
+from recOrder.analysis._analyze_base import AnalyzeBase
 
 
 class ReconOrder(AnalyzeBase):
     """
-    place analyze base emitters at each of the Intensity, Stokes and physical functions
-    place analyze base slots at each of the intensity, Stokes and physical functions
+    place analysis base emitters at each of the Intensity, Stokes and physical functions
+    place analysis base slots at each of the intensity, Stokes and physical functions
 
     if it receives data from slot, it is called with inputs
     when it completes compute, it sends with emit

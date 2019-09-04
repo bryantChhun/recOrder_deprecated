@@ -1,11 +1,11 @@
 # bchhun, {2019-08-14}
 
 # framework imports
-from recOrder.acquire.ReconOrderMonitor import ReconOrderMonitor
-from recOrder.analyze.CalibrationAnalysis import CalibrationAnalysis
-from recOrder.analyze.ReconstructOrder import ReconOrder
-from recOrder.visualize.SimpleNapariWindow import SimpleNapariWindow
-from recOrder.visualize.RecorderWindow import RecorderWindow
+from recOrder.acquisition.ReconOrderMonitor import ReconOrderMonitor
+from recOrder.analysis.CalibrationAnalysis import CalibrationAnalysis
+from recOrder.analysis.ReconstructOrder import ReconOrder
+from recOrder.visualization.SimpleNapariWindow import SimpleNapariWindow
+from recOrder.visualization.RecorderWindow import RecorderWindow
 from recOrder.program.BuildProgram import Program
 
 # additional imports
@@ -24,22 +24,22 @@ if __name__ == '__main__':
 
     with napari.gui_qt():
 
-        # acquire
+        # acquisition
         # create acquisition module for calibration
         mm_channels = ['State0', 'State1', 'State2', 'State3', 'State4']
         int_dat_channels = ['IExt', 'I90', 'I135', 'I45', 'I0']
         monitor = ReconOrderMonitor(mm_channels, int_dat_channels, gateway)
 
-        # analyze
+        # analysis
         calib = CalibrationAnalysis(gateway)
         ro = ReconOrder()
         # ro.swing = 0.03
         # ro.frames = 5
 
 
-        # visualize
+        # visualization
         # these visualization windows are fine
-        viewer_window = SimpleNapariWindow(window_channel=1)
+        viewer_window = SimpleNapariWindow(window_channel=13)
         recorder = QtWidgets.QDialog()
         recorder_window = RecorderWindow(recorder, gateway=gateway)
 

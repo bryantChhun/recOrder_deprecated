@@ -7,9 +7,9 @@ This code describes simple execution of Reconstruction and Visualization code.
 """
 
 # framework imports
-from recOrder.acquire.MonitorPy4J import MonitorPy4j
-from recOrder.analyze.sobel import Sobel
-from recOrder.visualize.SimpleNapariWindow import SimpleNapariWindow
+from recOrder.acquisition.MonitorPy4J import MonitorPy4j
+from recOrder.analysis.sobel import Sobel
+from recOrder.visualization.SimpleNapariWindow import SimpleNapariWindow
 from recOrder.program.BuildProgram import Program
 
 # additional imports
@@ -22,13 +22,13 @@ if __name__ == '__main__':
 
         gateway = JavaGateway()
 
-        # acquire
+        # acquisition
         acq = MonitorPy4j(gateway)
 
-        # analyze
+        # analysis
         sobel = Sobel()
 
-        # visualize
+        # visualization
         viewer_window = SimpleNapariWindow(window_channel=1)
 
         program = Program(acquire=acq,

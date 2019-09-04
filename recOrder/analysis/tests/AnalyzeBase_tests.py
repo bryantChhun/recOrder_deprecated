@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from PyQt5.QtCore import QObject, pyqtSlot
 from numpy.testing import assert_array_equal
-from recOrder.analyze._analyze_base import AnalyzeBase
+from recOrder.analysis._analyze_base import AnalyzeBase
 
 """
 

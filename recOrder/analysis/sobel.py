@@ -1,5 +1,5 @@
 # bchhun, {2019-08-09}
-from recOrder.analyze._analyze_base import AnalyzeBase
+from recOrder.analysis._analyze_base import AnalyzeBase
 import cv2
 import numpy as np
 

@@ -1,5 +1,5 @@
 # bchhun, {2019-08-09}
-from recOrder.analyze import AnalyzeBase
+from recOrder.analysis import AnalyzeBase
 from recOrder.microscope.mm2python_simple import set_lc, get_lc, define_lc_state, \
     set_lc_state, snap_and_retrieve
 

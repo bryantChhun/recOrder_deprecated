@@ -1,6 +1,6 @@
 # bchhun, {2019-07-31}
 
-from ..acquire._acquisition_base import AcquisitionBase
+from ..acquisition._acquisition_base import AcquisitionBase
 from ..datastructures.IntensityData import IntensityData
 from ..microscope.mm2python_simple import get_image_by_channel_name
 import time
@@ -20,7 +20,11 @@ class ProcessRunnable(QRunnable):
     def start(self):
         QThreadPool.globalInstance().start(self)
 
-
+"""
+monitor to retrieve data from micro-manager when a set of 5 polstates are available
+automatically launches reconstruction and displays this
+will not fetch new data until the GUI is fully updated
+"""
 class ReconOrderMonitor(AcquisitionBase):
 
     def __init__(self, mm_channel_names: list, int_channel_names: list, gateway):

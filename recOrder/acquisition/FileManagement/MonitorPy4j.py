@@ -1,15 +1,16 @@
-# bchhun, {2019-07-29}
+# bchhun, {2019-07-24}
 
-from recOrder.acquire import AcquisitionBase
+from recOrder.acquisition._acquisition_base import AcquisitionBase
 
 import numpy as np
+from PyQt5.QtCore import QThreadPool, QRunnable
 import time
-from PyQt5.QtCore import QRunnable, QThreadPool
+from py4j.java_gateway import JavaGateway
 
 
 class ProcessRunnable(QRunnable):
     def __init__(self, target, args):
-        super().__init__()
+        QRunnable.__init__(self)
         self.t = target
         self.args = args
 
@@ -22,9 +23,9 @@ class ProcessRunnable(QRunnable):
 
 class MonitorPy4j(AcquisitionBase):
 
-    def __init__(self, gateway_):
+    def __init__(self, ):
         super(MonitorPy4j, self).__init__()
-        self.gateway = gateway_
+        self.gateway = JavaGateway()
         self.ep = self.gateway.entry_point
 
     def snap_and_retrieve(self):
@@ -45,32 +46,18 @@ class MonitorPy4j(AcquisitionBase):
                          shape=(meta.getxRange(), meta.getyRange()))
         return data
 
-    @AcquisitionBase.emitter(channel=4)
-    def pull_memmap(self):
-        meta = self.ep.getLastMeta()
-        while not meta:
-            time.sleep(0.00001)
-            meta = self.ep.getLastMeta()
-        # print('pulling and emitting memmap')
-        data = np.memmap(meta.getFilepath(), dtype="uint16", mode='r+', offset=meta.getBufferPosition(),
-                         shape=(meta.getxRange(), meta.getyRange()))
-        return data
-
-    #to launch monitor upon a signal
-    @AcquisitionBase.receiver(channel=0)
-    def launch_monitor_in_process(self, *args):
-        p = ProcessRunnable(target=self.monitor_process, args=())
-        p.start()
-
-    @AcquisitionBase.runnable()
-    def monitor_process(self, *args):
-        print('monitor launched')
+    def _start_monitor(self):
         self.ep.clearQueue()
+
         count = 0
         while True:
             time.sleep(0.001)
 
-            self.pull_memmap()
+            meta = self.ep.getLastMeta()
+            if meta is not None:
+                data = np.memmap(meta.getFilepath(), dtype="uint16", mode='r+', offset=0,
+                                 shape=(meta.getxRange(), meta.getyRange()))
+                self.acquisition_signal.emit(data)
 
             if count >= 1000:
                 # timeout is 2.5 minutes = 15000
@@ -80,7 +67,6 @@ class MonitorPy4j(AcquisitionBase):
                 count += 1
                 if count % 100 == 0:
                     print('waiting')
-
 
 
 

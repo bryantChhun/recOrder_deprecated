@@ -1,10 +1,10 @@
 # bchhun, {2019-08-09}
 
 # framework imports
-from recOrder.acquire.MonitorPy4J import MonitorPy4j
-from recOrder.analyze.CalibrationAnalysis import CalibrationAnalysis
-from recOrder.visualize.SimpleNapariWindow import SimpleNapariWindow
-from recOrder.visualize.RecorderWindow import RecorderWindow
+from recOrder.acquisition.MonitorPy4J import MonitorPy4j
+from recOrder.analysis.CalibrationAnalysis import CalibrationAnalysis
+from recOrder.visualization.SimpleNapariWindow import SimpleNapariWindow
+from recOrder.visualization.RecorderWindow import RecorderWindow
 from recOrder.program.BuildProgram import Program
 
 # additional imports
@@ -12,7 +12,9 @@ import napari
 from PyQt5 import QtWidgets
 from py4j.java_gateway import JavaGateway
 
-
+"""
+This example describes how to set up a recorder LC calibration window
+"""
 if __name__ == '__main__':
 
     gateway = JavaGateway()
@@ -23,14 +25,14 @@ if __name__ == '__main__':
 
     with napari.gui_qt():
 
-        # acquire
+        # acquisition
         # create acquisition module for calibration
         monitor = MonitorPy4j(gateway)
 
-        # analyze
+        # analysis
         calib = CalibrationAnalysis(gateway)
 
-        # visualize
+        # visualization
         # these visualization windows are fine
         viewer_window = SimpleNapariWindow(window_channel=1)
         recorder = QtWidgets.QDialog()

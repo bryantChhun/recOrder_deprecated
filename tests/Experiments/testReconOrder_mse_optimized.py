@@ -13,7 +13,7 @@ import unittest
 import cv2
 
 from recOrder.program.DataPipe import PipeToReconOrder
-from recOrder.analyze.Processing import ReconOrder
+from recOrder.analysis.Processing import ReconOrder
 from tests.testUtils.testMetrics import mse
 
 

@@ -1,6 +1,6 @@
 # bchhun, {2019-07-24}
 
-from ..acquire import AcquisitionBase
+from ..acquisition import AcquisitionBase
 
 import numpy as np
 from py4j.java_gateway import JavaGateway, CallbackServerParameters, GatewayParameters

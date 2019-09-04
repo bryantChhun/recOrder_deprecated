@@ -1,11 +1,19 @@
 # bchhun, {2019-07-24}
 
-from recOrder.visualize._visualize_base import VisualizeBase
+from recOrder.visualization._visualize_base import VisualizeBase
 from recOrder.datastructures.PhysicalData import PhysicalData
 from recOrder.datastructures.BackgroundData import BackgroundData
 import numpy as np
 import napari
 
+"""
+A multi-layer napari window to display each of reconstructed birefringence images:
+- polarization
+- retardance
+- transmission
+- orientation (vector layer)
+
+"""
 
 class RecorderNapariWindow(VisualizeBase):
 

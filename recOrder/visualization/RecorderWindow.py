@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, QWidget
 
-from ..visualize import VisualizeBase
+from ..visualization import VisualizeBase
 from ..datastructures import BackgroundData
 from .qtdesigner.ReconOrderUI import Ui_ReconOrderUI
 from recOrder.microscope.mm2python_simple import snap_and_get_image, py4j_collect_background, py4j_snap_and_correct
@@ -18,9 +18,14 @@ pyuic5 -x <.ui input file> -o <.py output file>
 """
 
 
+"""
+A pyqt5 GUI that contains methods for 
+"""
+
+
 class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
 
-    def __init__(self, win: QtWidgets, gateway=None):
+    def __init__(self, win, gateway=None):
         super(RecorderWindow, self).__init__()
 
         self.setupUi(win)
@@ -161,6 +166,6 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         self.le_state4_intensity.setText(str(lc[2]))
 
     @VisualizeBase.receiver(channel=26)
-    def le_extinction(self, value):
+    def le_extinction_update(self, value):
         self.le_extinction.setText(str(value))
 
