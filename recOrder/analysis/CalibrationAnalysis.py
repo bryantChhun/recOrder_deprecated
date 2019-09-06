@@ -52,6 +52,7 @@ class CalibrationAnalysis(AnalyzeBase):
         self.lca_ext = None
         self.lcb_ext = None
         self.i_ext = None
+        self.i_ref = None
         self.l_elliptical = None
 
     def opt_lc(self, x, device_property, method, reference):
@@ -194,7 +195,7 @@ class CalibrationAnalysis(AnalyzeBase):
         # fine search using brent's
         set_lc(self.mmc, best_lca, self.PROPERTIES['LCA'])
         set_lc(self.mmc, best_lcb, self.PROPERTIES['LCB'])
-        min_int = self.optimize_brent(lc_bound, lc_bound, 0, 1)
+        min_int = self.optimize_brent(lc_bound, lc_bound, self.I_black, 3)
 
         best_lca = get_lc(self.mmc, self.PROPERTIES['LCA'])
         best_lcb = get_lc(self.mmc, self.PROPERTIES['LCB'])
@@ -218,8 +219,10 @@ class CalibrationAnalysis(AnalyzeBase):
         :return: tuple
             (lca, lcb) at extinction
         """
-        set_lc(self.mmc, 0.25, self.PROPERTIES['LCA'])
-        set_lc(self.mmc, 0.5, self.PROPERTIES['LCB'])
+        # set_lc(self.mmc, 0.25, self.PROPERTIES['LCA'])
+        # set_lc(self.mmc, 0.5, self.PROPERTIES['LCB'])
+
+        set_lc_state(self.mmc, self.PROPERTIES['State0'])
 
         # i_ext = iter_opt(lc_bound_, lc_bound_, 0, 1)
         i_ext_ = self.optimize_grid_search(0.01, 1.5, 0.01, 1.5, lc_bound_)
@@ -244,7 +247,8 @@ class CalibrationAnalysis(AnalyzeBase):
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State1'])
 
         image = snap_and_retrieve(self.entry_point)
-        return [np.mean(image), get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])]
+        self.i_ref = np.mean(image)
+        return [self.i_ref, get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])]
 
     @AnalyzeBase.emitter(channel=23)
     def opt_I2(self, lca_bound, lcb_bound):
@@ -266,7 +270,7 @@ class CalibrationAnalysis(AnalyzeBase):
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State2'])
 
-        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB']), intensity]
+        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB']), self.i_ref + intensity]
 
     @AnalyzeBase.emitter(channel=24)
     def opt_I3(self, lca_bound, lcb_bound):
@@ -288,7 +292,7 @@ class CalibrationAnalysis(AnalyzeBase):
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State3'])
 
-        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB']), intensity]
+        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB']), self.i_ref + intensity]
 
     @AnalyzeBase.emitter(channel=25)
     def opt_I4(self, lca_bound, lcb_bound):
@@ -310,12 +314,17 @@ class CalibrationAnalysis(AnalyzeBase):
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State4'])
 
-        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB']), intensity]
+        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB']), self.i_ref + intensity]
 
     @AnalyzeBase.emitter(channel=26)
     def calculate_extinction(self):
         return (1 / np.sin(2 * np.pi * self.swing) ** 2) * \
                (self.l_elliptical - self.I_black) / (self.i_ext - self.I_black)
+
+    # @AnalyzeBase.receiver(channel=27)
+    # def reset_LC(self):
+    #     set_lc(self.mmc, 0.25, self.PROPERTIES['LCA'])
+    #     set_lc(self.mmc, 0.5, self.PROPERTIES['LCB'])
 
     @AnalyzeBase.receiver(channel=20)
     def full_calibration(self, param):
@@ -338,9 +347,9 @@ class CalibrationAnalysis(AnalyzeBase):
 
         # optimize I45, I90, I135 based on lelliptical
         print("setting I2")
-        self.opt_I2(0.005, 0.01)
+        self.opt_I2(0.01, 0.03)
         print("setting I3")
-        self.opt_I3(0.005, 0.01)
+        self.opt_I3(0.01, 0.03)
         print("setting I4")
-        self.opt_I4(0.01, 0.005)
+        self.opt_I4(0.03, 0.01)
         print("EXTINCTION = %d" % self.calculate_extinction())

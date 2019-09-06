@@ -7,7 +7,7 @@ from recOrder.datastructures import PhysicalData
 from recOrder.datastructures import StokesData
 from recOrder.datastructures import BackgroundData
 
-from recOrder.analysis.Processing.VectorLayerUtils import convert_to_vector
+# from recOrder.analysis.Processing.VectorLayerUtils import convert_to_vector
 from recOrder.analysis._analyze_base import AnalyzeBase
 
 

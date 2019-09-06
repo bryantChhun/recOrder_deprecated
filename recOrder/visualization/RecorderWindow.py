@@ -43,7 +43,7 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         self.gate.entry_point.clearQueue()
 
         # some params
-        self.lc_bound = 0.02
+        self.lc_bound = 0.05
         self.swing = float(self.le_swing.text())
         self.I_black = 100
         self.wavelength = int(self.le_wavelength.text())
@@ -134,6 +134,10 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
     def calibrate(self, *args):
         self.gate.entry_point.clearQueue()
         return [self.swing, self.wavelength, self.lc_bound, self.I_black]
+
+    # @VisualizeBase.emitter(channel=27)
+    # def reset_lc(self, *args):
+    #     return None
 
     @VisualizeBase.receiver(channel=21)
     def le_state0(self, lc):
