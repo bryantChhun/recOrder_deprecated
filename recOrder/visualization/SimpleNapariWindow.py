@@ -8,6 +8,7 @@ import napari
 A simple napari window that displays a single image layer
 """
 
+
 class SimpleNapariWindow(VisualizeBase):
 
     def __init__(self, window_channel=0):

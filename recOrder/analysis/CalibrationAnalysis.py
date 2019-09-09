@@ -248,7 +248,9 @@ class CalibrationAnalysis(AnalyzeBase):
 
         image = snap_and_retrieve(self.entry_point)
         self.i_ref = np.mean(image)
-        return [self.i_ref, get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB'])]
+        return [self.i_ref,
+                get_lc(self.mmc, self.PROPERTIES['LCA']),
+                get_lc(self.mmc, self.PROPERTIES['LCB'])]
 
     @AnalyzeBase.emitter(channel=23)
     def opt_I2(self, lca_bound, lcb_bound):
@@ -270,7 +272,9 @@ class CalibrationAnalysis(AnalyzeBase):
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State2'])
 
-        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB']), self.i_ref + intensity]
+        return [get_lc(self.mmc, self.PROPERTIES['LCA']),
+                get_lc(self.mmc, self.PROPERTIES['LCB']),
+                self.i_ref + intensity]
 
     @AnalyzeBase.emitter(channel=24)
     def opt_I3(self, lca_bound, lcb_bound):
@@ -292,7 +296,9 @@ class CalibrationAnalysis(AnalyzeBase):
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State3'])
 
-        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB']), self.i_ref + intensity]
+        return [get_lc(self.mmc, self.PROPERTIES['LCA']),
+                get_lc(self.mmc, self.PROPERTIES['LCB']),
+                self.i_ref + intensity]
 
     @AnalyzeBase.emitter(channel=25)
     def opt_I4(self, lca_bound, lcb_bound):
@@ -314,12 +320,13 @@ class CalibrationAnalysis(AnalyzeBase):
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State4'])
 
-        return [get_lc(self.mmc, self.PROPERTIES['LCA']), get_lc(self.mmc, self.PROPERTIES['LCB']), self.i_ref + intensity]
+        return [get_lc(self.mmc, self.PROPERTIES['LCA']),
+                get_lc(self.mmc, self.PROPERTIES['LCB']),
+                self.i_ref + intensity]
 
     @AnalyzeBase.emitter(channel=26)
     def calculate_extinction(self):
-        return (1 / np.sin(2 * np.pi * self.swing) ** 2) * \
-               (self.l_elliptical - self.I_black) / (self.i_ext - self.I_black)
+        return (1 / np.sin(np.pi * self.swing) ** 2) * (self.l_elliptical - self.I_black) / (self.i_ext - self.I_black)
 
     # @AnalyzeBase.receiver(channel=27)
     # def reset_LC(self):
