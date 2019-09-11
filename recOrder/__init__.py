@@ -12,5 +12,3 @@ from .datastructures import BackgroundData
 from .datastructures import IntensityData
 from .datastructures import StokesData
 from .datastructures import PhysicalData
-
-from recOrder.program.DataPipe import PipeFromFiles

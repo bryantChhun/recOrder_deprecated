@@ -1,8 +1,7 @@
 # bchhun, {2019-07-29}
 
-from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QFileDialog, QWidget
+from PyQt5.QtWidgets import QFileDialog
 
 from ..visualization import VisualizeBase
 from ..datastructures import BackgroundData
@@ -40,7 +39,7 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         self.qbutton_calibrate_lc.clicked[bool].connect(self.calibrate)
 
         self.gate = gateway
-        self.gate.entry_point.clearQueue()
+        self.gate.entry_point.clearAll()
 
         # some params
         self.lc_bound = 0.05
@@ -75,7 +74,7 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
     @VisualizeBase.emitter(channel=13)
     def snap(self, *args):
         try:
-            self.gate.entry_point.clearQueue()
+            self.gate.entry_point.clearAll()
             data = snap_and_get_image(self.gate.entry_point, self.gate.getStudio())
             return data
         except Exception as ex:
@@ -84,7 +83,7 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
     @VisualizeBase.emitter(channel=13)
     def snap_and_correct(self, *args):
         self.log_area.append("calling snap and correct")
-        self.gate.entry_point.clearQueue()
+        self.gate.entry_point.clearAll()
 
         physical_corrected = py4j_snap_and_correct(self.gateway, self.Background)
 
@@ -106,7 +105,7 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
 
         """
         try:
-            self.gate.entry_point.clearQueue()
+            self.gate.entry_point.clearAll()
             path = None if not self.le_bg_corr_path.text() else self.le_bg_corr_path.text()
             self.Background = py4j_collect_background(self.gateway,
                                                       self.Background,
@@ -121,23 +120,45 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
 
     @VisualizeBase.emitter(channel=10)
     def launch_monitor(self, *args):
-        return None
+        pass
 
     @VisualizeBase.emitter(channel=19)
     def stop_monitor(self):
-        return None
+        pass
 
     # =============================================================
     # ================ Calibration methods ========================
 
     @VisualizeBase.emitter(channel=20)
     def calibrate(self, *args):
-        self.gate.entry_point.clearQueue()
+        self.gate.entry_point.clearAll()
+        self.clear_text_fields()
         return [self.swing, self.wavelength, self.lc_bound, self.I_black]
 
     # @VisualizeBase.emitter(channel=27)
     # def reset_lc(self, *args):
     #     return None
+
+    def clear_text_fields(self):
+        self.le_state0_lca.setText('')
+        self.le_state0.lcb.setText('')
+        self.le_state1_lca.setText('')
+        self.le_state1.lcb.setText('')
+        self.le_state2_lca.setText('')
+        self.le_state2.lcb.setText('')
+        self.le_state3_lca.setText('')
+        self.le_state3.lcb.setText('')
+        self.le_state4_lca.setText('')
+        self.le_state4.lcb.setText('')
+
+        self.le_state0_intensity.setText('')
+        self.le_state1_intensity.setText('')
+        self.le_state2_intensity.setText('')
+        self.le_state3_intensity.setText('')
+        self.le_state4_intensity.setText('')
+
+        self.le_extinction.setText('')
+
 
     @VisualizeBase.receiver(channel=21)
     def le_state0(self, lc):

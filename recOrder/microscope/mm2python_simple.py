@@ -6,14 +6,36 @@ import time, os
 import tifffile
 import json
 
+from recOrder.acquisition import AcquisitionBase
 from recOrder.datastructures import IntensityData
-from recOrder.datastructures import StokesData
-from recOrder.datastructures import PhysicalData
 from recOrder.analysis.ReconstructOrder import ReconOrder
 
 
 # ============================================================
 # ===================== acquisition methods ==================
+
+class SnapAndRetrieve(AcquisitionBase):
+
+    @AcquisitionBase.emitter(channel=4)
+    def snap_and_retrieve(self, entry_point):
+        """
+        use snap/live manager to snap an image then return image
+        :return: np.ndarray
+        """
+        mm = entry_point.getStudio()
+
+        mm.live().snap(True)
+
+        meta = entry_point.getLastMeta()
+        # meta is not immediately available -> exposure time + lc delay
+        while meta is None:
+            meta = entry_point.getLastMeta()
+
+        data = np.memmap(meta.getFilepath(), dtype="uint16", mode='r+', offset=0,
+                         shape=(meta.getxRange(), meta.getyRange()))
+
+        return data
+
 
 def snap_and_retrieve(entry_point):
     """
@@ -50,7 +72,7 @@ def snap_and_get_image(entry_point, mm_):
     """
     ep = entry_point
     mm = mm_
-    ep.clearQueue()
+    # ep.clearAll()
 
     # snap image
     live_manager = mm.getSnapLiveManager()
@@ -266,8 +288,6 @@ def py4j_collect_background(gateway, bg_raw, swing, wavelength, black_level, sav
     # construct and assign stokes to bg_raw
     stk_obj = processor.compute_stokes(bg_raw)
     bg_raw.assign_stokes(stk_obj)
-    # print("stokes computed")
-    # print('stokes vectors assigned to background object')
 
     # construct and assign physical to bg_raw
     phys_obj = processor.compute_physical(stk_obj)

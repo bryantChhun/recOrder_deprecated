@@ -25,6 +25,8 @@ monitor to retrieve data from micro-manager when a set of 5 polstates are availa
 automatically launches reconstruction and displays this
 will not fetch new data until the GUI is fully updated
 """
+
+
 class ReconOrderMonitor(AcquisitionBase):
 
     def __init__(self, mm_channel_names: list, int_channel_names: list, gateway):
@@ -34,7 +36,6 @@ class ReconOrderMonitor(AcquisitionBase):
         self.gateway = gateway
         self.ep = self.gateway.entry_point
         self.mm = self.ep.getStudio()
-        self.ep.clearQueue()
 
         self.int_dat = IntensityData()
         self.int_dat.channel_names = int_channel_names
@@ -52,7 +53,7 @@ class ReconOrderMonitor(AcquisitionBase):
         self.monitor_flag = True
 
     @AcquisitionBase.receiver(channel=10)
-    def start_monitor(self):
+    def start_monitor(self, *args):
         p = ProcessRunnable(target=self._start_monitor_runnable, args=())
         p.start()
 
@@ -78,31 +79,37 @@ class ReconOrderMonitor(AcquisitionBase):
                 self.pol_states = set()
                 self.int_dat = IntensityData()
                 count += 1
+                print("display not ready, pol_states acquired = "+str(self.pol_states))
                 continue
 
-            elif self.ep.storeByChannelNameExists(self.mm_channel_names[0]) and (0 not in self.pol_states):
+            elif self.ep.getLastMetaByChannelName(self.mm_channel_names[0]) is not None and (0 not in self.pol_states):
                 self.int_dat.add_image(get_image_by_channel_name(self.mm_channel_names[0], self.ep))
                 self.pol_states.add(0)
+                self.ep.removeLastMetaByChannelName(self.mm_channel_names[0])
                 count += 1
 
-            elif self.ep.storeByChannelNameExists(self.mm_channel_names[1]) and (1 not in self.pol_states):
+            elif self.ep.getLastMetaByChannelName(self.mm_channel_names[1]) is not None and (1 not in self.pol_states):
                 self.int_dat.add_image(get_image_by_channel_name(self.mm_channel_names[1], self.ep))
                 self.pol_states.add(1)
+                self.ep.removeLastMetaByChannelName(self.mm_channel_names[1])
                 count += 1
 
-            elif self.ep.storeByChannelNameExists(self.mm_channel_names[2]) and (2 not in self.pol_states):
+            elif self.ep.getLastMetaByChannelName(self.mm_channel_names[2]) is not None and (2 not in self.pol_states):
                 self.int_dat.add_image(get_image_by_channel_name(self.mm_channel_names[2], self.ep))
                 self.pol_states.add(2)
+                self.ep.removeLastMetaByChannelName(self.mm_channel_names[2])
                 count += 1
 
-            elif self.ep.storeByChannelNameExists(self.mm_channel_names[3]) and (3 not in self.pol_states):
+            elif self.ep.getLastMetaByChannelName(self.mm_channel_names[3]) is not None and (3 not in self.pol_states):
                 self.int_dat.add_image(get_image_by_channel_name(self.mm_channel_names[3], self.ep))
                 self.pol_states.add(3)
+                self.ep.removeLastMetaByChannelName(self.mm_channel_names[3])
                 count += 1
 
-            elif self.ep.storeByChannelNameExists(self.mm_channel_names[4]) and (4 not in self.pol_states):
+            elif self.ep.getLastMetaByChannelName(self.mm_channel_names[4]) is not None and (4 not in self.pol_states):
                 self.int_dat.add_image(get_image_by_channel_name(self.mm_channel_names[4], self.ep))
                 self.pol_states.add(4)
+                self.ep.removeLastMetaByChannelName(self.mm_channel_names[4])
                 count += 1
 
             elif count >= (timeout*60)/0.001:
@@ -111,10 +118,13 @@ class ReconOrderMonitor(AcquisitionBase):
                 break
             elif len(self.pol_states) >= 5:
                 print("\t ===set of five acquired, emitting and resetting ===")
-                self.send_completed_int_data()
+                print(len(self.pol_states))
+                print(self.display_ready)
+                self.send_completed_int_data(self.int_dat)
 
                 self.int_dat = IntensityData()
                 self.pol_states = set()
+                # print(len(self.pol_states))
                 self.display_ready = False
             else:
                 count += 1
@@ -122,5 +132,5 @@ class ReconOrderMonitor(AcquisitionBase):
                     print('waiting')
 
     @AcquisitionBase.emitter(channel=11)
-    def send_completed_int_data(self):
-        return self.int_dat
+    def send_completed_int_data(self, data):
+        return data

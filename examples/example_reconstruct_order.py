@@ -5,13 +5,14 @@ from recOrder.acquisition.ReconOrderMonitor import ReconOrderMonitor
 from recOrder.analysis.CalibrationAnalysis import CalibrationAnalysis
 from recOrder.analysis.ReconstructOrder import ReconOrder
 from recOrder.visualization.SimpleNapariWindow import SimpleNapariWindow
+from recOrder.visualization.RecorderNapariWindow import RecorderNapariWindow
 from recOrder.visualization.RecorderWindow import RecorderWindow
 from recOrder.program.BuildProgram import Program
 
 # additional imports
 import napari
 from PyQt5 import QtWidgets
-from py4j.java_gateway import JavaGateway
+from py4j.java_gateway import JavaGateway, GatewayParameters
 
 
 if __name__ == '__main__':
@@ -33,13 +34,11 @@ if __name__ == '__main__':
         # analysis
         calib = CalibrationAnalysis(gateway)
         ro = ReconOrder()
-        # ro.swing = 0.03
-        # ro.frames = 5
-
 
         # visualization
         # these visualization windows are fine
-        viewer_window = SimpleNapariWindow(window_channel=13)
+        viewer_window = RecorderNapariWindow()
+        # viewer_window = SimpleNapariWindow(window_channel=13)
         recorder = QtWidgets.QDialog()
         recorder_window = RecorderWindow(recorder, gateway=gateway)
 

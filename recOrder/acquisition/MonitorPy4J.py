@@ -22,6 +22,8 @@ class ProcessRunnable(QRunnable):
 """
 Simple monitor to send new data to napari window
 """
+
+
 class MonitorPy4j(AcquisitionBase):
 
     def __init__(self, gateway_):
