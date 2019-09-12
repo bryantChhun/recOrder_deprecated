@@ -73,6 +73,6 @@ class RecorderNapariWindow(VisualizeBase):
         else:
             print("gui didn't receive any data")
 
-    @VisualizeBase.emitter(channel=11)
+    @VisualizeBase.emitter(channel=18)
     def display_ready(self, value):
         return value

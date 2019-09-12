@@ -46,6 +46,7 @@ if __name__ == '__main__':
                           analyze=calib,
                           visualize=viewer_window)
         program.add_module(recorder_window)
+        program.add_module(ro)
 
         program.build()
 

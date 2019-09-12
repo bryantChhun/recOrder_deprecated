@@ -159,7 +159,7 @@ def get_image_by_channel_name(channel_name, ep):
     # retrieve filepath from metadatastore
     data_filename = meta.getFilepath()
     data_pixelshape = (meta.getxRange(), meta.getyRange())
-    data_pixeldepth = 8 * meta.getBitDepth()
+    data_pixeldepth = meta.getBitDepth()
     offset = meta.getBufferPosition()
     if data_pixeldepth == 16:
         depth = np.uint16

@@ -132,6 +132,8 @@ class ReconOrder(AnalyzeBase):
 
         :return: populated StokesData
         """
+        print("computing stokes")
+
         output_stokes = StokesData()
 
         # define our instrument matrix based on self.frames
@@ -179,6 +181,7 @@ class ReconOrder(AnalyzeBase):
         :param flip_pol: whether azimuth is flipped based on rcp/lcp analyzer
         :return: PhysicalData object
         """
+        print("computing physical")
 
         output_physical = PhysicalData()
 
@@ -200,8 +203,8 @@ class ReconOrder(AnalyzeBase):
             output_physical.azimuth = (0.5 * np.arctan2(s1, s2) % np.pi)  # make azimuth fall in [0,pi]
 
         output_physical.azimuth_degree = output_physical.azimuth / (np.pi) * 180
-        output_physical.azimuth_vector = convert_to_vector(output_physical.azimuth,
-                                                           output_physical.retard)
+        # output_physical.azimuth_vector = convert_to_vector(output_physical.azimuth,
+        #                                                    output_physical.retard)
 
         output_physical = self.rescale_bitdepth(output_physical)
 

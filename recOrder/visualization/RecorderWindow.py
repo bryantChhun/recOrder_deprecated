@@ -123,7 +123,7 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         pass
 
     @VisualizeBase.emitter(channel=19)
-    def stop_monitor(self):
+    def stop_monitor(self, *args):
         pass
 
     # =============================================================
@@ -141,15 +141,15 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
 
     def clear_text_fields(self):
         self.le_state0_lca.setText('')
-        self.le_state0.lcb.setText('')
+        self.le_state0_lcb.setText('')
         self.le_state1_lca.setText('')
-        self.le_state1.lcb.setText('')
+        self.le_state1_lcb.setText('')
         self.le_state2_lca.setText('')
-        self.le_state2.lcb.setText('')
+        self.le_state2_lcb.setText('')
         self.le_state3_lca.setText('')
-        self.le_state3.lcb.setText('')
+        self.le_state3_lcb.setText('')
         self.le_state4_lca.setText('')
-        self.le_state4.lcb.setText('')
+        self.le_state4_lcb.setText('')
 
         self.le_state0_intensity.setText('')
         self.le_state1_intensity.setText('')
@@ -158,7 +158,6 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         self.le_state4_intensity.setText('')
 
         self.le_extinction.setText('')
-
 
     @VisualizeBase.receiver(channel=21)
     def le_state0(self, lc):

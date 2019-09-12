@@ -37,19 +37,18 @@ class ReconOrderMonitor(AcquisitionBase):
         self.ep = self.gateway.entry_point
         self.mm = self.ep.getStudio()
 
-        self.int_dat = IntensityData()
-        self.int_dat.channel_names = int_channel_names
+        self.int_channel_names = int_channel_names
 
         self.pol_states = set()
         self.display_ready = True
         self.monitor_flag = False
 
-    @AcquisitionBase.receiver(channel=11)
+    @AcquisitionBase.receiver(channel=18)
     def display_response(self, value):
         self.display_ready = value
 
     @AcquisitionBase.receiver(channel=19)
-    def stop_monitor(self):
+    def stop_monitor(self, *args):
         self.monitor_flag = True
 
     @AcquisitionBase.receiver(channel=10)
@@ -60,6 +59,7 @@ class ReconOrderMonitor(AcquisitionBase):
     def _start_monitor_runnable(self, timeout=2.5):
 
         self.int_dat = IntensityData()
+        self.int_dat.channel_names = self.int_channel_names
         self.pol_states = set()
         self.display_ready = True
 
@@ -78,8 +78,9 @@ class ReconOrderMonitor(AcquisitionBase):
             elif not self.display_ready:
                 self.pol_states = set()
                 self.int_dat = IntensityData()
+                self.int_dat.channel_names = self.int_channel_names
                 count += 1
-                print("display not ready, pol_states acquired = "+str(self.pol_states))
+                # print("display not ready, pol_states acquired = "+str(self.pol_states))
                 continue
 
             elif self.ep.getLastMetaByChannelName(self.mm_channel_names[0]) is not None and (0 not in self.pol_states):
@@ -118,8 +119,12 @@ class ReconOrderMonitor(AcquisitionBase):
                 break
             elif len(self.pol_states) >= 5:
                 print("\t ===set of five acquired, emitting and resetting ===")
-                print(len(self.pol_states))
                 print(self.display_ready)
+                print(self.int_dat.get_image('IExt') is None)
+                print(self.int_dat.get_image('I0') is None)
+                print(self.int_dat.get_image('I45') is None)
+                print(self.int_dat.get_image('I90') is None)
+                print(self.int_dat.get_image('I135') is None)
                 self.send_completed_int_data(self.int_dat)
 
                 self.int_dat = IntensityData()
@@ -128,9 +133,10 @@ class ReconOrderMonitor(AcquisitionBase):
                 self.display_ready = False
             else:
                 count += 1
-                if count%100 == 0:
-                    print('waiting')
+                if count%1000 == 0:
+                    print('waiting, seconds till timeout = '+str(((timeout*60)/0.001 - count)/1000))
 
     @AcquisitionBase.emitter(channel=11)
     def send_completed_int_data(self, data):
+        print("sending completed int data")
         return data
