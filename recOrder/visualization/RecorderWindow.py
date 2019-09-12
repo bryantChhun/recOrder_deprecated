@@ -75,7 +75,7 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
     def snap(self, *args):
         try:
             self.gate.entry_point.clearAll()
-            data = snap_and_get_image(self.gate.entry_point, self.gate.getStudio())
+            data = snap_and_get_image(self.gate.entry_point)
             return data
         except Exception as ex:
             print("exception during snap\n\t"+str(ex))
@@ -85,7 +85,7 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         self.log_area.append("calling snap and correct")
         self.gate.entry_point.clearAll()
 
-        physical_corrected = py4j_snap_and_correct(self.gateway, self.Background)
+        physical_corrected = py4j_snap_and_correct(self.gate, self.Background)
 
         return physical_corrected
 
@@ -107,7 +107,7 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         try:
             self.gate.entry_point.clearAll()
             path = None if not self.le_bg_corr_path.text() else self.le_bg_corr_path.text()
-            self.Background = py4j_collect_background(self.gateway,
+            self.Background = py4j_collect_background(self.gate,
                                                       self.Background,
                                                       self.swing,
                                                       self.wavelength,
@@ -116,6 +116,7 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
                                                       averaging=5)
         except Exception as ex:
             print("exception during collect background \n\t"+str(ex))
+            raise AttributeError('exception during collect background')
         return self.Background
 
     @VisualizeBase.emitter(channel=10)

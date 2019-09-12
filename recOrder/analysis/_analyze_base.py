@@ -58,7 +58,7 @@ class AnalyzeBase(QObject):
             def bidirectional_wrap_func(self, *args, **kwargs):
                 out = func(self, *args, **kwargs)
                 cls.analysis_signals[emitter_channel].QChannel.emit(out)
-                return func
+                return out
             bidirectional_wrap_func.receiver_channel = receiver_channel
             bidirectional_wrap_func.emitter_channel = emitter_channel
 

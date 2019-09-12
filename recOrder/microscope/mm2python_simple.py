@@ -57,46 +57,51 @@ def snap_and_retrieve(entry_point):
     return data
 
 
-def snap_and_get_image(entry_point, mm_):
+def snap_and_get_image(entry_point, channel=None):
     """
     Snaps an image on micromanager and returns the memmap data
 
     Parameters
     ----------
     entry_point : py4j entry point
-    mm_ : micro-manager studio
+    channel : retrieve on specific channel
 
     Returns
     -------
     ndarray
     """
     ep = entry_point
-    mm = mm_
+    mm = ep.getStudio()
     # ep.clearAll()
 
     # snap image
-    live_manager = mm.getSnapLiveManager()
-    live_manager.snap(True)
+    mm.live().snap(True)
 
-    # we need a monitor to be sure file is written
-    start = datetime.now()
-    ct = 0
-    meta = ep.getLastMeta()
-    # while not gateway.entry_point.fileExists(channel):
-    while not meta:
-        time.sleep(0.0001)
-        ct += 1
+    if channel:
+        meta = ep.getLastMetaByChannelName(channel)
+        ct = 0
+        while not meta:
+            time.sleep(0.0001)
+            ct += 1
+            meta = ep.getLastMetaByChannelName(channel)
+            if ct >= 10000:
+                raise FileExistsError("timeout waiting for file by channel %s exists" % channel)
+    else:
+        ct = 0
         meta = ep.getLastMeta()
-        if ct >= 10000:
-            raise FileExistsError("timeout waiting for file exists")
-    stop = datetime.now()
-    print("time to check fileExists = %06d" % (stop - start).microseconds)
+        while not meta:
+            time.sleep(0.0001)
+            ct += 1
+            meta = ep.getLastMeta()
+            if ct >= 10000:
+                raise FileExistsError("timeout waiting for file exists")
 
     # retrieve filepath from metadatastore
     data_filename = meta.getFilepath()
     data_buffer_position = meta.getBufferPosition()
     data_pixelshape = (meta.getxRange(), meta.getyRange())
-    data_pixeldepth = 8 * meta.getBitDepth()
+    data_pixeldepth = meta.getBitDepth()
+
     if data_pixeldepth == 16:
         depth = np.uint16
     elif data_pixeldepth == 8:
@@ -113,16 +118,12 @@ def snap_and_get_image(entry_point, mm_):
 
 
 #  set channel, snap channel, get channel sequence
-def snap_channel(channel, entry_point):
-    ep = entry_point
-    ep.clearQueue()
-    mm = ep.getStudio()
+def set_and_snap_channel(channel, entry_point):
 
     set_channel(channel, entry_point)
 
-    mm.getSnapLiveManager().snap(True)
-
-    data = get_image_by_channel_name(channel, ep)
+    # data = get_image_by_channel_name(channel, ep)
+    data = snap_and_get_image(entry_point, channel=channel)
 
     return data
 
@@ -235,11 +236,11 @@ def set_lc_state(mmc, device_property: str):
 
 def py4j_snap_and_correct(gateway, bg):
     int_dat = IntensityData()
-    int_dat.add_image(snap_channel('State0', gateway))
-    int_dat.add_image(snap_channel('State1', gateway))
-    int_dat.add_image(snap_channel('State2', gateway))
-    int_dat.add_image(snap_channel('State3', gateway))
-    int_dat.add_image(snap_channel('State4', gateway))
+    int_dat.add_image(set_and_snap_channel('State0', gateway))
+    int_dat.add_image(set_and_snap_channel('State1', gateway))
+    int_dat.add_image(set_and_snap_channel('State2', gateway))
+    int_dat.add_image(set_and_snap_channel('State3', gateway))
+    int_dat.add_image(set_and_snap_channel('State4', gateway))
 
     proc = ReconOrder()
     stk_obj = proc.compute_stokes(int_dat)
@@ -257,48 +258,32 @@ def py4j_collect_background(gateway, bg_raw, swing, wavelength, black_level, sav
     data_pixelshape = (2048, 2048)
 
     #assign intensity states
-    bg_raw.add_image(np.mean([snap_channel('State0', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    bg_raw.add_image(np.mean([set_and_snap_channel('State0', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape))
-    bg_raw.add_image(np.mean([snap_channel('State1', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    bg_raw.add_image(np.mean([set_and_snap_channel('State1', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape))
-    bg_raw.add_image(np.mean([snap_channel('State2', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    bg_raw.add_image(np.mean([set_and_snap_channel('State2', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape))
-    bg_raw.add_image(np.mean([snap_channel('State3', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    bg_raw.add_image(np.mean([set_and_snap_channel('State3', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape))
-    bg_raw.add_image(np.mean([snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    bg_raw.add_image(np.mean([set_and_snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape))
+    print("all states snapped")
 
     # this instance will not display because its signals are not connected by Builder
     processor = ReconOrder()
     processor.frames = 5
+    processor.swing = swing
+    processor.wavelength = wavelength
     processor.compute_inst_matrix()
-    processor.swing = 0.1
-    print("all states snapped")
-
-    #assign intensity states
-    # int_obj = IntensityData()
-    # int_obj.channel_names = ['IExt', 'I90', 'I135', 'I45', 'I0']
-    # int_obj.add_image(bg_raw.get_image('IExt'))
-    # int_obj.add_image(bg_raw.get_image('I0'))
-    # int_obj.add_image(bg_raw.get_image('I45'))
-    # int_obj.add_image(bg_raw.get_image('I90'))
-    # int_obj.add_image(bg_raw.get_image('I135'))
-    # print("all states assigned to properties")
 
     # construct and assign stokes to bg_raw
-    stk_obj = processor.compute_stokes(bg_raw)
-    bg_raw.assign_stokes(stk_obj)
+    bg_stks = processor.compute_stokes(bg_raw)
+    bg_raw.assign_stokes(bg_stks)
 
     # construct and assign physical to bg_raw
-    phys_obj = processor.compute_physical(stk_obj)
+    phys_obj = processor.compute_physical(bg_stks)
     bg_raw.assign_physical(phys_obj)
-    # print("physical computed")
-    # bg_raw.I_trans = phys_obj.I_trans
-    # bg_raw.retard = phys_obj.retard
-    # bg_raw.polarization = phys_obj.polarization
-    # bg_raw.scattering = phys_obj.scattering
-    # bg_raw.azimuth = phys_obj.azimuth
-    # print("physical assigned to background object")
 
     # write to disk
     if save_path:

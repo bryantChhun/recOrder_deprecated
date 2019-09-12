@@ -150,6 +150,147 @@ color: rgb(0, 0, 0);</string>
       <bool>false</bool>
      </property>
     </widget>
+    <widget class="QLabel" name="label_scale_factor">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>180</y>
+       <width>91</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>1</number>
+     </property>
+     <property name="text">
+      <string>Scale factor</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="le_transmission_scale">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>210</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="text">
+      <string>100000</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="le_retardance_scale">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>240</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>100000</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="le_orientation_scale">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>270</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>1000000</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="le_polarization_scale">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>300</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>100</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_transmission_scale">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>210</y>
+       <width>91</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>transmission</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_retardance_scale">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>240</y>
+       <width>91</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>retardance</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_orientation_scale">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>270</y>
+       <width>91</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>orientation</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_polarization_scale">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>300</y>
+       <width>91</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>polarization</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="calibrate_lc_tab">
     <attribute name="title">

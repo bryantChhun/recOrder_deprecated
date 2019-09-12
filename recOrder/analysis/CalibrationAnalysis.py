@@ -1,7 +1,7 @@
 # bchhun, {2019-08-09}
 from recOrder.analysis import AnalyzeBase
 from recOrder.microscope.mm2python_simple import set_lc, get_lc, define_lc_state, \
-    set_lc_state, snap_and_retrieve
+    set_lc_state, snap_and_retrieve, snap_and_get_image
 
 import numpy as np
 from scipy import optimize
@@ -71,7 +71,8 @@ class CalibrationAnalysis(AnalyzeBase):
         set_lc(self.mmc, x, device_property)
 
         # snap and return metric
-        data = snap_and_retrieve(self.entry_point)
+        # data = snap_and_retrieve(self.entry_point)
+        data = snap_and_get_image(self.entry_point)
         if method == 'mean':
             return np.abs(np.mean(data) - reference)
 
@@ -159,7 +160,8 @@ class CalibrationAnalysis(AnalyzeBase):
             for lcb in np.arange(b_min, b_max, 0.1):
                 set_lc(self.mmc, lca, self.PROPERTIES['LCA'])
                 set_lc(self.mmc, lcb, self.PROPERTIES['LCB'])
-                current_int = np.mean(snap_and_retrieve(self.entry_point))
+                # current_int = np.mean(snap_and_retrieve(self.entry_point))
+                current_int = np.mean(snap_and_get_image(self.entry_point))
                 if current_int < min_int:
                     better_lca = lca
                     better_lcb = lcb
@@ -246,7 +248,9 @@ class CalibrationAnalysis(AnalyzeBase):
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State1'])
 
-        image = snap_and_retrieve(self.entry_point)
+        # image = snap_and_retrieve(self.entry_point)
+        image = snap_and_get_image(self.entry_point)
+
         self.i_ref = np.mean(image)
         return [self.i_ref,
                 get_lc(self.mmc, self.PROPERTIES['LCA']),

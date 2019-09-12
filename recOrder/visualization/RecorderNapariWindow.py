@@ -38,7 +38,7 @@ class RecorderNapariWindow(VisualizeBase):
     def update_layer_image(self, instance: object):
         print('gui is notified of new data')
 
-        if isinstance(instance, PhysicalData) and not isinstance(instance, BackgroundData):
+        if isinstance(instance, PhysicalData) or isinstance(instance, BackgroundData):
             print('gui received PhysicalData')
             self.layer1._node.set_data(instance.depolarization)
             self.layer1._node.update()
@@ -71,7 +71,7 @@ class RecorderNapariWindow(VisualizeBase):
             # self.viewer.layers.remove(3)
             # self.viewer.layers.remove(4)
         else:
-            print("gui didn't receive any data")
+            print("gui didn't receive any recognized data type %s"+str(type(instance)))
 
     @VisualizeBase.emitter(channel=18)
     def display_ready(self, value):

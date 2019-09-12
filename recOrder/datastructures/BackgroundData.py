@@ -52,6 +52,8 @@ class BackgroundData(IntensityData, StokesData, PhysicalData):
             self.add_image(int_obj.get_image(i))
 
     def assign_stokes(self, stk_obj: StokesData):
+        print("assigning stokes")
+        print(type(stk_obj))
         self.s0 = stk_obj.s0
         self.s1 = stk_obj.s1
         self.s2 = stk_obj.s2
