@@ -84,7 +84,9 @@ def snap_and_get_image(entry_point, channel=None):
             time.sleep(0.0001)
             ct += 1
             meta = ep.getLastMetaByChannelName(channel)
-            if ct >= 10000:
+            if ct >= 5000:
+                # print("FileExistsError: timeout waiting for file by channel %s exists" % channel)
+                # return None
                 raise FileExistsError("timeout waiting for file by channel %s exists" % channel)
     else:
         ct = 0
@@ -93,8 +95,10 @@ def snap_and_get_image(entry_point, channel=None):
             time.sleep(0.0001)
             ct += 1
             meta = ep.getLastMeta()
-            if ct >= 10000:
+            if ct >= 5000:
                 raise FileExistsError("timeout waiting for file exists")
+                # print("FileExistsError: timeout waiting for file exists")
+                # return None
 
     # retrieve filepath from metadatastore
     data_filename = meta.getFilepath()
@@ -132,7 +136,6 @@ def set_channel(channel, entry_point):
 
     mmc = entry_point.getCMMCore()
 
-    # micro-manager is slow (not mm2python). we need a monitor to be sure it gets set....
     mmc.setChannelGroup('Channel')
     start = datetime.now()
     c = 0
@@ -381,7 +384,7 @@ def build_bg_metadata(path, swing, wavelength, black_level, gateway):
                          '~ Background': 'No Background',
                          'ChContrastMax': [65536, 65536, 65536, 65536, 65536, 65536, 65536],
                          'Positions': 1,
-                         'Directory': 'C:\\Data\\Galina\\2019_06_12'}
+                         'Directory': ''}
 
     # change values to reflect non-template
     # need to snap an image and use this info for meta
@@ -404,5 +407,6 @@ def build_bg_metadata(path, swing, wavelength, black_level, gateway):
     summary['Summary']['Width'] = metadata.getROI().getHeight()
 
     # json dump it
-    with open(os.path.join(path, 'metadata.txt', 'w')) as outfile:
+    with open(os.path.join(path, 'metadata.txt'), 'w+') as outfile:
+        print("writing metadata.txt")
         json.dump(summary, outfile)

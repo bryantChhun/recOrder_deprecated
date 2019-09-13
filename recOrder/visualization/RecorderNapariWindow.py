@@ -34,7 +34,7 @@ class RecorderNapariWindow(VisualizeBase):
 
         # self.layer4 = self.viewer.add_vectors(self.pos)
 
-    @VisualizeBase.receiver(channel=13)
+    @VisualizeBase.receiver(channel=1)
     def update_layer_image(self, instance: object):
         print('gui is notified of new data')
 
@@ -73,6 +73,6 @@ class RecorderNapariWindow(VisualizeBase):
         else:
             print("gui didn't receive any recognized data type %s"+str(type(instance)))
 
-    @VisualizeBase.emitter(channel=18)
+    @VisualizeBase.emitter(channel=9)
     def display_ready(self, value):
         return value

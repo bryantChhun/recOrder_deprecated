@@ -24,7 +24,7 @@ class ReconOrder(AnalyzeBase):
 
     def __init__(self,
                  stokes_receiver_channel=11, stokes_emitter_channel=12,
-                 physical_receiver_channel=12, physical_emitter_channel=13):
+                 physical_receiver_channel=12, physical_emitter_channel=1):
         super().__init__()
 
         self._frames = 5

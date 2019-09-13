@@ -1,7 +1,7 @@
 # bchhun, {2019-07-29}
 
 from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QWidget
 
 from ..visualization import VisualizeBase
 from ..datastructures import BackgroundData
@@ -51,27 +51,36 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         self.Background = BackgroundData()
         self.Background.channel_names = ['IExt', 'I90', 'I135', 'I45', 'I0']
 
+        self.folderName = "C:\\"
+
         win.show()
 
     @pyqtSlot(bool)
     def file_browser(self):
-        name = self.openFileNameDialog()
+        name = self.open_file_dialog()
         self.le_bg_corr_path.setText(name)
 
-    def openFileNameDialog(self):
+    #TODO: write two dialogs and dialog buttons: one for BG selection, one for directory selection
+    def open_file_dialog(self):
         options = QFileDialog.Options()
 
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
-                                                  "All Files (*);;Python Files (*.py)", options=options)
-        if fileName:
-            return fileName
+        # fileName, _ = QFileDialog.getSaveFileName(None, "QFileDialog.getOpenFileName()", "",
+        #                                           "All Files (*);;Python Files (*.py)", options=options)
+
+        self.folderName = QFileDialog.getExistingDirectory(None, 'Select a folder:', self.folderName, QFileDialog.ShowDirsOnly)
+
+        # if fileName:
+        #     return fileName
+
+        if self.folderName:
+            return self.folderName
 
     # =============================================================
     # ==================== ReconstructOrder methods ===============
 
     # because qbutton sends another parameter: bool, we need *args
-    @VisualizeBase.emitter(channel=13)
+    @VisualizeBase.emitter(channel=1)
     def snap(self, *args):
         try:
             self.gate.entry_point.clearAll()
@@ -80,7 +89,7 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         except Exception as ex:
             print("exception during snap\n\t"+str(ex))
 
-    @VisualizeBase.emitter(channel=13)
+    @VisualizeBase.emitter(channel=1)
     def snap_and_correct(self, *args):
         self.log_area.append("calling snap and correct")
         self.gate.entry_point.clearAll()
@@ -89,21 +98,8 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
 
         return physical_corrected
 
-    @VisualizeBase.emitter(channel=13)
+    @VisualizeBase.emitter(channel=1)
     def collect_background(self, *args):
-        """
-        Collects Intensity images at each polstate, averaged by 'averaging'.
-        Computes Stokes and physical, and assigns these all to Background Data Structure
-        Then writes these images to disk if a save path is supplied
-        Then generates a metadata structure
-        Parameters
-        ----------
-        args
-
-        Returns
-        -------
-
-        """
         try:
             self.gate.entry_point.clearAll()
             path = None if not self.le_bg_corr_path.text() else self.le_bg_corr_path.text()

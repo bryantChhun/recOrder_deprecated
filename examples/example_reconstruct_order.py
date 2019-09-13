@@ -24,6 +24,14 @@ if __name__ == '__main__':
     # mmc.setProperty('MeadowlarkLcOpenSource', 'Wavelength', str(532))
 
     with napari.gui_qt():
+        """
+        Channels 01-09: used by ReconOrderMonitor (ch=9), 
+                                ReconstructOrder (ch=1), 
+                                RecorderWindow (ch=1), 
+                                RecorderNapariWindow (ch=1,9)
+        Channels 10-19: used by ReconOrderMonitor, ReconstructOrder, RecorderWindow
+        Channels 20-29: used by CalibrationAnalysis, RecorderWindow
+        """
 
         # acquisition
         # create acquisition module for calibration

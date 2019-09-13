@@ -43,7 +43,7 @@ class ReconOrderMonitor(AcquisitionBase):
         self.display_ready = True
         self.monitor_flag = False
 
-    @AcquisitionBase.receiver(channel=18)
+    @AcquisitionBase.receiver(channel=9)
     def display_response(self, value):
         self.display_ready = value
 
