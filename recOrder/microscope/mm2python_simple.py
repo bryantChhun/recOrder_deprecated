@@ -78,12 +78,12 @@ def snap_and_get_image(entry_point, channel=None):
     mm.live().snap(True)
 
     if channel:
-        meta = ep.getLastMetaByChannelName(channel)
+        meta = ep.removeLastMetaByChannelName(channel)
         ct = 0
         while not meta:
             time.sleep(0.0001)
             ct += 1
-            meta = ep.getLastMetaByChannelName(channel)
+            meta = ep.removeLastMetaByChannelName(channel)
             if ct >= 10000:
                 raise FileExistsError("timeout waiting for file by channel %s exists" % channel)
     else:
@@ -123,7 +123,7 @@ def set_and_snap_channel(channel, entry_point):
     set_channel(channel, entry_point)
 
     # data = get_image_by_channel_name(channel, ep)
-    data = snap_and_get_image(entry_point, channel=channel)
+    data = snap_and_get_image(entry_point)
 
     return data
 
