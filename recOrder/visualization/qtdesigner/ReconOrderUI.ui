@@ -88,12 +88,12 @@
       <rect>
        <x>10</x>
        <y>120</y>
-       <width>171</width>
+       <width>191</width>
        <height>16</height>
       </rect>
      </property>
      <property name="text">
-      <string>Background correction file</string>
+      <string>Background correction folder</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="le_bg_corr_path">

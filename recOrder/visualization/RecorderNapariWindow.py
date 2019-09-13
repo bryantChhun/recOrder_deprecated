@@ -38,7 +38,7 @@ class RecorderNapariWindow(VisualizeBase):
     def update_layer_image(self, instance: object):
         print('gui is notified of new data')
 
-        if isinstance(instance, PhysicalData) or isinstance(instance, BackgroundData):
+        if isinstance(instance, PhysicalData) and not isinstance(instance, BackgroundData):
             print('gui received PhysicalData')
             self.layer1._node.set_data(instance.depolarization)
             self.layer1._node.update()
@@ -51,7 +51,7 @@ class RecorderNapariWindow(VisualizeBase):
             # self.layer4._raw_dat = instance.azimuth_vector
 
             # self.layer1.name = "vectors"
-            self.layer1.name = 'depolarization'
+            self.layer1.name = 'polarization'
             self.layer2.name = 'retardance'
             self.layer3.name = 'transmission'
             # self.layer4.name = 'orientation'

@@ -235,7 +235,9 @@ def set_lc_state(mmc, device_property: str):
 # for collection and compute
 
 def py4j_snap_and_correct(gateway, bg):
+
     int_dat = IntensityData()
+    int_dat.channel_names = ['IExt', 'I90', 'I135', 'I45', 'I0']
     int_dat.add_image(set_and_snap_channel('State0', gateway))
     int_dat.add_image(set_and_snap_channel('State1', gateway))
     int_dat.add_image(set_and_snap_channel('State2', gateway))
@@ -244,29 +246,35 @@ def py4j_snap_and_correct(gateway, bg):
 
     proc = ReconOrder()
     stk_obj = proc.compute_stokes(int_dat)
+    stk_norm = proc.stokes_normalization(stk_obj)
 
-    corrected = proc.correct_background(stk_obj, bg)
-    return corrected
+    corrected = proc.correct_background(stk_norm, bg)
+
+    phys = proc.compute_physical(corrected)
+
+    return phys
 
 
-def py4j_collect_background(gateway, bg_raw, swing, wavelength, black_level, save_path=None, averaging: int = 5, ):
+def py4j_collect_background(gateway, bg_int, swing, wavelength, black_level, save_path=None, averaging: int = 5, ):
 
     # we assume that the image for channel=State0 is the same as that for all other states
     # meta = gateway.entry_point.getStore('State0')
     # data_pixelshape = (meta.getxRange(), meta.getyRange())
 
     data_pixelshape = (2048, 2048)
+    int_dat = IntensityData()
+    int_dat.channel_names = ['IExt', 'I90', 'I135', 'I45', 'I0']
 
     #assign intensity states
-    bg_raw.add_image(np.mean([set_and_snap_channel('State0', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    int_dat.add_image(np.mean([set_and_snap_channel('State0', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape))
-    bg_raw.add_image(np.mean([set_and_snap_channel('State1', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    int_dat.add_image(np.mean([set_and_snap_channel('State1', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape))
-    bg_raw.add_image(np.mean([set_and_snap_channel('State2', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    int_dat.add_image(np.mean([set_and_snap_channel('State2', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape))
-    bg_raw.add_image(np.mean([set_and_snap_channel('State3', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    int_dat.add_image(np.mean([set_and_snap_channel('State3', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape))
-    bg_raw.add_image(np.mean([set_and_snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0)\
+    int_dat.add_image(np.mean([set_and_snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0)\
         .reshape(data_pixelshape))
     print("all states snapped")
 
@@ -278,12 +286,17 @@ def py4j_collect_background(gateway, bg_raw, swing, wavelength, black_level, sav
     processor.compute_inst_matrix()
 
     # construct and assign stokes to bg_raw
-    bg_stks = processor.compute_stokes(bg_raw)
-    bg_raw.assign_stokes(bg_stks)
+    bg_stks = processor.compute_stokes(int_dat)
+    bg_norm = processor.stokes_normalization(bg_stks)
+
+    """
+    bg_norm is a "background data" type object containing stokes data, 
+    normalized stokes vectors and normalized polarization
+    """
 
     # construct and assign physical to bg_raw
-    phys_obj = processor.compute_physical(bg_stks)
-    bg_raw.assign_physical(phys_obj)
+    # phys_obj = processor.compute_physical(bg_stks)
+    # bg_raw.assign_physical(phys_obj)
 
     # write to disk
     if save_path:
@@ -301,26 +314,23 @@ def py4j_collect_background(gateway, bg_raw, swing, wavelength, black_level, sav
         os.mkdir(bg_path)
 
         # write files to disk
-        save_to_disk(bg_path, bg_raw)
+        save_to_disk(bg_path, bg_norm)
 
         # write metadata to disk
         build_bg_metadata(bg_path, swing, wavelength, black_level, gateway)
 
-    return bg_raw
+    return bg_norm
 
 
-def save_to_disk(bg_path_, bg_raw_):
+def save_to_disk(bg_path_, bg_norm_):
 
-    tifffile.imsave(os.path.join(bg_path_, "img_000000000_State0 - Acquired Image_000.tif"), bg_raw_.get_image("IExt"))
-    tifffile.imsave(os.path.join(bg_path_, "img_000000000_State1 - Acquired Image_000.tif"), bg_raw_.get_image("I90"))
-    tifffile.imsave(os.path.join(bg_path_, "img_000000000_State2 - Acquired Image_000.tif"), bg_raw_.get_image("I135"))
-    tifffile.imsave(os.path.join(bg_path_, "img_000000000_State3 - Acquired Image_000.tif"), bg_raw_.get_image("I45"))
-    tifffile.imsave(os.path.join(bg_path_, "img_000000000_State4 - Acquired Image_000.tif"), bg_raw_.get_image("I0"))
-
-    tifffile.imsave(os.path.join(bg_path_, "img_000000000_Retardance - Computed Image_000.tif"), bg_raw_.retard)
-    tifffile.imsave(os.path.join(bg_path_, "img_000000000_Polarization - Computed Image_000.tif"), bg_raw_.polarization)
-    tifffile.imsave(os.path.join(bg_path_, "img_000000000_Transmitted - Computed Image_000.tif"), bg_raw_.I_trans)
-    tifffile.imsave(os.path.join(bg_path_, "img_000000000_Azimuth - Computed Image_000.tif"), bg_raw_.azimuth)
+    np.save(os.path.join(bg_path_, "img_000000000_Stokes0"), bg_norm_.s0)
+    np.save(os.path.join(bg_path_, "img_000000000_Stokes1"), bg_norm_.s1)
+    np.save(os.path.join(bg_path_, "img_000000000_Stokes2"), bg_norm_.s2)
+    np.save(os.path.join(bg_path_, "img_000000000_Stokes3"), bg_norm_.s3)
+    np.save(os.path.join(bg_path_, "img_000000000_Stokes1_norm"), bg_norm_.s1_norm)
+    np.save(os.path.join(bg_path_, "img_000000000_Stokes2_norm"), bg_norm_.s2_norm)
+    np.save(os.path.join(bg_path_, "img_000000000_Polarization_norm"), bg_norm_.polarization)
 
 
 def build_bg_metadata(path, swing, wavelength, black_level, gateway):
@@ -404,5 +414,5 @@ def build_bg_metadata(path, swing, wavelength, black_level, gateway):
     summary['Summary']['Width'] = metadata.getROI().getHeight()
 
     # json dump it
-    with open(os.path.join(path, 'metadata.txt', 'w')) as outfile:
+    with open(os.path.join(path, 'metadata.txt'), 'w') as outfile:
         json.dump(summary, outfile)

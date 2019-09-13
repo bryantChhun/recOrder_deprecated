@@ -52,7 +52,7 @@ class ReconOrderMonitor(AcquisitionBase):
         self.monitor_flag = True
 
     @AcquisitionBase.receiver(channel=10)
-    def start_monitor(self, *args):
+    def start_monitor(self):
         p = ProcessRunnable(target=self._start_monitor_runnable, args=())
         p.start()
 

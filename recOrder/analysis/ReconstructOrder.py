@@ -10,6 +10,8 @@ from recOrder.datastructures import BackgroundData
 # from recOrder.analysis.Processing.VectorLayerUtils import convert_to_vector
 from recOrder.analysis._analyze_base import AnalyzeBase
 
+from typing import Union
+
 
 class ReconOrder(AnalyzeBase):
     """
@@ -21,6 +23,10 @@ class ReconOrder(AnalyzeBase):
     """
 
     inst_mat_inv = None
+    transmission_scale = None
+    retardance_scale = None
+    orientation_scale = None
+    polarization_scale = None
 
     def __init__(self,
                  stokes_receiver_channel=11, stokes_emitter_channel=12,
@@ -86,28 +92,6 @@ class ReconOrder(AnalyzeBase):
 
     # ==== compute functions ====
 
-    def correct_background(self, stk_obj: StokesData, background: BackgroundData) -> PhysicalData:
-        """
-        Uses computed result from background images to calculate the correction
-        :param stk_obj: StokesData
-        :param background: ReconOrder object that is constructed from background images
-        :return:
-        """
-
-        if isinstance(background, BackgroundData):
-            stk_obj.s0 = stk_obj.s0 / background.s0
-            stk_obj.s3 = stk_obj.s3 / background.s3
-            stk_obj.s1_norm = stk_obj.s1_norm - background.s1_norm
-            stk_obj.s2_norm = stk_obj.s2_norm - background.s2_norm
-
-            new_phys = self.compute_physical(stk_obj)
-
-            new_phys.polarization = new_phys.polarization / background.polarization
-
-            return new_phys
-        else:
-            raise ModuleNotFoundError("background parameter must be a ReconOrder object")
-
     def compute_inst_matrix(self):
         chi = self._swing_rad
         if self._frames == 4:
@@ -168,6 +152,80 @@ class ReconOrder(AnalyzeBase):
 
         return output_stokes
 
+    def stokes_normalization(self, stokes_param: Union[StokesData, BackgroundData]) -> BackgroundData:
+        """
+        Computes S1 and S2 norms.  Computes normalized polarization.
+
+        Parameters
+        ----------
+        stokes_param : Union[StokesData, BackgroundData]
+            object of type StokesData or BackgroundData
+
+        Returns
+        -------
+        BackgroundData :
+            object of type BackgroundData
+
+        """
+        if not isinstance(stokes_param, StokesData) and not isinstance(stokes_param, BackgroundData):
+            raise TypeError("stokes_param must be of type StokesData or BackgroundData")
+
+        norm_dat = BackgroundData()
+
+        [s0, s1, s2, s3] = stokes_param.data
+
+        # set BackgroundData's normalized data
+        norm_dat.s1_norm = s1 / s3
+        norm_dat.s2_norm = s2 / s3
+        norm_dat.I_trans = s0
+        norm_dat.polarization = np.sqrt(s1 ** 2 + s2 ** 2 + s3 ** 2) / s0
+
+        # set BackgroundData's stokes data
+        [norm_dat.s0,
+         norm_dat.s1,
+         norm_dat.s2,
+         norm_dat.s3] = stokes_param.data
+
+        return norm_dat
+
+    def correct_background_stokes(self, sample_norm_obj: BackgroundData, bg_norm_obj: BackgroundData) -> BackgroundData:
+        """
+        correct background of transformed Stokes parameters
+
+        Parameters
+        ----------
+        sample_norm_obj : BackgroundData
+            Object of type BackgroundData from normalized sample
+        bg_norm_obj : BackgroundData
+            Object of type BackgroundData from normalized background
+
+        Returns
+        -------
+        BackgroundData
+            Object of type BackgroundData with correction
+        """
+        # add a dummy z-dimension to background if sample image has xyz dimension
+        if len(bg_norm_obj.s0.shape) < len(sample_norm_obj.s0.shape):
+            # add blank axis to end of background images so it matches dim of input image
+            bg_norm_obj.s0 = bg_norm_obj.s0[..., np.newaxis]
+            bg_norm_obj.polarization = bg_norm_obj.polarization[..., np.newaxis]
+            bg_norm_obj.s1_norm = bg_norm_obj.s1_norm[..., np.newaxis]
+            bg_norm_obj.s2_norm = bg_norm_obj.s2_norm[..., np.newaxis]
+
+        # perform the correction
+        sample_norm_obj.s0 = sample_norm_obj.s0 / bg_norm_obj.s0
+        sample_norm_obj.polarization = sample_norm_obj.polarization / bg_norm_obj.polarization
+        sample_norm_obj.s1_norm = sample_norm_obj.s1_norm - bg_norm_obj.s1_norm
+        sample_norm_obj.s2_norm = sample_norm_obj.s2_norm - bg_norm_obj.s2_norm
+
+        return sample_norm_obj
+
+    def correct_background(self, sample_data: BackgroundData, background_data: BackgroundData) -> BackgroundData:
+
+        stokes_param_sm_tm = self.correct_background_stokes(sample_data, background_data)
+
+        return stokes_param_sm_tm
+
     def compute_physical(self, stk_obj: StokesData, flip_pol='rcp') -> PhysicalData:
         """
         computes physical results from the stokes vectors
@@ -217,11 +275,11 @@ class ReconOrder(AnalyzeBase):
         phy_obj.retard = phy_obj.retard / (2 * np.pi) * self.wavelength  # convert the unit to [nm]
 
         # AU, set norm to False for tiling images
-        phy_obj.I_trans = self.imBitConvert(phy_obj.I_trans * 10 ** 4, bit=16, norm=True)
-        phy_obj.retard = self.imBitConvert(phy_obj.retard * 10 ** 4, bit=16)  # scale to pm
-        phy_obj.depolarization = self.imBitConvert(phy_obj.depolarization * 10 ** 5.5, bit=16)
+        phy_obj.I_trans = self.imBitConvert(phy_obj.I_trans * self.transmission_scale, bit=16, norm=True)
+        phy_obj.retard = self.imBitConvert(phy_obj.retard * self.retardance_scale, bit=16)  # scale to pm
+        phy_obj.depolarization = self.imBitConvert(phy_obj.depolarization * self.polarization_scale, bit=16)
         # scale to [0, 18000], 100*degree
-        phy_obj.azimuth_degree = self.imBitConvert(phy_obj.azimuth_degree * 100, bit=16)
+        phy_obj.azimuth_degree = self.imBitConvert(phy_obj.azimuth_degree * self.orientation_scale, bit=16)
         return phy_obj
 
     def imBitConvert(self, im, bit=16, norm=False, limit=None):

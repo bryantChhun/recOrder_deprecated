@@ -17,18 +17,15 @@ class Singleton(type):
         return cls._instances[cls]
 
 
-class BackgroundData(IntensityData, StokesData, PhysicalData):
+class BackgroundData(StokesData, PhysicalData):
     """
     by default, we will not make this a singleton
     """
 
     def __init__(self,
-                 intensity_data = None,
                  stokes_data = None,
                  physical_data = None):
         super(BackgroundData, self).__init__()
-        if intensity_data is not None:
-            self.assign_intensity(intensity_data)
         if stokes_data is not None:
             self.assign_stokes(stokes_data)
         if physical_data is not None:
@@ -47,10 +44,6 @@ class BackgroundData(IntensityData, StokesData, PhysicalData):
             raise TypeError('Cannot set name %r on object of type %s' % (
                 name, self.__class__.__name__))
 
-    def assign_intensity(self, int_obj: IntensityData):
-        for i in range(int_obj.num_channels):
-            self.add_image(int_obj.get_image(i))
-
     def assign_stokes(self, stk_obj: StokesData):
         print("assigning stokes")
         print(type(stk_obj))
@@ -58,6 +51,10 @@ class BackgroundData(IntensityData, StokesData, PhysicalData):
         self.s1 = stk_obj.s1
         self.s2 = stk_obj.s2
         self.s3 = stk_obj.s3
+        if stk_obj.s1_norm:
+            self.s1_norm = stk_obj.s1_norm
+        if stk_obj.s2_norm:
+            self.s2_norm = stk_obj.s2_norm
 
     def assign_physical(self, phy_obj: PhysicalData):
         self.I_trans = phy_obj.I_trans

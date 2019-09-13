@@ -26,15 +26,15 @@ class IntensityData(object):
             raise TypeError('Cannot set name %r on object of type %s' % (
                 name, self.__class__.__name__))
 
-    def __init__(self, channel_names: list = None, axis_names: list = None):
+    def __init__(self):
         """
         Initialize instance variables
         :param channel_names:
         """
         super(IntensityData, self).__init__()
         self.__data = []
-        self.__channel_names = channel_names
-        self.__axis_names = axis_names
+        self.__channel_names = ['IExt', 'I90', 'I135', 'I45', 'I0']
+        self.__axis_names = None
 
     def check_shape(self, input_shape=None):
         """
