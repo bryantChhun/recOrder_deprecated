@@ -26,15 +26,19 @@ class IntensityData(object):
             raise TypeError('Cannot set name %r on object of type %s' % (
                 name, self.__class__.__name__))
 
-    def __init__(self):
+    def __init__(self, num_channels=None, channel_names: list = None, axis_names: list = None):
         """
         Initialize instance variables
         :param channel_names:
         """
         super(IntensityData, self).__init__()
         self.__data = []
-        self.__channel_names = ['IExt', 'I90', 'I135', 'I45', 'I0']
-        self.__axis_names = None
+        self.__channel_names = channel_names
+        self.__axis_names = axis_names
+
+        if num_channels:
+            for _ in range(num_channels):
+                self.__data.append([])
 
     def check_shape(self, input_shape=None):
         """
@@ -47,11 +51,13 @@ class IntensityData(object):
         for img in self.__data:
             if img is None:
                 return False
-            elif input_shape and input_shape != img.shape:
+            elif img == []:
+                continue
+            elif input_shape and input_shape != np.array(img).shape:
                 return False
             elif current_shape == (0, 0):
-                current_shape = img.shape
-            elif img.shape != current_shape:
+                current_shape = np.array(img).shape
+            elif np.array(img).shape != current_shape:
                 return False
         return True
 
@@ -63,7 +69,7 @@ class IntensityData(object):
         """
         if type(input_data) is not np.ndarray and \
                 type(input_data) is not np.memmap:
-            return False
+            raise TypeError("image is type %s.  Must be np.ndarray or np.memmap" % str(type(input())))
         else:
             return True
 
@@ -98,6 +104,12 @@ class IntensityData(object):
         """
         self.__channel_names = value
 
+        # check that data contains entries for each of the channel names
+        # if it does not, then add a blank entry
+        if len(self.__data) <= len(self.__channel_names):
+            for i in range(len(self.__channel_names)-len(self.__data)):
+                self.__data.append([])
+
     @property
     def axis_names(self):
         return self.__channel_names
@@ -105,7 +117,7 @@ class IntensityData(object):
     @axis_names.setter
     def axis_names(self, value: list):
         """
-        set names for axes (dimensionality)
+        set names for axes
         :param value: list of str
         :return:
         """
@@ -114,7 +126,7 @@ class IntensityData(object):
         else:
             self.__axis_names = value
 
-    def add_image(self, image):
+    def append_image(self, image):
         """
         append image to end of data
         :param image: np.ndarray or np.memmap
@@ -127,31 +139,47 @@ class IntensityData(object):
         self.__data.append(image)
 
     def replace_image(self, image, position):
-        if not self.check_dtype(image):
-            raise TypeError("image is not ndarray")
+        try:
+            self.check_dtype(image)
+        except TypeError as te:
+            print(te)
 
         # perform replacement THEN check for shape consistency
-        temp = self.get_image(position)
-        self.__data[position] = image
-        if not self.check_shape(image.shape):
-            self.__data[position] = temp
-            raise ValueError("image does not conform to current data dimensions")
+        if type(position) == int:
+            if len(self.__data) <= position:
+                raise IndexError("replacing Intensity Data image at position that does not exist")
 
-    def get_image(self, param):
+            temp = self.get_image(position)
+            self.__data[position] = image
+            if not self.check_shape(image.shape):
+                self.__data[position] = temp
+                raise ValueError("image does not conform to current data dimensions")
+
+        elif type(position) == str:
+            if position not in self.__channel_names:
+                raise IndexError("replacing Intensity Data image at channel name that is not defined")
+
+            temp = self.get_image(position)
+            self.__data[self.__channel_names.index(position)] = image
+            if not self.check_shape(image.shape):
+                self.__data[self.__channel_names.index(position)] = temp
+                raise ValueError("image does not conform to current data dimensions")
+
+    def get_image(self, position):
         """
         enable image search by channel name or index
-        :param param: int or str
+        :param position: int or str
             if str, search for matching str in supplied channel_names
         :return:
         """
-        if type(param) is str:
-            if param in self.__channel_names:
+        if type(position) is str:
+            if position in self.__channel_names:
                 try:
-                    dat = self.__data[self.__channel_names.index(param)]
+                    dat = self.__data[self.__channel_names.index(position)]
                 except TypeError:
-                    raise TypeError("channel %s does not exist in data" % param)
+                    raise TypeError("channel %s does not exist in data" % position)
                 return dat
             else:
                 raise ValueError("Intensity Data with channel name %s is not found")
-        elif type(param) is int:
-            return self.__data[param]
+        elif type(position) is int:
+            return self.__data[position]

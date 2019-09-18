@@ -109,7 +109,7 @@ class RetrieveFiles(AcquisitionBase):
         if not os.path.isfile(filename):
             raise FileNotFoundError("no file found with path: "+filename)
 
-        if type =='Py4J':
+        if type == 'Py4J':
             return np.memmap(filename, dtype='uint16', offset=0, mode='r', shape=(512, 512, 1))
         elif type == 'Test' and sample_type != 'Simulation1':
             img = cv2.imread(filename, -1)
@@ -125,21 +125,16 @@ class RetrieveFiles(AcquisitionBase):
         int_dat = IntensityData()
         int_dat.channel_names = ['IExt','I90','I135','I45','I0']
 
-        int_dat.add_image(self.get_array_from_filename('State0',
-                                                       type=self.type,
-                                                       sample_type=self.sample_type))
-        int_dat.add_image(self.get_array_from_filename('State1',
-                                                       type=self.type,
-                                                       sample_type=self.sample_type))
-        int_dat.add_image(self.get_array_from_filename('State2',
-                                                       type=self.type,
-                                                       sample_type=self.sample_type))
-        int_dat.add_image(self.get_array_from_filename('State3',
-                                                       type=self.type,
-                                                       sample_type=self.sample_type))
-        int_dat.add_image(self.get_array_from_filename('State4',
-                                                       type=self.type,
-                                                       sample_type=self.sample_type))
+        int_dat.replace_image(self.get_array_from_filename('State0', type=self.type, sample_type=self.sample_type),
+                              'IExt')
+        int_dat.replace_image(self.get_array_from_filename('State1', type=self.type, sample_type=self.sample_type),
+                              'I90')
+        int_dat.replace_image(self.get_array_from_filename('State2', type=self.type, sample_type=self.sample_type),
+                              'I135')
+        int_dat.replace_image(self.get_array_from_filename('State3', type=self.type, sample_type=self.sample_type),
+                              'I45')
+        int_dat.replace_image(self.get_array_from_filename('State4', type=self.type, sample_type=self.sample_type),
+                              'I0')
         print('returning intensity data object = %s' % int_dat)
         return int_dat
 

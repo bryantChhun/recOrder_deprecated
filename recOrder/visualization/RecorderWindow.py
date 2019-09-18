@@ -8,7 +8,7 @@ import numpy as np
 from ..visualization import VisualizeBase
 from ..datastructures import BackgroundData
 from .qtdesigner.ReconOrderUI import Ui_ReconOrderUI
-from ..microscope.mm2python_simple import snap_and_get_image, py4j_collect_background, py4j_snap_and_correct
+from ..microscope.mm2python import snap_and_get_image, py4j_collect_background, py4j_snap_and_correct
 
 from ..analysis.ReconstructOrder import ReconOrder
 
@@ -60,7 +60,7 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         # data
         self.Background = BackgroundData()
 
-        self.folderName = "C:\\"
+        self.folderName = None
 
         win.show()
 
@@ -71,26 +71,25 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         name = self.open_file_dialog()
         self.le_bg_corr_path.setText(name)
 
-    #TODO: write two dialogs and dialog buttons: one for BG selection, one for directory selection
     def open_file_dialog(self):
         options = QFileDialog.Options()
-
         options |= QFileDialog.DontUseNativeDialog
-        # fileName, _ = QFileDialog.getSaveFileName(None, "QFileDialog.getOpenFileName()", "",
-        #                                           "All Files (*);;Python Files (*.py)", options=options)
 
         self.folderName = QFileDialog.getExistingDirectory(None, 'Select a folder:', self.folderName, QFileDialog.ShowDirsOnly)
 
-        # if fileName:
-        #     return fileName
-
         if self.folderName:
-            return self.folderName
+            self.Background = self.load_background_from_files()
+            if not self.Background:
+                print("Background data not present in current folder")
+                return self.folderName
+            else:
+                return self.folderName
 
     # =============================================================
     # ==================== ReconstructOrder methods ===============
 
-    # because qbutton sends another parameter: bool, we need *args
+    # because qbutton sends another parameter: bool, we need *args on all slots
+
     @VisualizeBase.emitter(channel=1)
     def snap(self, *args):
         try:
@@ -100,18 +99,22 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         except Exception as ex:
             print("exception during snap\n\t"+str(ex))
 
-    @VisualizeBase.emitter(channel=1)
+    @VisualizeBase.emitter(channel=11)
     def snap_and_correct(self, *args):
         self.log_area.append("calling snap and correct")
         self.gate.entry_point.clearAll()
 
         # check if a pre-acquired background image is selected
-        self.Background = self.load_background_from_files()
-        if self.Background is None:
-            return None
+        if self.Background is None or self.le_bg_corr_path.text() is '':
+            self.log_area.append("No background data acquired or selected, will not snap/correct")
+            self.snap()
+        elif isinstance(self.Background, BackgroundData):
+            ReconOrder.background = self.Background
+            int_dat = py4j_snap_and_correct(self.gate, self.Background, self.swing)
+            print('recorder window emitting int_dat on ch = 11')
+            return int_dat
         else:
-            physical_corrected = py4j_snap_and_correct(self.gate, self.Background)
-            return physical_corrected
+            self.log_area.append("Background data is not of type BackgroundData")
 
     def load_background_from_files(self):
         STOKES = {'Stokes0': 's0',
@@ -129,7 +132,8 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
                 if filename.endswith('.npy'):
                     # check for matching STOKES
                     matches = [stk for stk in list(STOKES.keys()) if stk in filename]
-                    setattr(self.Background, STOKES[matches[0]], np.load(os.path.join(self.folderName, filename)))
+                    # matches can be a list of len=2.  Always use last entry
+                    setattr(self.Background, STOKES[matches[-1]], np.load(os.path.join(self.folderName, filename)))
 
         # check that we have a complete set of stokes values
         if self.Background.s0 is None or self.Background.s1 is None or \
@@ -138,18 +142,22 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         else:
             return self.Background
 
-    @VisualizeBase.emitter(channel=1)
     def collect_background(self, *args):
         try:
             self.gate.entry_point.clearAll()
             path = None if not self.le_bg_corr_path.text() else self.le_bg_corr_path.text()
-            self.Background = py4j_collect_background(self.gate,
+            self.Background = py4j_collect_background(self.gate.entry_point,
                                                       self.Background,
                                                       self.swing,
                                                       self.wavelength,
                                                       self.I_black,
                                                       save_path=path,
                                                       averaging=5)
+            # set Reconstruction class variable
+            ReconOrder.background = self.Background
+
+            # set path to background file
+
         except Exception as ex:
             print("exception during collect background \n\t"+str(ex))
             raise AttributeError('exception during collect background')
@@ -170,6 +178,7 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         ReconOrder.polarization_scale = float(self.le_polarization_scale.text())
         ReconOrder.retardance_scale = float(self.le_retardance_scale.text())
         ReconOrder.transmission_scale = float(self.le_transmission_scale.text())
+        ReconOrder.black_level = float(self.I_black)
 
     # =============================================================
     # ================ Calibration methods ========================

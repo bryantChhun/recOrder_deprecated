@@ -2,7 +2,7 @@
 
 from ..acquisition._acquisition_base import AcquisitionBase
 from ..datastructures.IntensityData import IntensityData
-from ..microscope.mm2python_simple import get_image_by_channel_name
+from ..microscope.mm2python import get_image_by_channel_name
 import time
 
 from PyQt5.QtCore import QRunnable, QThreadPool
@@ -52,7 +52,7 @@ class ReconOrderMonitor(AcquisitionBase):
         self.monitor_flag = True
 
     @AcquisitionBase.receiver(channel=10)
-    def start_monitor(self):
+    def start_monitor(self, *args):
         p = ProcessRunnable(target=self._start_monitor_runnable, args=())
         p.start()
 
@@ -74,6 +74,10 @@ class ReconOrderMonitor(AcquisitionBase):
                 print("stopping data monitor")
                 self.monitor_flag = False
                 break
+            elif count >= (timeout * 60) / 0.001:
+                # timeout is 2.5 minutes = 15000
+                print("timeout waiting for more data")
+                break
 
             elif not self.display_ready:
                 self.pol_states = set()
@@ -84,39 +88,39 @@ class ReconOrderMonitor(AcquisitionBase):
                 continue
 
             elif self.ep.getLastMetaByChannelName(self.mm_channel_names[0]) is not None and (0 not in self.pol_states):
-                self.int_dat.add_image(get_image_by_channel_name(self.mm_channel_names[0], self.ep))
+                self.int_dat.replace_image(get_image_by_channel_name(self.mm_channel_names[0], self.ep),
+                                           self.int_channel_names[0])
                 self.pol_states.add(0)
                 self.ep.removeLastMetaByChannelName(self.mm_channel_names[0])
                 count += 1
 
             elif self.ep.getLastMetaByChannelName(self.mm_channel_names[1]) is not None and (1 not in self.pol_states):
-                self.int_dat.add_image(get_image_by_channel_name(self.mm_channel_names[1], self.ep))
+                self.int_dat.replace_image(get_image_by_channel_name(self.mm_channel_names[1], self.ep),
+                                           self.int_channel_names[1])
                 self.pol_states.add(1)
                 self.ep.removeLastMetaByChannelName(self.mm_channel_names[1])
                 count += 1
 
             elif self.ep.getLastMetaByChannelName(self.mm_channel_names[2]) is not None and (2 not in self.pol_states):
-                self.int_dat.add_image(get_image_by_channel_name(self.mm_channel_names[2], self.ep))
+                self.int_dat.replace_image(get_image_by_channel_name(self.mm_channel_names[2], self.ep),
+                                           self.int_channel_names[2])
                 self.pol_states.add(2)
                 self.ep.removeLastMetaByChannelName(self.mm_channel_names[2])
                 count += 1
 
             elif self.ep.getLastMetaByChannelName(self.mm_channel_names[3]) is not None and (3 not in self.pol_states):
-                self.int_dat.add_image(get_image_by_channel_name(self.mm_channel_names[3], self.ep))
+                self.int_dat.replace_image(get_image_by_channel_name(self.mm_channel_names[3], self.ep),
+                                           self.int_channel_names[3])
                 self.pol_states.add(3)
                 self.ep.removeLastMetaByChannelName(self.mm_channel_names[3])
                 count += 1
 
             elif self.ep.getLastMetaByChannelName(self.mm_channel_names[4]) is not None and (4 not in self.pol_states):
-                self.int_dat.add_image(get_image_by_channel_name(self.mm_channel_names[4], self.ep))
+                self.int_dat.replace_image(get_image_by_channel_name(self.mm_channel_names[4], self.ep),
+                                           self.int_channel_names[4])
                 self.pol_states.add(4)
                 self.ep.removeLastMetaByChannelName(self.mm_channel_names[4])
                 count += 1
-
-            elif count >= (timeout*60)/0.001:
-                #timeout is 2.5 minutes = 15000
-                print("timeout waiting for more data")
-                break
             elif len(self.pol_states) >= 5:
                 print("\t ===set of five acquired, emitting and resetting ===")
                 print(self.display_ready)
@@ -125,11 +129,13 @@ class ReconOrderMonitor(AcquisitionBase):
                 print(self.int_dat.get_image('I45') is None)
                 print(self.int_dat.get_image('I90') is None)
                 print(self.int_dat.get_image('I135') is None)
+
                 self.send_completed_int_data(self.int_dat)
 
                 self.int_dat = IntensityData()
+                self.int_dat.channel_names = self.int_channel_names
                 self.pol_states = set()
-                # print(len(self.pol_states))
+
                 self.display_ready = False
             else:
                 count += 1

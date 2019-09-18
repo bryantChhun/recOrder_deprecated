@@ -37,64 +37,61 @@ class SnapAndRetrieve(AcquisitionBase):
         return data
 
 
-def snap_and_retrieve(entry_point):
-    """
-    use snap/live manager to snap an image then return image
-    :return: np.ndarray
-    """
-    mm = entry_point.getStudio()
+# def snap_and_retrieve(entry_point):
+#     """
+#     use snap/live manager to snap an image then return image
+#     :return: np.ndarray
+#     """
+#     mm = entry_point.getStudio()
+#
+#     mm.live().snap(True)
+#
+#     meta = entry_point.getLastMeta()
+#     # meta is not immediately available -> exposure time + lc delay
+#     while meta is None:
+#         meta = entry_point.getLastMeta()
+#
+#     data = np.memmap(meta.getFilepath(), dtype="uint16", mode='r+', offset=0,
+#                      shape=(meta.getxRange(), meta.getyRange()))
+#
+#     return data
 
-    mm.live().snap(True)
 
-    meta = entry_point.getLastMeta()
-    # meta is not immediately available -> exposure time + lc delay
-    while meta is None:
-        meta = entry_point.getLastMeta()
-
-    data = np.memmap(meta.getFilepath(), dtype="uint16", mode='r+', offset=0,
-                     shape=(meta.getxRange(), meta.getyRange()))
-
-    return data
-
-
-def snap_and_get_image(entry_point, channel=None):
+def snap_and_get_image(entry_point):
     """
     Snaps an image on micromanager and returns the memmap data
+    - calls livemanager's snap
+    - calls mm2python's getLastMeta
 
     Parameters
     ----------
     entry_point : py4j entry point
-    channel : retrieve on specific channel
 
     Returns
     -------
-    ndarray
+    np.array
+
     """
     ep = entry_point
     mm = ep.getStudio()
-    # ep.clearAll()
 
     # snap image
     mm.live().snap(True)
 
-    if channel:
-        meta = ep.removeLastMetaByChannelName(channel)
-        ct = 0
-        while not meta:
-            time.sleep(0.0001)
-            ct += 1
-            meta = ep.removeLastMetaByChannelName(channel)
-            if ct >= 10000:
-                raise FileExistsError("timeout waiting for file by channel %s exists" % channel)
-    else:
-        ct = 0
-        meta = ep.getLastMeta()
-        while not meta:
-            time.sleep(0.0001)
-            ct += 1
-            meta = ep.getLastMeta()
-            if ct >= 10000:
-                raise FileExistsError("timeout waiting for file exists")
+    try:
+        meta = wait_for_meta(ep)
+    except FileExistsError:
+        print("timeout waiting for metadata")
+        return None
+
+    # ct = 0
+    # meta = ep.getLastMeta()
+    # while not meta:
+    #     time.sleep(0.0001)
+    #     ct += 1
+    #     meta = ep.getLastMeta()
+    #     if ct >= 10000:
+    #         raise FileExistsError("timeout waiting for file exists")
 
     # retrieve filepath from metadatastore
     data_filename = meta.getFilepath()
@@ -117,15 +114,16 @@ def snap_and_get_image(entry_point, channel=None):
     return data
 
 
-#  set channel, snap channel, get channel sequence
-def set_and_snap_channel(channel, entry_point):
-
-    set_channel(channel, entry_point)
-
-    # data = get_image_by_channel_name(channel, ep)
-    data = snap_and_get_image(entry_point)
-
-    return data
+def wait_for_meta(ep):
+    ct = 0
+    meta = ep.getLastMeta()
+    while not meta:
+        time.sleep(0.0001)
+        ct += 1
+        meta = ep.getLastMeta()
+        if ct >= 10000:
+            raise FileExistsError("timeout waiting for file exists")
+    return meta
 
 
 def set_channel(channel, entry_point):
@@ -146,7 +144,28 @@ def set_channel(channel, entry_point):
     print("time to check channel = %06d" % (stop-start).microseconds)
 
 
+#  set channel, snap channel, get channel sequence
+def set_and_snap_channel(channel, entry_point):
+    try:
+        set_channel(channel, entry_point)
+    except AttributeError as ar:
+        print(ar)
+
+    data = snap_and_get_image(entry_point)
+
+    return data
+
+
 def get_image_by_channel_name(channel_name, ep):
+    """
+    retrieve metadatastore for an image by a channel name
+    should be used ONLY for MDA acquisitions, which assign channel names
+    * channel names are not guaranteed to populate when scripting acquisitions *
+
+    :param channel_name:
+    :param ep:
+    :return:
+    """
 
     meta = ep.getLastMetaByChannelName(channel_name)
     ct = 0
@@ -179,7 +198,7 @@ def get_image_by_channel_name(channel_name, ep):
 # ============================================================
 # =========== Reconstruct Order methods  =====================
 
-# for hardware setting
+
 def set_lc(mmc, waves: float, device_property: str):
     """
     puts a value on LCA or LCB
@@ -234,56 +253,65 @@ def set_lc_state(mmc, device_property: str):
 
 # for collection and compute
 
-def py4j_snap_and_correct(gateway, bg):
+def py4j_snap_and_correct(gateway, bg, swing):
 
     int_dat = IntensityData()
     int_dat.channel_names = ['IExt', 'I90', 'I135', 'I45', 'I0']
-    int_dat.add_image(set_and_snap_channel('State0', gateway))
-    int_dat.add_image(set_and_snap_channel('State1', gateway))
-    int_dat.add_image(set_and_snap_channel('State2', gateway))
-    int_dat.add_image(set_and_snap_channel('State3', gateway))
-    int_dat.add_image(set_and_snap_channel('State4', gateway))
+    int_dat.replace_image(set_and_snap_channel('State0', gateway), 'IExt')
+    int_dat.replace_image(set_and_snap_channel('State1', gateway), 'I90')
+    int_dat.replace_image(set_and_snap_channel('State2', gateway), 'I135')
+    int_dat.replace_image(set_and_snap_channel('State3', gateway), 'I45')
+    int_dat.replace_image(set_and_snap_channel('State4', gateway), 'I0')
 
-    proc = ReconOrder()
-    stk_obj = proc.compute_stokes(int_dat)
-    stk_norm = proc.stokes_normalization(stk_obj)
+    # proc = ReconOrder(frames=5, swing=swing)
+    # proc.background = bg
+    # print('calling recon from monitor')
+    # proc.recon_from_monitor(int_dat)
 
-    corrected = proc.correct_background(stk_norm, bg)
+    # stk_obj = proc.compute_stokes(int_dat)
+    # stk_norm = proc.stokes_normalization(stk_obj)
+    #
+    # corrected = proc.correct_background(stk_norm, bg)
+    #
+    # phys = proc.compute_physical(corrected)
+    # proc.compute_orientation(_, phys.retard, phys.azimuth)
 
-    phys = proc.compute_physical(corrected)
-
-    return phys
+    return int_dat
 
 
-def py4j_collect_background(gateway, bg_int, swing, wavelength, black_level, save_path=None, averaging: int = 5, ):
 
-    # we assume that the image for channel=State0 is the same as that for all other states
-    # meta = gateway.entry_point.getStore('State0')
-    # data_pixelshape = (meta.getxRange(), meta.getyRange())
+def py4j_collect_background(entry_point, bg_int, swing, wavelength, black_level, save_path=None, averaging: int = 5):
 
-    data_pixelshape = (2048, 2048)
+    # we assume that the image metadata for channel=State0 is the same as that for all other states
+    set_channel('State0', entry_point)
+    entry_point.getStudio().live().snap(True)
+    meta = wait_for_meta(entry_point)
+
+    data_pixelshape = (meta.getxRange(), meta.getyRange())
     int_dat = IntensityData()
     int_dat.channel_names = ['IExt', 'I90', 'I135', 'I45', 'I0']
 
-    #assign intensity states
-    int_dat.add_image(np.mean([set_and_snap_channel('State0', gateway).flatten() for i in range(0, averaging)], axis=0)\
-        .reshape(data_pixelshape))
-    int_dat.add_image(np.mean([set_and_snap_channel('State1', gateway).flatten() for i in range(0, averaging)], axis=0)\
-        .reshape(data_pixelshape))
-    int_dat.add_image(np.mean([set_and_snap_channel('State2', gateway).flatten() for i in range(0, averaging)], axis=0)\
-        .reshape(data_pixelshape))
-    int_dat.add_image(np.mean([set_and_snap_channel('State3', gateway).flatten() for i in range(0, averaging)], axis=0)\
-        .reshape(data_pixelshape))
-    int_dat.add_image(np.mean([set_and_snap_channel('State4', gateway).flatten() for i in range(0, averaging)], axis=0)\
-        .reshape(data_pixelshape))
+    # assign intensity states
+    # average over some number of images
+    int_dat.replace_image(np.mean([set_and_snap_channel('State0', entry_point).flatten() for i in range(0, averaging)],
+                                  axis=0).reshape(data_pixelshape),
+                          'IExt')
+    int_dat.replace_image(np.mean([set_and_snap_channel('State1', entry_point).flatten() for i in range(0, averaging)],
+                                  axis=0).reshape(data_pixelshape),
+                          'I90')
+    int_dat.replace_image(np.mean([set_and_snap_channel('State2', entry_point).flatten() for i in range(0, averaging)],
+                                  axis=0).reshape(data_pixelshape),
+                          'I135')
+    int_dat.replace_image(np.mean([set_and_snap_channel('State3', entry_point).flatten() for i in range(0, averaging)],
+                                  axis=0).reshape(data_pixelshape),
+                          'I45')
+    int_dat.replace_image(np.mean([set_and_snap_channel('State4', entry_point).flatten() for i in range(0, averaging)],
+                                  axis=0).reshape(data_pixelshape),
+                          'I0')
     print("all states snapped")
 
     # this instance will not display because its signals are not connected by Builder
-    processor = ReconOrder()
-    processor.frames = 5
-    processor.swing = swing
-    processor.wavelength = wavelength
-    processor.compute_inst_matrix()
+    processor = ReconOrder(frames=5, swing=swing)
 
     # construct and assign stokes to bg_raw
     bg_stks = processor.compute_stokes(int_dat)
@@ -293,10 +321,6 @@ def py4j_collect_background(gateway, bg_int, swing, wavelength, black_level, sav
     bg_norm is a "background data" type object containing stokes data, 
     normalized stokes vectors and normalized polarization
     """
-
-    # construct and assign physical to bg_raw
-    # phys_obj = processor.compute_physical(bg_stks)
-    # bg_raw.assign_physical(phys_obj)
 
     # write to disk
     if save_path:
@@ -317,7 +341,7 @@ def py4j_collect_background(gateway, bg_int, swing, wavelength, black_level, sav
         save_to_disk(bg_path, bg_norm)
 
         # write metadata to disk
-        build_bg_metadata(bg_path, swing, wavelength, black_level, gateway)
+        build_bg_metadata(bg_path, swing, wavelength, black_level, entry_point)
 
     return bg_norm
 
@@ -333,7 +357,7 @@ def save_to_disk(bg_path_, bg_norm_):
     np.save(os.path.join(bg_path_, "img_000000000_Polarization_norm"), bg_norm_.polarization)
 
 
-def build_bg_metadata(path, swing, wavelength, black_level, gateway):
+def build_bg_metadata(path, swing, wavelength, black_level, entry_point):
 
     METADATA_TEMPLATE = {'InitialPositionList': None,
                          'UUID': '029893fe-6f12-4bae-955a-853ebb9c9782',
@@ -406,7 +430,7 @@ def build_bg_metadata(path, swing, wavelength, black_level, gateway):
     summary['Summary']['~ Wavelength (nm)'] = wavelength
 
     # change hardware values
-    mm = gateway.entry_point.getStudio()
+    mm = entry_point.getStudio()
     im = mm.getAcquisitionManager().snap()
     metadata = mm.getAcquisitionManager().generateMetadata(im.get(0), True)
     summary['Summary']['BitDepth'] = metadata.getBitDepth()

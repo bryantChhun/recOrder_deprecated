@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
         # analysis
         calib = CalibrationAnalysis(gateway)
-        ro = ReconOrder()
+        ro = ReconOrder(frames=5, swing=0.03)
 
         # visualization
         # these visualization windows are fine

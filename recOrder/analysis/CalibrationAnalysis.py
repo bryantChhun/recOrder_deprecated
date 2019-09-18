@@ -1,7 +1,7 @@
 # bchhun, {2019-08-09}
 from recOrder.analysis import AnalyzeBase
-from recOrder.microscope.mm2python_simple import set_lc, get_lc, define_lc_state, \
-    set_lc_state, snap_and_retrieve, snap_and_get_image
+from recOrder.microscope.mm2python import set_lc, get_lc, define_lc_state, \
+    set_lc_state, snap_and_get_image
 
 import numpy as np
 from scipy import optimize

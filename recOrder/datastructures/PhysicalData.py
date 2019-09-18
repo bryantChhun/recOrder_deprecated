@@ -14,6 +14,7 @@ class PhysicalData(object):
     __azimuth = None
     __azimuth_vector = None
     __azimuth_degree = None
+    __coordinate = None
 
     def __setattr__(self, name, value):
         """
@@ -40,6 +41,22 @@ class PhysicalData(object):
         self.__azimuth = None
         self.__azimuth_vector = None
         self.__azimuth_degree = None
+        self.__coordinate = None
+
+    @property
+    def coordinate(self):
+        return self.__coordinate
+
+    @coordinate.setter
+    def coordinate(self, value: tuple):
+        """
+        tuple of (z, p, t) to define this data's values
+        z, p, t can each be lists
+
+        :param value: tuple of (z, p, t)
+        :return:
+        """
+        self.__coordinate = value
 
     @property
     def I_trans(self):

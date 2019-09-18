@@ -27,8 +27,8 @@ class AnalyzeBase(QObject):
     def emitter(cls, channel=0):
 
         def emitter_wrap(func):
-            def emitter_wrap_func(self, *args, **kwargs):
-                out = func(self, *args, **kwargs)
+            def emitter_wrap_func(self, *args):
+                out = func(self, *args)
                 cls.analysis_signals[channel].QChannel.emit(out)
                 return out
             emitter_wrap_func.emitter_channel = channel
@@ -41,8 +41,8 @@ class AnalyzeBase(QObject):
     def receiver(cls, channel=0):
 
         def receiver_wrap(func):
-            def receiver_wrap_func(self, *args, **kwargs):
-                func(self, *args, **kwargs)
+            def receiver_wrap_func(self, *args):
+                func(self, *args)
                 return func
             receiver_wrap_func.receiver_channel = channel
             return receiver_wrap_func
@@ -55,8 +55,8 @@ class AnalyzeBase(QObject):
 
         def bidirectional_wrap(func):
 
-            def bidirectional_wrap_func(self, *args, **kwargs):
-                out = func(self, *args, **kwargs)
+            def bidirectional_wrap_func(self, *args):
+                out = func(self, *args)
                 cls.analysis_signals[emitter_channel].QChannel.emit(out)
                 return out
             bidirectional_wrap_func.receiver_channel = receiver_channel

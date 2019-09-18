@@ -23,7 +23,7 @@ class VisualizeBase(QObject):
 
         def emitter_wrap(func):
             def emitter_wrap_func(self, *args, **kwargs):
-                out = func(self, *args, **kwargs)
+                out = func(self, *args)
                 self.visualize_signals[channel].QChannel.emit(out)
                 return out
             emitter_wrap_func.emitter_channel = channel
@@ -37,7 +37,7 @@ class VisualizeBase(QObject):
 
         def receiver_wrap(func):
             def receiver_wrap_func(self, *args, **kwargs):
-                func(self, *args, **kwargs)
+                func(self, *args)
                 return func
             receiver_wrap_func.receiver_channel = channel
             return receiver_wrap_func
@@ -50,9 +50,9 @@ class VisualizeBase(QObject):
 
         def bidirectional_wrap(func):
             def bidirectional_wrap_func(self, *args, **kwargs):
-                out = func(self, *args, **kwargs)
+                out = func(self, *args)
                 self.visualize_signals[emitter_channel].QChannel.emit(out)
-                return func
+                return out
             bidirectional_wrap_func.receiver_channel = receiver_channel
             bidirectional_wrap_func.emitter_channel = emitter_channel
             return bidirectional_wrap_func
