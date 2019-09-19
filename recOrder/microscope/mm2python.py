@@ -3,7 +3,6 @@
 import numpy as np
 from datetime import datetime
 import time, os
-import tifffile
 import json
 
 from recOrder.acquisition import AcquisitionBase
@@ -22,20 +21,7 @@ class SnapAndRetrieve(AcquisitionBase):
         use snap/live manager to snap an image then return image
         :return: np.ndarray
         """
-        mm = entry_point.getStudio()
-
-        mm.live().snap(True)
-
-        meta = entry_point.getLastMeta()
-        # meta is not immediately available -> exposure time + lc delay
-        while meta is None:
-            meta = entry_point.getLastMeta()
-
-        data = np.memmap(meta.getFilepath(), dtype="uint16", mode='r+', offset=0,
-                         shape=(meta.getxRange(), meta.getyRange()))
-
-        return data
-
+        return snap_and_get_image(entry_point)
 
 # def snap_and_retrieve(entry_point):
 #     """
@@ -84,15 +70,24 @@ def snap_and_get_image(entry_point):
         print("timeout waiting for metadata")
         return None
 
-    # ct = 0
-    # meta = ep.getLastMeta()
-    # while not meta:
-    #     time.sleep(0.0001)
-    #     ct += 1
-    #     meta = ep.getLastMeta()
-    #     if ct >= 10000:
-    #         raise FileExistsError("timeout waiting for file exists")
+    data = get_image_from_memmap(meta)
 
+    return data
+
+
+def wait_for_meta(ep):
+    ct = 0
+    meta = ep.getLastMeta()
+    while not meta:
+        time.sleep(0.0001)
+        ct += 1
+        meta = ep.getLastMeta()
+        if ct >= 10000:
+            raise FileExistsError("timeout waiting for file exists")
+    return meta
+
+
+def get_image_from_memmap(meta):
     # retrieve filepath from metadatastore
     data_filename = meta.getFilepath()
     data_buffer_position = meta.getBufferPosition()
@@ -112,18 +107,6 @@ def snap_and_get_image(entry_point):
         print("data is none")
 
     return data
-
-
-def wait_for_meta(ep):
-    ct = 0
-    meta = ep.getLastMeta()
-    while not meta:
-        time.sleep(0.0001)
-        ct += 1
-        meta = ep.getLastMeta()
-        if ct >= 10000:
-            raise FileExistsError("timeout waiting for file exists")
-    return meta
 
 
 def set_channel(channel, entry_point):

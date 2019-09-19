@@ -126,12 +126,23 @@ class ReconOrder(AnalyzeBase):
 
     @AnalyzeBase.receiver(channel=11)
     def start_recon(self, int_obj):
+        """
+        Kick off a process for reconstruction to prevent GUI locking
+        :param int_obj: IntensityData
+            received from ReconOrderMonitor
+        :return:
+        """
         p = ProcessRunnable(target=self.recon_from_monitor, args=(int_obj,))
         p.start()
 
-    # ONLY this method is decorated
     @AnalyzeBase.emitter(channel=1)
     def recon_from_monitor(self, int_obj: IntensityData):
+        """
+        Sequence of analysis to build birefring. data
+        Calls wrapper functions only
+        :param int_obj: IntensityData
+        :return: phys: PhysicalData
+        """
         stk = self.compute_stokes(int_obj)
         stk_norm = self.stokes_normalization(stk)
 

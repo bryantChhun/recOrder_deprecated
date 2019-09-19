@@ -86,7 +86,7 @@ def plotVectorField(img,
 
     if colorOrient:
         im_ax = plt.imshow(img, cmap=cmapImage, vmin=clim[0], vmax=clim[1])
-        plt.title('Orientation map')
+        # plt.title('Orientation map')
         plt.quiver(Plotting_X[Plotting_thres == 1], Plotting_Y[Plotting_thres == 1],
                    Plotting_U[Plotting_thres == 1], Plotting_V[Plotting_thres == 1],
                    Plotting_orien[Plotting_thres == 1],
@@ -96,7 +96,7 @@ def plotVectorField(img,
                    scale_units='xy', scale=1, angles='uv', pivot='mid')
     else:
         im_ax = plt.imshow(img, cmap=cmapImage, vmin=clim[0], vmax=clim[1])
-        plt.title('Orientation map')
+        # plt.title('Orientation map')
         plt.quiver(Plotting_X[Plotting_thres == 1], Plotting_Y[Plotting_thres == 1],
                    Plotting_U[Plotting_thres == 1], Plotting_V[Plotting_thres == 1],
                    edgecolor=linecolor, facecolor=linecolor, units='xy', alpha=alpha, width=linewidth,

@@ -16,6 +16,7 @@ A multi-layer napari window to display each of reconstructed birefringence image
 
 """
 
+
 class RecorderNapariWindow(VisualizeBase):
 
     def __init__(self):
@@ -94,6 +95,7 @@ class RecorderNapariWindow(VisualizeBase):
                                                         (1, orientation.shape[0], orientation.shape[1],3)
                                                         ),
                                              axis=0)
+            self.layer0.name = 'orientation'
 
         else:
             print("gui didn't receive any recognized data type %s"+str(type(instance)))
