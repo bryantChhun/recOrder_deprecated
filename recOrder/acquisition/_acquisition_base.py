@@ -32,13 +32,13 @@ class AcquisitionBase(QObject):
     def emitter(cls, channel=0):
 
         def emitter_wrap(func):
-            def emitter_wrap_func(self, *args, **kwargs):
-                out = func(self, *args)
-                self.acquisition_signals[channel].QChannel.emit(out)
+            # check for instance vs static call
+            def emitter_wrap_func(*args, **kwargs):
+                out = func(*args)
+                cls.acquisition_signals[channel].QChannel.emit(out)
                 return out
             emitter_wrap_func.emitter_channel = channel
             return emitter_wrap_func
-
         return emitter_wrap
 
     @classmethod

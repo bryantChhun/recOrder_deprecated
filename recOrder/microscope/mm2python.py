@@ -16,7 +16,7 @@ from recOrder.analysis.ReconstructOrder import ReconOrder
 class SnapAndRetrieve(AcquisitionBase):
 
     @AcquisitionBase.emitter(channel=4)
-    def snap_and_retrieve(self, entry_point):
+    def snap_and_retrieve(entry_point):
         """
         use snap/live manager to snap an image then return image
         :return: np.ndarray

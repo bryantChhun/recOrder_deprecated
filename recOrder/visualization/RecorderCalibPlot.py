@@ -1,6 +1,7 @@
 # bchhun, {2019-09-18}
 
 from recOrder.visualization._visualize_base import VisualizeBase
+from recOrder.utils.QThreader import ProcessRunnable
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,10 +10,18 @@ plt.ion()
 
 class RecorderCalibrationDisplay(VisualizeBase):
 
-    data = None
-
     def __init__(self):
         super().__init__()
+        self.x_sample = None
+        self.y_value = None
+
+    @VisualizeBase.receiver(channel=20)
+    def new_calibration_plot(self, param):
+        p = ProcessRunnable(target=self._build_display, args=())
+        p.start()
+
+    def _build_display(self):
+        self.__init__()
 
         self.data = None
         self.x_sample = np.array([0])

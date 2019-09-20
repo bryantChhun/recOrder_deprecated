@@ -353,6 +353,7 @@ class CalibrationAnalysis(AnalyzeBase):
         self.lc_bound = param[2]
         self.I_black = param[3]
 
+        # record I_extinction through grid+brent optimizer
         [self.lca_ext, self.lcb_ext, self.i_ext] = self.opt_Iext(self.lc_bound)
 
         # record I0 'elliptical' state
@@ -361,9 +362,9 @@ class CalibrationAnalysis(AnalyzeBase):
 
         # optimize I45, I90, I135 based on lelliptical
         print("setting I2")
-        self.opt_I2(0.01, 0.03)
+        self.opt_I2(0.002, 0.03)
         print("setting I3")
-        self.opt_I3(0.01, 0.03)
+        self.opt_I3(0.002, 0.03)
         print("setting I4")
-        self.opt_I4(0.03, 0.01)
+        self.opt_I4(0.03, 0.002)
         print("EXTINCTION = %d" % self.calculate_extinction())

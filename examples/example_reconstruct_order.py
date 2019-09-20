@@ -2,6 +2,7 @@
 
 # framework imports
 from recOrder.acquisition.ReconOrderMonitor import ReconOrderMonitor
+from recOrder.microscope.mm2python import SnapAndRetrieve
 from recOrder.analysis.CalibrationAnalysis import CalibrationAnalysis
 from recOrder.analysis.ReconstructOrder import ReconOrder
 from recOrder.visualization.RecorderNapariWindow import RecorderNapariWindow
@@ -40,6 +41,8 @@ if __name__ == '__main__':
         int_dat_channels = ['IExt', 'I90', 'I135', 'I45', 'I0']
         monitor = ReconOrderMonitor(mm_channels, int_dat_channels, gateway)
 
+        snap = SnapAndRetrieve()
+
         # analysis
         calib = CalibrationAnalysis(gateway)
         ro = ReconOrder(frames=5, swing=0.03)
@@ -57,6 +60,7 @@ if __name__ == '__main__':
         program.add_module(recorder_window)
         program.add_module(ro)
         program.add_module(recorder_plot)
+        program.add_module(snap)
 
         program.build()
 

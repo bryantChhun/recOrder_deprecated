@@ -9,6 +9,7 @@ from ..visualization import VisualizeBase
 from ..datastructures import BackgroundData
 from .qtdesigner.ReconOrderUI import Ui_ReconOrderUI
 from ..microscope.mm2python import snap_and_get_image, py4j_collect_background, py4j_snap_and_correct
+from recOrder.visualization.RecorderCalibPlot import RecorderCalibrationDisplay
 
 from ..analysis.ReconstructOrder import ReconOrder
 
@@ -47,6 +48,8 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         self.le_retardance_scale.textChanged[str].connect(self.set_scales)
         self.le_orientation_scale.textChanged[str].connect(self.set_scales)
         self.le_polarization_scale.textChanged[str].connect(self.set_scales)
+        self.le_swing.textChanged[str].connect(self.set_swing)
+        self.le_wavelength.textChanged[str].connect(self.set_wavelength)
 
         self.gate = gateway
         self.gate.entry_point.clearAll()
@@ -65,6 +68,12 @@ class RecorderWindow(VisualizeBase, Ui_ReconOrderUI):
         win.show()
 
         self.set_scales()
+
+    def set_swing(self):
+        self.swing = float(self.le_swing.text())
+
+    def set_wavelength(self):
+        self.wavelength = int(self.le_wavelength.text())
 
     @pyqtSlot(bool)
     def file_browser(self):
