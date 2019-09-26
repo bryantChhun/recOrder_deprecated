@@ -65,7 +65,7 @@ class ReconOrderMonitor(AcquisitionBase):
 
         count = 0
         while True:
-            time.sleep(0.001)
+            time.sleep(0.01)
 
             if not self.gateway:
                 print("no gateway defined")
@@ -74,7 +74,7 @@ class ReconOrderMonitor(AcquisitionBase):
                 print("stopping data monitor")
                 self.monitor_flag = False
                 break
-            elif count >= (timeout * 60) / 0.001:
+            elif count >= (timeout * 6) / 0.01:
                 # timeout is 2.5 minutes = 15000
                 print("timeout waiting for more data")
                 break
@@ -139,8 +139,8 @@ class ReconOrderMonitor(AcquisitionBase):
                 self.display_ready = False
             else:
                 count += 1
-                if count%1000 == 0:
-                    print('waiting, seconds till timeout = '+str(((timeout*60)/0.001 - count)/1000))
+                if count%100 == 0:
+                    print('waiting, seconds till timeout = '+str(((timeout*6)/0.01 - count)/100))
 
     @AcquisitionBase.emitter(channel=11)
     def send_completed_int_data(self, data):

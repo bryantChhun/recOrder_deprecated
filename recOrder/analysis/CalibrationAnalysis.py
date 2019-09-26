@@ -229,8 +229,8 @@ class CalibrationAnalysis(AnalyzeBase):
 
         set_lc_state(self.mmc, self.PROPERTIES['State0'])
 
-        # i_ext = iter_opt(lc_bound_, lc_bound_, 0, 1)
-        i_ext_ = self.optimize_grid_search(0.01, 1.5, 0.01, 1.5, lc_bound_)
+        # do not sample over a half wave.  Restrict to +- 0.25 around starting
+        i_ext_ = self.optimize_grid_search(0.01, 0.5, 0.25, 0.75, lc_bound_)
 
         define_lc_state(self.mmc, self.PROPERTIES, self.PROPERTIES['State0'])
         lca_ext_ = get_lc(self.mmc, self.PROPERTIES['LCA'])

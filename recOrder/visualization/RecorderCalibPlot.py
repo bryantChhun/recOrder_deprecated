@@ -3,6 +3,8 @@
 from recOrder.visualization._visualize_base import VisualizeBase
 from recOrder.utils.QThreader import ProcessRunnable
 
+import matplotlib
+# matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np
 plt.ion()
@@ -17,11 +19,12 @@ class RecorderCalibrationDisplay(VisualizeBase):
 
     @VisualizeBase.receiver(channel=20)
     def new_calibration_plot(self, param):
-        p = ProcessRunnable(target=self._build_display, args=())
-        p.start()
+        # p = ProcessRunnable(target=self._build_display, args=())
+        # p.start()
+        self._build_display()
 
     def _build_display(self):
-        self.__init__()
+        # self.__init__()
 
         self.data = None
         self.x_sample = np.array([0])

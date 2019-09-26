@@ -262,7 +262,6 @@ def py4j_snap_and_correct(gateway, bg, swing):
     return int_dat
 
 
-
 def py4j_collect_background(entry_point, bg_int, swing, wavelength, black_level, save_path=None, averaging: int = 5):
 
     # we assume that the image metadata for channel=State0 is the same as that for all other states

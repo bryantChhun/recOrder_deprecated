@@ -9,7 +9,7 @@ from ..visualization import VisualizeBase
 from ..datastructures import BackgroundData
 from .qtdesigner.ReconOrderUI import Ui_ReconOrderUI
 from ..microscope.mm2python import snap_and_get_image, py4j_collect_background, py4j_snap_and_correct
-from recOrder.visualization.RecorderCalibPlot import RecorderCalibrationDisplay
+# from recOrder.visualization.RecorderCalibPlot import RecorderCalibrationDisplay
 
 from ..analysis.ReconstructOrder import ReconOrder
 
