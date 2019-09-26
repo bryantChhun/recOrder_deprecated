@@ -199,7 +199,7 @@ class ReconOrder(AnalyzeBase):
         # AU, set norm to False for tiling images
         phy_obj.I_trans = self.imBitConvert(phy_obj.I_trans * self.transmission_scale, bit=16, norm=True)
         phy_obj.retard = self.imBitConvert(phy_obj.retard * self.retardance_scale, bit=16)  # scale to pm
-        phy_obj.polarization = self.imBitConvert(phy_obj.polarization * self.polarization_scale, bit=16)
+        phy_obj.polarization = self.imBitConvert(phy_obj.polarization * self.polarization_scale, bit=16, norm=True)
         # phy_obj.depolarization = self.imBitConvert(phy_obj.depolarization * self.polarization_scale, bit=16)
         # scale to [0, 18000], 100*degree
         phy_obj.azimuth_degree = self.imBitConvert(phy_obj.azimuth_degree * self.orientation_scale, bit=16)
