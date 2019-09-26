@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ReconOrderUI.ui'
+# Form implementation generated from reading ui file './ReconOrderUI.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.13.1
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_ReconOrderUI(object):
     def setupUi(self, ReconOrderUI):
@@ -35,21 +37,18 @@ class Ui_ReconOrderUI(object):
         self.qbutton_file_browser.setGeometry(QtCore.QRect(340, 110, 113, 32))
         self.qbutton_file_browser.setObjectName("qbutton_file_browser")
         self._qlabel_bg_corr_label = QtWidgets.QLabel(self.main_tab)
-        self._qlabel_bg_corr_label.setGeometry(QtCore.QRect(10, 120, 171, 16))
+        self._qlabel_bg_corr_label.setGeometry(QtCore.QRect(10, 120, 191, 16))
         self._qlabel_bg_corr_label.setObjectName("_qlabel_bg_corr_label")
         self.le_bg_corr_path = QtWidgets.QLineEdit(self.main_tab)
         self.le_bg_corr_path.setGeometry(QtCore.QRect(10, 140, 451, 21))
         self.le_bg_corr_path.setObjectName("le_bg_corr_path")
         self.start_monitor = QtWidgets.QPushButton(self.main_tab)
         self.start_monitor.setGeometry(QtCore.QRect(10, 180, 191, 101))
-        self.start_monitor.setStyleSheet("background-color: rgb(33, 255, 6);\n"
-"color: rgb(0, 0, 0);")
+        self.start_monitor.setStyleSheet("")
         self.start_monitor.setObjectName("start_monitor")
         self.qbutton_stop_monitor = QtWidgets.QPushButton(self.main_tab)
         self.qbutton_stop_monitor.setGeometry(QtCore.QRect(10, 310, 191, 51))
-        self.qbutton_stop_monitor.setStyleSheet("background-color: rgb(252, 1, 7);\n"
-"border-color: rgb(252, 1, 7);\n"
-"color: rgb(0, 0, 0);")
+        self.qbutton_stop_monitor.setStyleSheet("")
         self.qbutton_stop_monitor.setAutoDefault(False)
         self.qbutton_stop_monitor.setDefault(False)
         self.qbutton_stop_monitor.setFlat(False)
@@ -234,12 +233,12 @@ class Ui_ReconOrderUI(object):
         self.qbutton_snap_and_correct.setText(_translate("ReconOrderUI", "Snap and BG Correct"))
         self.qbutton_collect_background.setText(_translate("ReconOrderUI", "Collect Background"))
         self.qbutton_file_browser.setText(_translate("ReconOrderUI", "Browse"))
-        self._qlabel_bg_corr_label.setText(_translate("ReconOrderUI", "Background correction file"))
+        self._qlabel_bg_corr_label.setText(_translate("ReconOrderUI", "Background correction folder"))
         self.start_monitor.setText(_translate("ReconOrderUI", "Monitor and reconstruct"))
         self.qbutton_stop_monitor.setText(_translate("ReconOrderUI", "Stop Monitor"))
         self.label_scale_factor.setText(_translate("ReconOrderUI", "Scale factor"))
-        self.le_transmission_scale.setText(_translate("ReconOrderUI", "100000"))
-        self.le_retardance_scale.setText(_translate("ReconOrderUI", "10"))
+        self.le_transmission_scale.setText(_translate("ReconOrderUI", "100"))
+        self.le_retardance_scale.setText(_translate("ReconOrderUI", "1000"))
         self.le_orientation_scale.setText(_translate("ReconOrderUI", "100"))
         self.le_polarization_scale.setText(_translate("ReconOrderUI", "50000"))
         self.label_transmission_scale.setText(_translate("ReconOrderUI", "transmission"))
@@ -273,4 +272,3 @@ if __name__ == "__main__":
     ui.setupUi(ReconOrderUI)
     ReconOrderUI.show()
     sys.exit(app.exec_())
-

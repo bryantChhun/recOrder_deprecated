@@ -116,8 +116,7 @@
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(33, 255, 6);
-color: rgb(0, 0, 0);</string>
+      <string notr="true"/>
      </property>
      <property name="text">
       <string>Monitor and reconstruct</string>
@@ -133,9 +132,7 @@ color: rgb(0, 0, 0);</string>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(252, 1, 7);
-border-color: rgb(252, 1, 7);
-color: rgb(0, 0, 0);</string>
+      <string notr="true"/>
      </property>
      <property name="text">
       <string>Stop Monitor</string>
@@ -185,7 +182,7 @@ color: rgb(0, 0, 0);</string>
       <enum>Qt::LeftToRight</enum>
      </property>
      <property name="text">
-      <string>100000</string>
+      <string>100</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -201,7 +198,7 @@ color: rgb(0, 0, 0);</string>
       </rect>
      </property>
      <property name="text">
-      <string>100000</string>
+      <string>1000</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -217,7 +214,7 @@ color: rgb(0, 0, 0);</string>
       </rect>
      </property>
      <property name="text">
-      <string>1000000</string>
+      <string>100</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -233,7 +230,7 @@ color: rgb(0, 0, 0);</string>
       </rect>
      </property>
      <property name="text">
-      <string>100</string>
+      <string>50000</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
